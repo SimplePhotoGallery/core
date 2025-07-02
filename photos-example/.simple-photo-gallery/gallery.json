@@ -1,0 +1,48 @@
+{
+  "title": "Simple Photo Gallery",
+  "description": "A simple photo gallery with a grid of images.",
+  "headerImage": "../photo_1.jpg",
+  "metadata": { "ogUrl": "https://gallery.com/usa-2025" },
+  "galleryOutputPath": "~/galleries/usa-2025",
+  "sections": [
+    {
+      "title": "Section 1",
+      "description": "This is the first section of the gallery.",
+      "images": [
+        {
+          "url": "../photo_1.jpg",
+          "alt": "Image 1",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "public/thumbnails/photo_1.jpg",
+            "width": 100,
+            "height": 100
+          }
+        },
+        {
+          "url": "../photo_2.jpg",
+          "alt": "Image 2",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "public/thumbnails/photo_2.jpg",
+            "width": 100,
+            "height": 100
+          }
+        },
+        {
+          "url": "../photo_3.jpg",
+          "alt": "Image 3",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "public/thumbnails/photo_3.jpg",
+            "width": 100,
+            "height": 100
+          }
+        }
+      ]
+    }
+  ]
+}
