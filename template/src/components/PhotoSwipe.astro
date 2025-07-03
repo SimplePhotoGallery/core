@@ -1,0 +1,92 @@
+---
+// PhotoSwipe component for lightbox functionality
+---
+
+<!-- PhotoSwipe -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="pswp__bg"></div>
+  <div class="pswp__scroll-wrap">
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    <div class="pswp__ui pswp__ui--hidden">
+      <div class="pswp__top-bar">
+        <div class="pswp__counter"></div>
+        <button class="pswp__button pswp__button--close" title="Close (Esc)"
+        ></button>
+        <button class="pswp__button pswp__button--share" title="Share"></button>
+        <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"
+        ></button>
+        <button class="pswp__button pswp__button--zoom" title="Zoom in/out"
+        ></button>
+        <div class="pswp__preloader">
+          <div class="pswp__preloader__icn">
+            <div class="pswp__preloader__cut">
+              <div class="pswp__preloader__donut"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+        <div class="pswp__share-tooltip"></div>
+      </div>
+      <button
+        class="pswp__button pswp__button--arrow--left"
+        title="Previous (arrow left)"></button>
+      <button
+        class="pswp__button pswp__button--arrow--right"
+        title="Next (arrow right)"></button>
+      <div class="pswp__caption">
+        <div class="pswp__caption__center"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import PhotoSwipeLightbox from "https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe-lightbox.esm.js";
+  import PhotoSwipe from "https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.esm.js";
+
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: ".gallery",
+    children: "a",
+    pswpModule: PhotoSwipe,
+    showAnimationDuration: 300,
+    hideAnimationDuration: 300,
+  });
+
+  lightbox.init();
+
+  // Scroll-triggered animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const gallery = entry.target;
+        const items = gallery.querySelectorAll(".gallery-item");
+
+        items.forEach((item, index) => {
+          // Reset animation
+          item.style.animation = "none";
+          item.offsetHeight; // Trigger reflow
+
+          // Apply staggered animation from top to bottom
+          item.style.animation = `slideInFromTop 0.8s ease-out ${index * 0.1}s forwards`;
+        });
+
+        observer.unobserve(gallery); // Only trigger once
+      }
+    });
+  }, observerOptions);
+
+  // Observe all galleries
+  document.querySelectorAll(".gallery").forEach((gallery) => {
+    observer.observe(gallery);
+  });
+</script>

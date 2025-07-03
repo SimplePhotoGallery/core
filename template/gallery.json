@@ -1,0 +1,219 @@
+{
+  "title": "Nature's Canvas",
+  "description": "A curated collection of breathtaking landscapes that showcase the raw beauty and untamed spirit of our natural world",
+  "headerImage": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+  "metadata": { "ogUrl": "https://gallery.com/natures-canvas" },
+  "galleryOutputPath": "~/galleries/natures-canvas",
+  "sections": [
+    {
+      "title": "Mountain Majesty",
+      "description": "Towering peaks and alpine vistas that touch the sky, where silence speaks louder than words",
+      "images": [
+        {
+          "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+          "alt": "Mountain Peak at Sunrise",
+          "description": "Golden hour illuminates the majestic peaks of the Rocky Mountains",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+          "alt": "Mountain Trail",
+          "description": "A winding trail leads through wildflower meadows to distant summits",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
+          "alt": "Snow-Capped Peaks",
+          "description": "Fresh snow dusts the highest peaks in early autumn",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
+            "width": 500,
+            "height": 500
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
+          "alt": "Mountain Valley",
+          "description": "A peaceful valley nestled between towering mountain walls",
+          "width": 800,
+          "height": 1200,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
+            "width": 400,
+            "height": 600
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80",
+          "alt": "Rocky Cliff Face",
+          "description": "Dramatic cliff faces carved by millennia of natural forces",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        }
+      ]
+    },
+    {
+      "title": "Forest Sanctuary",
+      "description": "Ancient woodlands where time stands still and every breath connects you to the earth",
+      "images": [
+        {
+          "url": "https://images.unsplash.com/photo-1441260038675-7329ab4cc264?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+          "alt": "Misty Forest Path",
+          "description": "Morning mist drifts through ancient redwood trees",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1441260038675-7329ab4cc264?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+          "alt": "Autumn Canopy",
+          "description": "Vibrant fall colors create a natural cathedral overhead",
+          "width": 800,
+          "height": 533,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=267&q=80",
+            "width": 400,
+            "height": 267
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
+          "alt": "Forest Stream",
+          "description": "A gentle stream winds through moss-covered rocks and ferns",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
+            "width": 500,
+            "height": 500
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80",
+          "alt": "Sunbeams Through Trees",
+          "description": "Golden sunlight filters through the forest canopy",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
+          "alt": "Ancient Oak",
+          "description": "A centuries-old oak tree stands as guardian of the forest",
+          "width": 800,
+          "height": 1200,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
+            "width": 400,
+            "height": 600
+          }
+        }
+      ]
+    },
+    {
+      "title": "Coastal Dreams",
+      "description": "Where land meets sea in an eternal dance of waves, wind, and endless horizons",
+      "images": [
+        {
+          "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80",
+          "alt": "Ocean Waves",
+          "description": "Powerful waves crash against rugged coastal cliffs",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
+          "alt": "Coastal Sunset",
+          "description": "Golden hour paints the ocean in warm, glowing colors",
+          "width": 800,
+          "height": 1200,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
+            "width": 400,
+            "height": 600
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
+          "alt": "Rocky Shore",
+          "description": "Ancient rocks weathered by endless ocean waves",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
+            "width": 500,
+            "height": 500
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+          "alt": "Coastal Path",
+          "description": "A winding path follows the dramatic coastline",
+          "width": 1200,
+          "height": 800,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
+            "width": 600,
+            "height": 400
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
+          "alt": "Lighthouse",
+          "description": "A historic lighthouse stands guard over the sea",
+          "width": 800,
+          "height": 1200,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
+            "width": 400,
+            "height": 600
+          }
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1571068316344-75bc76f77890?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
+          "alt": "Beach Pebbles",
+          "description": "Smooth pebbles polished by countless tides",
+          "width": 1000,
+          "height": 1000,
+          "thumbnail": {
+            "url": "https://images.unsplash.com/photo-1571068316344-75bc76f77890?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
+            "width": 500,
+            "height": 500
+          }
+        }
+      ]
+    }
+  ]
+}
