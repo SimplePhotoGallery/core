@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "astro": "^5.11.0",
+    "astro-relative-links": "^0.4.2",
     "photoswipe": "^5.4.4"
   },
   "devDependencies": {
