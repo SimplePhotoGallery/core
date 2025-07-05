@@ -1,0 +1,40 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  backgroundImage: string;
+}
+
+const { title, description, backgroundImage } = Astro.props;
+---
+
+<section class="hero">
+  <div
+    class="hero-bg"
+    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}>
+  </div>
+  <div class="hero-content">
+    <h1>{title}</h1>
+    <p>{description}</p>
+    <button class="scroll-to-gallery-btn" aria-label="Scroll to gallery">
+      <span class="arrow-down">&#x276F;</span>
+    </button>
+  </div>
+</section>
+
+<script>
+  function initScrollToGallery() {
+    const button = document.querySelector('.scroll-to-gallery-btn');
+    if (button) {
+      button.addEventListener('click', () => {
+        const gallery = document.querySelector('.section-0');
+        if (gallery) {
+          gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+  }
+
+
+    initScrollToGallery();
+</script>
