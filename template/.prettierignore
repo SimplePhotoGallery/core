@@ -1,0 +1,10 @@
+**/temp/*
+**/dist/*
+**/node_modules/*
+**/coverage/*
+**/temp/*
+**/dist/*
+.next/*
+prisma/generated/*
+**/src/frontend/design-system/design-tokens/*
+.astro/*
