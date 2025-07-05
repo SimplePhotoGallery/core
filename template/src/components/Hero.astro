@@ -11,7 +11,7 @@ const { title, description, backgroundImage } = Astro.props;
 <section class="hero">
   <div
     class="hero-bg"
-    style={`background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}>
+    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}>
   </div>
   <div class="hero-content">
     <h1>{title}</h1>
@@ -27,7 +27,7 @@ const { title, description, backgroundImage } = Astro.props;
     const button = document.querySelector('.scroll-to-gallery-btn');
     if (button) {
       button.addEventListener('click', () => {
-        const gallery = document.querySelector('#gallery-0');
+        const gallery = document.querySelector('.section-0');
         if (gallery) {
           gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }

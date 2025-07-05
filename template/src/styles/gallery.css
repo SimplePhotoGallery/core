@@ -29,6 +29,7 @@ body {
   height: 100%;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 }
 
 .hero-content {
@@ -42,6 +43,9 @@ body {
 
 .hero h1 {
   font-size: clamp(3rem, 8vw, 7rem);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  line-height: 1.2;
   font-weight: 700;
   margin-bottom: 1.5rem;
   letter-spacing: -0.025em;
@@ -255,7 +259,7 @@ body {
   margin: auto;
   bottom: 40px;
   transform: rotate(90deg);
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
   color: #fff;
   padding: 15px;
   border-radius: 50%;
@@ -275,13 +279,13 @@ body {
 }
 
 .scroll-to-gallery-btn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg) scale(1.1);
-  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
+  transform: rotate(90deg) scale(1.05);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .arrow-down {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 0.8;
   animation: bounce 2s infinite;
   transform: rotate(90deg);
