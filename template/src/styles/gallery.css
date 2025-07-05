@@ -274,6 +274,8 @@ body {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+
+
 .arrow-down {
   font-size: 16px;
   line-height: 0.8;
@@ -295,5 +297,21 @@ body {
   }
   60% {
     transform: translateX(3px);
+  }
+}
+
+
+
+.pswp__img--in-viewport {
+  animation: slideInImage 0.6s ease-out;
+}
+
+
+@keyframes slideInImage {
+  0% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0) ;
   }
 }
