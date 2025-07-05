@@ -1,5 +1,5 @@
 ---
-import type { GallerySection as GallerySectionType } from "../types/gallery";
+import type { GallerySection as GallerySectionType } from '../types/gallery';
 
 interface Props {
   section: GallerySectionType;
@@ -23,8 +23,7 @@ const { section, sectionIndex } = Astro.props;
               href={image.url}
               data-pswp-width={image.width}
               data-pswp-height={image.height}
-              data-pswp-caption={`${image.alt} - ${image.description}`}
-            >
+              data-pswp-caption={`${image.alt} - ${image.description}`}>
               <img
                 src={image.thumbnail.url}
                 alt={image.alt}

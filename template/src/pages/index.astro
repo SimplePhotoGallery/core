@@ -1,41 +1,21 @@
 ---
-import galleryData from "../../gallery.json";
-import GallerySection from "../components/GallerySection.astro";
-import Hero from "../components/Hero.astro";
-import PhotoSwipe from "../components/PhotoSwipe.astro";
-import "../styles/gallery.css";
-import type { GalleryData } from "../types/gallery";
+import GallerySection from '@/components/GallerySection.astro';
+import Hero from '@/components/Hero.astro';
+import PhotoSwipe from '@/components/PhotoSwipe.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
+import '@/styles/gallery.css';
+import galleryData from 'gallery.json';
+
+import type { GalleryData } from '@/types/gallery';
 
 const gallery: GalleryData = galleryData;
 const { title, description, headerImage, sections } = gallery;
-
-const allImages = sections.flatMap((section) => section.images);
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} - Photo Gallery</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.css"
-    />
-  </head>
-  <body>
-    <Hero
-      title={title}
-      description={description}
-      backgroundImage={headerImage}
-    />
+<MainLayout title={title}>
+  <Hero title={title} description={description} backgroundImage={headerImage} />
 
-    {
-      sections.map((section, sectionIndex) => (
-        <GallerySection section={section} sectionIndex={sectionIndex} />
-      ))
-    }
+  {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
 
-    <PhotoSwipe />
-  </body>
-</html>
+  <PhotoSwipe />
+</MainLayout>

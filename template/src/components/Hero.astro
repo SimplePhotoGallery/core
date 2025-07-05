@@ -11,12 +11,10 @@ const { title, description, backgroundImage } = Astro.props;
 <section class="hero">
   <div
     class="hero-bg"
-    style={`background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}
-  >
+    style={`background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}>
   </div>
   <div class="hero-content">
     <h1>{title}</h1>
     <p>{description}</p>
   </div>
 </section>
-

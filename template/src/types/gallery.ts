@@ -4,7 +4,6 @@ export interface GalleryImage {
   description: string;
   width: number;
   height: number;
-  aspectRatio: "portrait" | "landscape" | "square";
   thumbnail: {
     url: string;
     width: number;
@@ -23,4 +22,4 @@ export interface GalleryData {
   description: string;
   headerImage: string;
   sections: GallerySection[];
-} 
+}
