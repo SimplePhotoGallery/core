@@ -23,7 +23,7 @@ const { section, sectionIndex } = Astro.props;
               href={image.url}
               data-pswp-width={image.width}
               data-pswp-height={image.height}
-              data-pswp-caption={`${image.alt} - ${image.description}`}>
+              data-pswp-caption={`<p class="image-caption">${image.description}</p>`}>
               <img
                 src={image.thumbnail.url}
                 alt={image.alt}

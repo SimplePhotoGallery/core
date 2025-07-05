@@ -8,7 +8,30 @@ import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photo
     pswpModule: PhotoSwipe,
     showAnimationDuration: 300,
     hideAnimationDuration: 300,
+    wheelToZoom: true
   });
+
+  
+  lightbox.on('uiRegister', function() {
+  lightbox.pswp.ui.registerElement({
+    name: 'custom-caption',
+    isButton: false,
+    className: 'pswp__caption',
+    appendTo: 'wrapper',
+    onInit: (el) => {
+      lightbox.pswp.on('change', () => {
+        const currSlideElement = lightbox.pswp.currSlide.data.element;
+        let captionHTML = '';
+        if (currSlideElement) {
+          const caption = currSlideElement?.getAttribute('data-pswp-caption');
+          captionHTML =  caption ?? currSlideElement.querySelector('img').getAttribute('alt');
+          el.innerHTML = captionHTML || '';
+        }
+      });
+    }
+  });
+});
+
 
   lightbox.init();
 </script>
