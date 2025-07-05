@@ -132,7 +132,6 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-
 }
 
 .gallery-item:hover {
@@ -186,6 +185,9 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+  @media (max-width: 768px) {
+    width: calc(100% - 16px);
+  }
 }
 
 .pswp__caption .image-caption {
@@ -194,15 +196,19 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
-  padding:16px;
+  padding: 16px;
   border-radius: 16px;
   margin: 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   animation: glassSlideIn 0.6s ease-out;
   transform-origin: bottom center;
   transition: all 0.3s ease;
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    margin: 8px 0;
+  }
 }
-
 
 @keyframes glassSlideIn {
   0% {
@@ -274,8 +280,6 @@ body {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-
-
 .arrow-down {
   font-size: 16px;
   line-height: 0.8;
@@ -289,7 +293,11 @@ body {
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateX(0);
   }
   40% {
@@ -300,18 +308,19 @@ body {
   }
 }
 
-
-
-.pswp__img--in-viewport {
-  animation: slideInImage 0.6s ease-out;
+.pswp__img {
+  transform: translateY(-5px);
 }
 
+.pswp__img--in-viewport {
+  animation: slideInImage 0.6s ease-out forwards;
+}
 
 @keyframes slideInImage {
   0% {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
   }
   100% {
-    transform: translateY(0) ;
+    transform: translateY(0);
   }
 }
