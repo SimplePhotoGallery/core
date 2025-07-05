@@ -13,7 +13,8 @@ body {
 
 .hero {
   position: relative;
-  height: 100vh;
+  min-height: 450px;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,12 +132,11 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-  opacity: 0;
-  transform: translateY(-50px);
+
 }
 
 .gallery-item:hover {
-  transform: scale(1.02);
+  transform: scale(1.02) translateY(-5px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
@@ -204,4 +204,57 @@ body {
   font-size: 1rem;
   opacity: 0.9;
   line-height: 1.5;
+}
+
+.scroll-to-gallery-btn {
+  margin: auto;
+  bottom: 40px;
+  transform: rotate(90deg);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 15px;
+  border-radius: 50%;
+  text-decoration: none;
+  z-index: 10;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  margin-top: 2rem;
+}
+
+.scroll-to-gallery-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg) scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.arrow-down {
+  font-size: 16px;
+  line-height: 0.8;
+  animation: bounce 2s infinite;
+  transform: rotate(90deg);
+}
+
+.arrow-down:nth-child(2) {
+  animation-delay: 0.3s;
+  margin-top: -8px;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(0);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(3px);
+  }
 }
