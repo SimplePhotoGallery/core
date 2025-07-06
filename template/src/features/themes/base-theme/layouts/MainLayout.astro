@@ -1,16 +1,19 @@
 ---
 import MainHead from '@/features/themes/base-theme/layouts/MainHead.astro';
 
+import type { GalleryMetadata } from '@/features/themes/base-theme/types/gallery';
+
 interface Props {
   title: string;
+  metadata?: GalleryMetadata;
 }
 
-const { title } = Astro.props;
+const { title, metadata } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
-  <MainHead title={title} />
+<html lang={metadata?.language || 'en'}>
+  <MainHead title={title} metadata={metadata} />
   <body>
     <slot />
   </body>

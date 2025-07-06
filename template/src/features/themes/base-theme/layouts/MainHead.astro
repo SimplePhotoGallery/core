@@ -1,15 +1,46 @@
 ---
+import type { GalleryMetadata } from '@/features/themes/base-theme/types/gallery';
+
 interface Props {
   title: string;
+  metadata?: GalleryMetadata;
 }
 
-const { title } = Astro.props;
+const { title, metadata } = Astro.props;
 ---
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
+
+  {/* Basic SEO */}
+  {metadata?.keywords && <meta name="keywords" content={metadata.keywords} />}
+  {metadata?.author && <meta name="author" content={metadata.author} />}
+  {metadata?.canonicalUrl && <link rel="canonical" href={metadata.canonicalUrl} />}
+  {metadata?.robots && <meta name="robots" content={metadata.robots} />}
+  {metadata?.language && <meta name="language" content={metadata.language} />}
+
+  {/* Favicon */}
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+  {/* Open Graph / Facebook */}
+  {metadata?.ogType && <meta property="og:type" content={metadata.ogType} />}
+  {metadata?.ogUrl && <meta property="og:url" content={metadata.ogUrl} />}
+  <meta property="og:title" content={title} />
+  {metadata?.description && <meta property="og:description" content={metadata.description} />}
+  {metadata?.ogImage && <meta property="og:image" content={metadata.ogImage} />}
+  {metadata?.ogImageWidth && <meta property="og:image:width" content={metadata.ogImageWidth.toString()} />}
+  {metadata?.ogImageHeight && <meta property="og:image:height" content={metadata.ogImageHeight.toString()} />}
+  {metadata?.ogSiteName && <meta property="og:site_name" content={metadata.ogSiteName} />}
+
+  {/* Twitter */}
+  {metadata?.twitterCard && <meta name="twitter:card" content={metadata.twitterCard} />}
+  {metadata?.twitterSite && <meta name="twitter:site" content={metadata.twitterSite} />}
+  {metadata?.twitterCreator && <meta name="twitter:creator" content={metadata.twitterCreator} />}
+  <meta name="twitter:title" content={title} />
+  {metadata?.description && <meta name="twitter:description" content={metadata.description} />}
+  {metadata?.ogImage && <meta name="twitter:image" content={metadata.ogImage} />}
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

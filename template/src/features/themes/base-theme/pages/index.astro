@@ -8,10 +8,10 @@ import galleryData from 'gallery.json';
 import type { GalleryData } from '@/features/themes/base-theme/types/gallery';
 
 const gallery: GalleryData = galleryData;
-const { title, description, headerImage, sections } = gallery;
+const { title, description, headerImage, metadata, sections } = gallery;
 ---
 
-<MainLayout title={title}>
+<MainLayout title={title} description={description} metadata={metadata}>
   <Hero title={title} description={description} backgroundImage={headerImage} />
 
   {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
