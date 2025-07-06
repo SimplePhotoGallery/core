@@ -1,0 +1,36 @@
+---
+import type { GallerySection as GallerySectionType } from '@/features/themes/base-theme/types/gallery';
+
+interface Props {
+  section: GallerySectionType;
+}
+
+const { section } = Astro.props;
+---
+
+<div class="gallery-section__header">
+  <h2 class="gallery-section__header-title">{section.title}</h2>
+  <p class="gallery-section__header-description">{section.description}</p>
+</div>
+
+<style>
+  .gallery-section__header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .gallery-section__header-title {
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #111827;
+  }
+
+  .gallery-section__header-description {
+    font-size: 1.125rem;
+    color: #6b7280;
+    max-width: 42rem;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+</style>
