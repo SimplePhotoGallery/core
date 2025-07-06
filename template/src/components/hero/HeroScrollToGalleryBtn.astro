@@ -8,10 +8,10 @@
 
 <script>
   function initScrollToGallery() {
-    const button = document.querySelector('.scroll-to-gallery-btn');
+    const button = document.querySelector('.hero__scroll-to-gallery-btn');
     if (button) {
       button.addEventListener('click', () => {
-        const gallery = document.querySelector('.section-0');
+        const gallery = document.querySelector('.gallery-section-0');
         if (gallery) {
           gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
