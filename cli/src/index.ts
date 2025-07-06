@@ -5,6 +5,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import sharp from "sharp";
 import ffprobe from "node-ffprobe";
+import exifReader from "exif-reader";
 
 const program = new Command();
 
@@ -26,17 +27,33 @@ interface MediaFile {
   width: number;
   height: number;
   type: 'image' | 'video';
+  description?: string;
 }
 
-async function getImageDimensions(filePath: string): Promise<{ width: number; height: number }> {
+async function getImageMetadata(filePath: string): Promise<{ width: number; height: number; description?: string }> {
   try {
     const metadata = await sharp(filePath).metadata();
+    let description: string | undefined;
+    
+    // Extract description from EXIF data
+    if (metadata.exif) {
+      try {
+        const exifData = exifReader(metadata.exif);
+        if (exifData.image?.ImageDescription) {
+          description = exifData.image.ImageDescription;
+        }
+      } catch (exifError) {
+        // EXIF parsing failed, but that's OK
+      }
+    }
+    
     return {
       width: metadata.width || 0,
-      height: metadata.height || 0
+      height: metadata.height || 0,
+      description
     };
   } catch (error) {
-    console.warn(`Warning: Could not get dimensions for image ${filePath}:`, error);
+    console.warn(`Warning: Could not get metadata for image ${filePath}:`, error);
     return { width: 0, height: 0 };
   }
 }
@@ -82,21 +99,28 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
         if (mediaType) {
           console.log(`Processing ${mediaType}: ${entry.name}`);
           
-          let dimensions = { width: 0, height: 0 };
+          let metadata: { width: number; height: number; description?: string } = { width: 0, height: 0 };
           
           if (mediaType === 'image') {
-            dimensions = await getImageDimensions(fullPath);
+            metadata = await getImageMetadata(fullPath);
           } else if (mediaType === 'video') {
-            dimensions = await getVideoDimensions(fullPath);
+            const videoDimensions = await getVideoDimensions(fullPath);
+            metadata = { ...videoDimensions };
           }
           
-          mediaFiles.push({
+          const mediaFile: MediaFile = {
             name: entry.name,
             path: fullPath,
-            width: dimensions.width,
-            height: dimensions.height,
+            width: metadata.width,
+            height: metadata.height,
             type: mediaType
-          });
+          };
+          
+          if (metadata.description) {
+            mediaFile.description = metadata.description;
+          }
+          
+          mediaFiles.push(mediaFile);
         }
       }
     }
@@ -122,7 +146,7 @@ program
   });
 
 program
-  .command("sync")
+  .command("scan")
   .description("Scan directory for images and videos and create gallery.json")
   .option("-p, --path <path>", "Path to scan for media files", process.cwd())
   .option("-o, --output <path>", "Output directory for gallery.json", "")
@@ -163,7 +187,7 @@ program
       console.log(`Total files processed: ${mediaFiles.length}`);
       
     } catch (error) {
-      console.error("Error during sync:", error);
+      console.error("Error during scan:", error);
       process.exit(1);
     }
   });
