@@ -1,0 +1,20 @@
+---
+import GallerySection from '@/features/themes/base-theme/components/gallery-section/GallerySection.astro';
+import Hero from '@/features/themes/base-theme/components/hero/Hero.astro';
+import PhotoSwipe from '@/features/themes/base-theme/components/lightbox/PhotoSwipe.astro';
+import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
+import galleryData from 'gallery.json';
+
+import type { GalleryData } from '@/features/themes/base-theme/types/gallery';
+
+const gallery: GalleryData = galleryData;
+const { title, description, headerImage, sections } = gallery;
+---
+
+<MainLayout title={title}>
+  <Hero title={title} description={description} backgroundImage={headerImage} />
+
+  {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
+
+  <PhotoSwipe />
+</MainLayout>

@@ -1,5 +1,5 @@
 ---
-import HeroScrollToGalleryBtn from '@/components/hero/HeroScrollToGalleryBtn.astro';
+import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
 
 interface Props {
   title: string;
@@ -54,7 +54,7 @@ const { title, description, backgroundImage } = Astro.props;
   }
 
   .hero__title {
-    font-size: clamp(3rem, 8vw, 7rem);
+    font-size: clamp(2rem, 8vw, 7rem);
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: center;
     line-height: 1.2;
@@ -64,7 +64,7 @@ const { title, description, backgroundImage } = Astro.props;
   }
 
   .hero__description {
-    font-size: clamp(1.25rem, 3vw, 2rem);
+    font-size: clamp(1rem, 3vw, 2rem);
     font-weight: 300;
     opacity: 0.9;
     line-height: 1.5;
