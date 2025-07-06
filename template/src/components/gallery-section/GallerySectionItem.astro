@@ -1,0 +1,53 @@
+---
+import type { GalleryImage } from '@/types/gallery';
+
+interface Props {
+  image: GalleryImage;
+}
+
+const { image } = Astro.props;
+---
+
+<div class="gallery-section__item">
+  <a
+    href={image.url}
+    data-pswp-width={image.width}
+    data-pswp-height={image.height}
+    data-pswp-caption={`<p class="image-caption">${image.description}</p>`}>
+    <img
+      src={image.thumbnail.url}
+      alt={image.alt}
+      loading="lazy"
+      width={image.thumbnail.width}
+      height={image.thumbnail.height}
+    />
+  </a>
+</div>
+
+<style>
+  .gallery-section__item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .gallery-section__item:hover {
+    transform: scale(1.02) translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .gallery-section__item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.05);
+  }
+</style>

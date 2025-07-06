@@ -1,0 +1,75 @@
+---
+import Container from '@/components/container/Container.astro';
+import GallerySectionHeader from '@/components/gallery-section/GallerySectionHeader.astro';
+import GallerySectionItem from '@/components/gallery-section/GallerySectionItem.astro';
+
+import type { GallerySection as GallerySectionType } from '@/types/gallery';
+
+interface Props {
+  section: GallerySectionType;
+  sectionIndex: number;
+}
+
+const { section, sectionIndex } = Astro.props;
+---
+
+<section class={`gallery-section gallery-section-${sectionIndex}`}>
+  <Container>
+    <GallerySectionHeader section={section} />
+    <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
+      {section.images.map((image) => <GallerySectionItem image={image} />)}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .gallery-section {
+    padding: 5rem 1rem;
+  }
+
+  .gallery-section:nth-child(even) {
+    background-color: #f9fafb;
+  }
+
+  .gallery-section__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .gallery-section__gallery {
+    columns: 1;
+    column-gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-section__gallery {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .gallery-section__gallery {
+      columns: 3;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .gallery-section__gallery {
+      columns: 4;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .gallery-section__gallery {
+      columns: 5;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .gallery-section__gallery {
+      columns: 6;
+    }
+  }
+</style>
