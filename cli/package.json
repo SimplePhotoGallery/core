@@ -1,0 +1,21 @@
+{
+  "name": "simple-photo-gallery",
+  "version": "0.0.1",
+  "description": "Simple Photo Gallery CLI",
+  "license": "MIT",
+  "author": "Vladimir Haltakov, Tomasz Rusin",
+  "type": "module",
+  "bin": {
+    "gallery": "./dist/index.js"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
