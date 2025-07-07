@@ -5,10 +5,14 @@ export interface ScanOptions {
 }
 
 export interface MediaFile {
-  name: string;
+  type: "image" | "video";
   path: string;
+  alt?: string;
   width: number;
   height: number;
-  type: "image" | "video";
-  description?: string;
+  thumbnail?: {
+    path: string;
+    width: number;
+    height: number;
+  };
 }

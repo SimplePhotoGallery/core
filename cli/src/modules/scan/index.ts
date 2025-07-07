@@ -30,15 +30,14 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
           }
 
           const mediaFile: MediaFile = {
-            name: entry.name,
+            type: mediaType,
             path: fullPath,
             width: metadata.width,
             height: metadata.height,
-            type: mediaType,
           };
 
           if (metadata.description) {
-            mediaFile.description = metadata.description;
+            mediaFile.alt = metadata.description;
           }
 
           mediaFiles.push(mediaFile);
@@ -75,11 +74,15 @@ export async function scan(options: ScanOptions): Promise<void> {
 
     // Create gallery.json
     const galleryData = {
-      scanned_at: new Date().toISOString(),
-      scan_path: scanPath,
-      recursive: options.recursive,
-      total_files: mediaFiles.length,
-      files: mediaFiles,
+      title: "My Gallery",
+      description: "My gallery with fantastic photos.",
+      headerImage: mediaFiles[0].path,
+      metadata: { ogUrl: "" },
+      sections: [
+        {
+          images: mediaFiles,
+        },
+      ],
     };
 
     await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
