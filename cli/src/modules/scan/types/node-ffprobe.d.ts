@@ -1,4 +1,4 @@
-declare module 'node-ffprobe' {
+declare module "node-ffprobe" {
   export interface Stream {
     codec_type: string;
     width?: number;
