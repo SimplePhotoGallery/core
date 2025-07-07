@@ -17,6 +17,8 @@ export async function getImageMetadata(
         const exifData = exifReader(metadata.exif);
         if (exifData.Image?.ImageDescription) {
           description = exifData.Image.ImageDescription;
+        } else if (exifData.Image?.Description) {
+          description = exifData.Image.Description.toString();
         }
       } catch (exifError) {
         // EXIF parsing failed, but that's OK
