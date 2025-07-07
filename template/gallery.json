@@ -2,7 +2,23 @@
   "title": "My Journey Through Nature's Wonders",
   "description": "A personal collection of memories from my travels to some of the most breathtaking places on Earth - from mountain peaks to forest trails and coastal vistas",
   "headerImage": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=4000&q=80",
-  "metadata": { "ogUrl": "https://gallery.com/my-nature-journey" },
+  "metadata": {
+    "description": "A personal collection of memories from my travels to some of the most breathtaking places on Earth - from mountain peaks to forest trails and coastal vistas",
+    "ogUrl": "https://gallery.com/my-nature-journey",
+    "ogImage": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630&q=80",
+    "ogImageWidth": 1200,
+    "ogImageHeight": 630,
+    "ogType": "website",
+    "ogSiteName": "Nature Photography Gallery",
+    "twitterCard": "summary_large_image",
+    "twitterSite": "@naturephotographer",
+    "twitterCreator": "@naturephotographer",
+    "author": "Nature Photographer",
+    "keywords": "nature photography, landscape, mountains, forest, coastal, travel, adventure, outdoor photography",
+    "canonicalUrl": "https://gallery.com/my-nature-journey",
+    "language": "en",
+    "robots": "index, follow"
+  },
   "galleryOutputPath": "~/galleries/my-nature-journey",
   "sections": [
     {

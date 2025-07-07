@@ -1,0 +1,153 @@
+<script type="module">
+  import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe-lightbox.esm.js'; // eslint-disable-line import/no-unresolved
+  import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.esm.js'; //eslint-disable-line
+
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '.gallery-section__gallery',
+    children: 'a',
+    pswpModule: PhotoSwipe,
+    showAnimationDuration: 300,
+    hideAnimationDuration: 300,
+    wheelToZoom: true,
+    bgOpacity: 1,
+  });
+
+  lightbox.on('contentDeactivate', ({ content }) => {
+    content.element.classList.remove('pswp__img--in-viewport');
+  });
+
+  lightbox.on('contentActivate', ({ content }) => {
+    content.element.classList.add('pswp__img--in-viewport');
+  });
+
+  lightbox.on('uiRegister', function () {
+    lightbox.pswp.ui.registerElement({
+      name: 'custom-caption',
+      isButton: false,
+      className: 'pswp__caption',
+      appendTo: 'wrapper',
+      onInit: (el) => {
+        lightbox.pswp.on('change', () => {
+          const currSlideElement = lightbox.pswp.currSlide.data.element;
+          let captionHTML = '';
+          if (currSlideElement) {
+            const caption = currSlideElement?.getAttribute('data-pswp-caption');
+            captionHTML = caption ?? currSlideElement.querySelector('img').getAttribute('alt');
+            el.innerHTML = captionHTML || '';
+          }
+        });
+      },
+    });
+  });
+
+  lightbox.init();
+</script>
+
+<style is:global>
+  .pswp .pswp__bg {
+    --pswp-bg: rgba(0, 0, 0, 1);
+  }
+
+  .pswp__counter {
+    color: white;
+    font-size: 1rem;
+  }
+
+  .pswp__button {
+    color: white;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .pswp__button:hover {
+    opacity: 1;
+  }
+
+  .pswp__caption {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    @media (max-width: 768px) {
+      width: calc(100% - 16px);
+    }
+  }
+
+  .pswp__caption .image-caption {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 16px;
+    border-radius: 16px;
+    margin: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: glassSlideIn 0.6s ease-out;
+    transform-origin: bottom center;
+    transition: all 0.3s ease;
+    @media (max-width: 768px) {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      margin: 8px 0;
+    }
+  }
+
+  @keyframes glassSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .pswp__caption__center {
+    text-align: center;
+    max-width: 42rem;
+    margin: 0 auto;
+  }
+
+  .pswp__caption h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .pswp__caption p {
+    font-size: 1rem;
+    opacity: 0.95;
+    line-height: 1.6;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    font-weight: 400;
+  }
+
+  .pswp__caption .description {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    opacity: 0.9;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .pswp__img {
+    opacity: 0;
+  }
+
+  .pswp__img--in-viewport {
+    animation: slideInImage 0.6s ease-out forwards;
+  }
+
+  @keyframes slideInImage {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+</style>

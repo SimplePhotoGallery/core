@@ -1,0 +1,72 @@
+---
+import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  backgroundImage: string;
+}
+
+const { title, description, backgroundImage } = Astro.props;
+---
+
+<section class="hero">
+  <div
+    class="hero__bg"
+    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}>
+  </div>
+  <div class="hero__content">
+    <h1 class="hero__title">{title}</h1>
+    <p class="hero__description">{description}</p>
+    <HeroScrollToGalleryBtn />
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 450px;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    color: white;
+    max-width: 64rem;
+    padding: 0 1.5rem;
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 8vw, 7rem);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.025em;
+  }
+
+  .hero__description {
+    font-size: clamp(1rem, 3vw, 2rem);
+    font-weight: 300;
+    opacity: 0.9;
+    line-height: 1.5;
+  }
+</style>
