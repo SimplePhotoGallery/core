@@ -9,7 +9,7 @@
     "gallery": "./dist/index.js"
   },
   "scripts": {
-    "start": "tsx src/index.ts",
+    "gallery": "tsx src/index.ts",
     "build": "tsc",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
