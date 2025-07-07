@@ -1,0 +1,29 @@
+{
+  "scanned_at": "2025-07-06T13:36:33.816Z",
+  "scan_path": "/workspace/photos-example",
+  "recursive": false,
+  "total_files": 3,
+  "files": [
+    {
+      "name": "photo_1.jpg",
+      "path": "/workspace/photos-example/photo_1.jpg",
+      "width": 0,
+      "height": 0,
+      "type": "image"
+    },
+    {
+      "name": "photo_2.jpg",
+      "path": "/workspace/photos-example/photo_2.jpg",
+      "width": 0,
+      "height": 0,
+      "type": "image"
+    },
+    {
+      "name": "photo_3.jpg",
+      "path": "/workspace/photos-example/photo_3.jpg",
+      "width": 0,
+      "height": 0,
+      "type": "image"
+    }
+  ]
+}

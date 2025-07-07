@@ -10,34 +10,37 @@
       "description": "This is the first section of the gallery.",
       "images": [
         {
-          "url": "../photo_1.jpg",
+          "type": "image",
+          "path": "../photo_1.jpg",
           "alt": "Image 1",
           "width": 1000,
           "height": 1000,
           "thumbnail": {
-            "url": "public/thumbnails/photo_1.jpg",
+            "path": "public/thumbnails/photo_1.jpg",
             "width": 100,
             "height": 100
           }
         },
         {
-          "url": "../photo_2.jpg",
+          "type": "image",
+          "path": "../photo_2.jpg",
           "alt": "Image 2",
           "width": 1000,
           "height": 1000,
           "thumbnail": {
-            "url": "public/thumbnails/photo_2.jpg",
+            "path": "public/thumbnails/photo_2.jpg",
             "width": 100,
             "height": 100
           }
         },
         {
-          "url": "../photo_3.jpg",
+          "type": "image",
+          "path": "../photo_3.jpg",
           "alt": "Image 3",
           "width": 1000,
           "height": 1000,
           "thumbnail": {
-            "url": "public/thumbnails/photo_3.jpg",
+            "path": "public/thumbnails/photo_3.jpg",
             "width": 100,
             "height": 100
           }
