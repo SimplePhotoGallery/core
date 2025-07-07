@@ -24,11 +24,30 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
 
           let metadata: { width: number; height: number; description?: string } = { width: 0, height: 0 };
 
-          if (mediaType === 'image') {
-            metadata = await getImageMetadata(fullPath);
-          } else if (mediaType === 'video') {
-            const videoDimensions = await getVideoDimensions(fullPath);
-            metadata = { ...videoDimensions };
+          try {
+            if (mediaType === 'image') {
+              metadata = await getImageMetadata(fullPath);
+            } else if (mediaType === 'video') {
+              try {
+                const videoDimensions = await getVideoDimensions(fullPath);
+                metadata = { ...videoDimensions };
+              } catch (videoError: any) {
+                if (
+                  typeof videoError.message === 'string' &&
+                  (videoError.message.includes('ffprobe') || videoError.message.includes('ffmpeg'))
+                ) {
+                  console.error(
+                    `Error: ffprobe (part of ffmpeg) is required to process videos. Please install ffmpeg and ensure it is available in your PATH. Skipping video: ${entry.name}`,
+                  );
+                } else {
+                  console.error(`Error processing video ${entry.name}:`, videoError);
+                }
+                continue; // Skip this file
+              }
+            }
+          } catch (mediaError) {
+            console.error(`Error processing file ${entry.name}:`, mediaError);
+            continue; // Skip this file
           }
 
           const mediaFile: MediaFile = {
