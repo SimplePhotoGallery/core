@@ -1,12 +1,12 @@
-import sharp from "sharp";
-import exifReader from "exif-reader";
-import { IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from "../const";
-import path from "path";
-import ffprobe from "node-ffprobe";
+import path from 'node:path';
 
-export async function getImageMetadata(
-  filePath: string
-): Promise<{ width: number; height: number; description?: string }> {
+import exifReader from 'exif-reader';
+import ffprobe from 'node-ffprobe';
+import sharp from 'sharp';
+
+import { IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from '../const';
+
+export async function getImageMetadata(filePath: string): Promise<{ width: number; height: number; description?: string }> {
   try {
     const metadata = await sharp(filePath).metadata();
     let description: string | undefined;
@@ -20,7 +20,7 @@ export async function getImageMetadata(
         } else if (exifData.Image?.Description) {
           description = exifData.Image.Description.toString();
         }
-      } catch (exifError) {
+      } catch {
         // EXIF parsing failed, but that's OK
       }
     }
@@ -39,7 +39,7 @@ export async function getImageMetadata(
 export async function getVideoDimensions(filePath: string): Promise<{ width: number; height: number }> {
   try {
     const data = await ffprobe(filePath);
-    const videoStream = data.streams.find((stream) => stream.codec_type === "video");
+    const videoStream = data.streams.find((stream) => stream.codec_type === 'video');
     if (videoStream) {
       return {
         width: videoStream.width || 0,
@@ -53,9 +53,9 @@ export async function getVideoDimensions(filePath: string): Promise<{ width: num
   }
 }
 
-export function isMediaFile(fileName: string): "image" | "video" | null {
+export function isMediaFile(fileName: string): 'image' | 'video' | null {
   const ext = path.extname(fileName).toLowerCase();
-  if (IMAGE_EXTENSIONS.has(ext)) return "image";
-  if (VIDEO_EXTENSIONS.has(ext)) return "video";
+  if (IMAGE_EXTENSIONS.has(ext)) return 'image';
+  if (VIDEO_EXTENSIONS.has(ext)) return 'video';
   return null;
 }

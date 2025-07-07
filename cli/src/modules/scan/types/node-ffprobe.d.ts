@@ -1,4 +1,6 @@
-declare module "node-ffprobe" {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+declare module 'node-ffprobe' {
   export interface Stream {
     codec_type: string;
     width?: number;

@@ -5,7 +5,7 @@ export interface ScanOptions {
 }
 
 export interface MediaFile {
-  type: "image" | "video";
+  type: 'image' | 'video';
   path: string;
   alt?: string;
   width: number;
