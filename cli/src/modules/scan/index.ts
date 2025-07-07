@@ -53,7 +53,9 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
 
 export async function scan(options: ScanOptions): Promise<void> {
   const scanPath = path.resolve(options.path);
-  const outputPath = options.output ? path.resolve(options.output) : scanPath;
+  const outputPath = options.output
+    ? path.resolve(options.output, ".simple-photo-gallery")
+    : path.resolve(scanPath, ".simple-photo-gallery");
   const galleryJsonPath = path.join(outputPath, "gallery.json");
 
   console.log(`Scanning directory: ${scanPath}`);
