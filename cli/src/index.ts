@@ -38,12 +38,12 @@ program
   .description('Create thumbnails for all media files in gallery.json')
   .option('-p, --path <path>', 'Path containing .simple-photo-gallery folder', process.cwd())
   .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
-  .action((options: { path: string; size: string }) => {
+  .action(async (options: { path: string; size: string }) => {
     const thumbnailOptions = {
       path: options.path,
-      size: Number.parseInt(options.size, 10),
+      size: Number.parseInt(options.size) || 200,
     };
-    thumbnails(thumbnailOptions);
+    await thumbnails(thumbnailOptions);
   });
 
 program.parse();
