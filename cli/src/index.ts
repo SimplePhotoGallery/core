@@ -5,6 +5,7 @@ import process from 'node:process';
 import { Command } from 'commander';
 
 import { scan } from './modules/scan';
+import { thumbnails } from './modules/thumbnails';
 
 const program = new Command();
 
@@ -31,5 +32,18 @@ program
   .option('-o, --output <path>', 'Output directory for gallery.json', '')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .action(scan);
+
+program
+  .command('thumbnails')
+  .description('Create thumbnails for all media files in gallery.json')
+  .option('-p, --path <path>', 'Path containing .simple-photo-gallery folder', process.cwd())
+  .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
+  .action(async (options: { path: string; size: string }) => {
+    const thumbnailOptions = {
+      path: options.path,
+      size: Number.parseInt(options.size) || 200,
+    };
+    await thumbnails(thumbnailOptions);
+  });
 
 program.parse();
