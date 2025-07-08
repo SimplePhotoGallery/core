@@ -46,7 +46,7 @@ export async function createImageThumbnail(
     const aspectRatio = originalWidth / originalHeight;
     const width = Math.round(height * aspectRatio);
 
-    await image.resize(width, height, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
+    await image.resize(width, height, { withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
 
     return { width, height };
   } catch (error) {
@@ -113,8 +113,8 @@ export async function createVideoThumbnail(
           try {
             // Process the extracted frame with sharp
             await sharp(tempFramePath)
-              .resize(width, height, { fit: 'inside', withoutEnlargement: true })
-              .jpeg({ quality: 80 })
+              .resize(width, height, { withoutEnlargement: true })
+              .jpeg({ quality: 90 })
               .toFile(outputPath);
 
             // Clean up temporary file
