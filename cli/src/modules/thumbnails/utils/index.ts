@@ -22,6 +22,11 @@ async function checkFfmpegAvailability(): Promise<boolean> {
   });
 }
 
+// Utility function to resize and save thumbnail
+async function resizeAndSaveThumbnail(image: sharp.Sharp, outputPath: string, width: number, height: number): Promise<void> {
+  await image.resize(width, height, { withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
+}
+
 export async function createImageThumbnail(
   inputPath: string,
   outputPath: string,
@@ -46,7 +51,7 @@ export async function createImageThumbnail(
     const aspectRatio = originalWidth / originalHeight;
     const width = Math.round(height * aspectRatio);
 
-    await image.resize(width, height, { withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
+    await resizeAndSaveThumbnail(image, outputPath, width, height);
 
     return { width, height };
   } catch (error) {
@@ -112,10 +117,8 @@ export async function createVideoThumbnail(
         if (code === 0) {
           try {
             // Process the extracted frame with sharp
-            await sharp(tempFramePath)
-              .resize(width, height, { withoutEnlargement: true })
-              .jpeg({ quality: 90 })
-              .toFile(outputPath);
+            const frameImage = sharp(tempFramePath);
+            await resizeAndSaveThumbnail(frameImage, outputPath, width, height);
 
             // Clean up temporary file
             try {
