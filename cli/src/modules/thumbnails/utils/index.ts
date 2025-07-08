@@ -39,7 +39,7 @@ export async function createImageThumbnail(
     const originalHeight = metadata.height || 0;
 
     if (originalWidth === 0 || originalHeight === 0) {
-      throw new Error('Invalid video dimensions');
+      throw new Error('Invalid image dimensions');
     }
 
     // Calculate width maintaining aspect ratio
