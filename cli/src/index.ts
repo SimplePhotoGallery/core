@@ -41,7 +41,7 @@ program
   .action((options: { path: string; size: string }) => {
     const thumbnailOptions = {
       path: options.path,
-      size: parseInt(options.size, 10),
+      size: Number.parseInt(options.size, 10),
     };
     thumbnails(thumbnailOptions);
   });

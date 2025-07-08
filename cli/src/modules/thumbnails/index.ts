@@ -1,9 +1,10 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
 import { createImageThumbnail, createVideoThumbnail } from './utils';
 
-import type { ThumbnailOptions, GalleryData, MediaFile } from './types';
+import type { ThumbnailOptions } from './types';
+import type { GalleryData, MediaFile } from '../../types';
 
 export async function thumbnails(options: ThumbnailOptions): Promise<void> {
   const galleryPath = path.resolve(options.path, '.simple-photo-gallery');
@@ -21,13 +22,13 @@ export async function thumbnails(options: ThumbnailOptions): Promise<void> {
     await fs.mkdir(thumbnailsPath, { recursive: true });
 
     // Read gallery.json
-    const galleryContent = await fs.readFile(galleryJsonPath, 'utf-8');
+    const galleryContent = await fs.readFile(galleryJsonPath, 'utf8');
     const galleryData: GalleryData = JSON.parse(galleryContent);
 
     console.log(`Found gallery: ${galleryData.title}`);
 
     let processedCount = 0;
-    let updatedGalleryData = { ...galleryData };
+    const updatedGalleryData = { ...galleryData };
 
     // Process all sections and their images
     for (let sectionIndex = 0; sectionIndex < galleryData.sections.length; sectionIndex++) {
@@ -70,9 +71,15 @@ export async function thumbnails(options: ThumbnailOptions): Promise<void> {
           updatedImages.push(updatedMediaFile);
           processedCount++;
 
-          console.log(`✓ Created thumbnail: ${thumbnailFileName} (${thumbnailDimensions.width}x${thumbnailDimensions.height})`);
+          console.log(
+            `✓ Created thumbnail: ${thumbnailFileName} (${thumbnailDimensions.width}x${thumbnailDimensions.height})`,
+          );
         } catch (error) {
-          console.error(`Error processing ${mediaFile.path}:`, error);
+          if (error instanceof Error && error.message === 'FFMPEG_NOT_AVAILABLE') {
+            console.warn(`⚠ Skipping video thumbnail (ffmpeg not available): ${path.basename(mediaFile.path)}`);
+          } else {
+            console.error(`Error processing ${mediaFile.path}:`, error);
+          }
           // Keep the original media file without thumbnail
           updatedImages.push(mediaFile);
         }
@@ -92,8 +99,10 @@ export async function thumbnails(options: ThumbnailOptions): Promise<void> {
     console.log(`✓ Thumbnails saved to: ${thumbnailsPath}`);
     console.log(`✓ Updated gallery.json with thumbnail information`);
   } catch (error) {
-    if ((error as any).code === 'ENOENT') {
-      throw new Error(`Gallery not found at ${galleryJsonPath}. Please run 'gallery scan' first or specify the correct path with -p option.`);
+    if ((error as { code: string }).code === 'ENOENT') {
+      throw new Error(
+        `Gallery not found at ${galleryJsonPath}. Please run 'gallery scan' first or specify the correct path with -p option.`,
+      );
     }
     throw new Error(`Error creating thumbnails: ${error}`);
   }

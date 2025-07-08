@@ -1,9 +1,26 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
 import ffprobe from 'node-ffprobe';
 import sharp from 'sharp';
+
+import type { Buffer } from 'node:buffer';
+
+// Check if ffmpeg is available
+async function checkFfmpegAvailability(): Promise<boolean> {
+  return new Promise((resolve) => {
+    const ffmpeg = spawn('ffmpeg', ['-version']);
+
+    ffmpeg.on('close', (code) => {
+      resolve(code === 0);
+    });
+
+    ffmpeg.on('error', () => {
+      resolve(false);
+    });
+  });
+}
 
 export async function createImageThumbnail(
   inputPath: string,
@@ -18,13 +35,18 @@ export async function createImageThumbnail(
     const image = sharp(inputPath);
     const metadata = await image.metadata();
 
-    // Calculate width maintaining aspect ratio
     const originalWidth = metadata.width || 0;
     const originalHeight = metadata.height || 0;
+
+    if (originalWidth === 0 || originalHeight === 0) {
+      throw new Error('Invalid video dimensions');
+    }
+
+    // Calculate width maintaining aspect ratio
     const aspectRatio = originalWidth / originalHeight;
     const width = Math.round(height * aspectRatio);
 
-    await image.resize(width, height, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80 }).toFile(outputPath);
+    await image.resize(width, height, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
 
     return { width, height };
   } catch (error) {
@@ -40,6 +62,13 @@ export async function createVideoThumbnail(
   try {
     // Check if input file exists
     await fs.access(inputPath);
+
+    // Check if ffmpeg is available
+    const ffmpegAvailable = await checkFfmpegAvailability();
+    if (!ffmpegAvailable) {
+      console.warn(`Warning: ffmpeg is not available. Skipping thumbnail creation for video: ${path.basename(inputPath)}`);
+      throw new Error('FFMPEG_NOT_AVAILABLE');
+    }
 
     // Get video metadata using ffprobe
     const videoData = await ffprobe(inputPath);
@@ -90,7 +119,7 @@ export async function createVideoThumbnail(
 
             // Clean up temporary file
             try {
-                             await fs.unlink(tempFramePath);
+              await fs.unlink(tempFramePath);
             } catch {
               // Ignore cleanup errors
             }
@@ -109,12 +138,17 @@ export async function createVideoThumbnail(
       });
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'FFMPEG_NOT_AVAILABLE') {
+      // Re-throw the specific error for graceful handling upstream
+      throw error;
+    }
     if (
       typeof error === 'object' &&
       error !== null &&
       'message' in error &&
-      typeof (error as any).message === 'string' &&
-      ((error as any).message.includes('ffmpeg') || (error as any).message.includes('ffprobe'))
+      typeof (error as { message: string }).message === 'string' &&
+      ((error as { message: string }).message.includes('ffmpeg') ||
+        (error as { message: string }).message.includes('ffprobe'))
     ) {
       throw new Error(
         `Error: ffmpeg is required to process videos. Please install ffmpeg and ensure it is available in your PATH. Failed to process: ${path.basename(inputPath)}`,

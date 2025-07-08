@@ -3,7 +3,8 @@ import path from 'node:path';
 
 import { getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
-import type { MediaFile, ScanOptions } from './types';
+import type { ScanOptions } from './types';
+import type { MediaFile } from '../../types';
 
 async function scanDirectory(dirPath: string, recursive: boolean = false): Promise<MediaFile[]> {
   const mediaFiles: MediaFile[] = [];
@@ -31,10 +32,14 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
               try {
                 const videoDimensions = await getVideoDimensions(fullPath);
                 metadata = { ...videoDimensions };
-              } catch (videoError: any) {
+              } catch (videoError: unknown) {
                 if (
-                  typeof videoError.message === 'string' &&
-                  (videoError.message.includes('ffprobe') || videoError.message.includes('ffmpeg'))
+                  typeof videoError === 'object' &&
+                  videoError !== null &&
+                  'message' in videoError &&
+                  typeof (videoError as { message: string }).message === 'string' &&
+                  ((videoError as { message: string }).message.includes('ffprobe') ||
+                    (videoError as { message: string }).message.includes('ffmpeg'))
                 ) {
                   console.error(
                     `Error: ffprobe (part of ffmpeg) is required to process videos. Please install ffmpeg and ensure it is available in your PATH. Skipping video: ${entry.name}`,
