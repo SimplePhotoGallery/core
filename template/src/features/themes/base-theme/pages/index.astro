@@ -11,7 +11,7 @@ const gallery: GalleryData = galleryData;
 const { title, description, headerImage, metadata, sections } = gallery;
 ---
 
-<MainLayout title={title} description={description} metadata={metadata}>
+<MainLayout title={title} metadata={metadata}>
   <Hero title={title} description={description} backgroundImage={headerImage} />
 
   {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}

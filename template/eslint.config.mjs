@@ -7,14 +7,20 @@ import globals from 'globals';
 import path from 'node:path';
 import tseslint from 'typescript-eslint';
 
-const tseslintConfig = tseslint.config(
-  eslint.configs.recommended,
-  tseslint.configs.recommended,
-);
+const tseslintConfig = tseslint.config(eslint.configs.recommended, tseslint.configs.recommended);
 
 const eslintConfig = [
   {
-    ignores: ['node_modules', '.github', 'tsconfig.tsbuildinfo', '**/dist/*', 'tsconfig.json', 'eslint.config.mjs', '.astro'],
+    ignores: [
+      'node_modules',
+      '.github',
+      'tsconfig.tsbuildinfo',
+      '**/dist/*',
+      '**/public/*',
+      'tsconfig.json',
+      'eslint.config.mjs',
+      '.astro',
+    ],
   },
   ...tseslintConfig,
   eslintConfigPrettier,
@@ -43,9 +49,7 @@ const eslintConfig = [
           project: './tsconfig.json',
         },
         alias: {
-          map: [
-            ['@', path.resolve(import.meta.dirname, './src')],
-          ],
+          map: [['@', path.resolve(import.meta.dirname, './src')]],
           extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx', '.astro'],
         },
       },

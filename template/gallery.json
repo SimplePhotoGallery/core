@@ -1,232 +1,131 @@
 {
-  "title": "My Journey Through Nature's Wonders",
-  "description": "A personal collection of memories from my travels to some of the most breathtaking places on Earth - from mountain peaks to forest trails and coastal vistas",
-  "headerImage": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=4000&q=80",
+  "title": "My Gallery",
+  "description": "My gallery with fantastic photos.",
+  "headerImage": "/images/usa-127.jpg",
   "metadata": {
-    "description": "A personal collection of memories from my travels to some of the most breathtaking places on Earth - from mountain peaks to forest trails and coastal vistas",
-    "ogUrl": "https://gallery.com/my-nature-journey",
-    "ogImage": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630&q=80",
-    "ogImageWidth": 1200,
-    "ogImageHeight": 630,
-    "ogType": "website",
-    "ogSiteName": "Nature Photography Gallery",
-    "twitterCard": "summary_large_image",
-    "twitterSite": "@naturephotographer",
-    "twitterCreator": "@naturephotographer",
-    "author": "Nature Photographer",
-    "keywords": "nature photography, landscape, mountains, forest, coastal, travel, adventure, outdoor photography",
-    "canonicalUrl": "https://gallery.com/my-nature-journey",
-    "language": "en",
-    "robots": "index, follow"
+    "ogUrl": ""
   },
-  "galleryOutputPath": "~/galleries/my-nature-journey",
   "sections": [
     {
-      "title": "My Mountain Adventure",
-      "description": "The thrill of reaching new heights and discovering the raw power of nature in the mountains",
+      "title": "My Photos",
+      "description": "A collection of photos from my camera",
       "images": [
         {
-          "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-          "alt": "Mountain Peak at Sunrise",
-          "description": "Waking up at 4 AM to catch this golden sunrise was absolutely worth it",
-          "width": 1200,
-          "height": 800,
+          "type": "image",
+          "path": "/images/usa-127.jpg",
+          "width": 2880,
+          "height": 2160,
+          "alt": "Black Rock camping in Joshua Tree National Park",
           "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
+            "path": "/thumbnails/usa-127.jpg",
+            "width": 267,
+            "height": 200
           }
         },
         {
-          "url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-          "alt": "Mountain Trail",
-          "description": "This hidden trail led me through fields of wildflowers I never expected to find",
-          "width": 1200,
-          "height": 800,
+          "type": "image",
+          "path": "/images/usa-129.jpg",
+          "width": 2880,
+          "height": 1920,
+          "alt": "Jackrabbit with long ears",
           "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
+            "path": "/thumbnails/usa-129.jpg",
+            "width": 300,
+            "height": 200
           }
         },
         {
-          "url": "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
-          "alt": "Snow-Capped Peaks",
-          "description": "The first snowfall of the season caught me by surprise during my hike",
-          "width": 1000,
-          "height": 1000,
+          "type": "image",
+          "path": "/images/usa-130.jpg",
+          "width": 2880,
+          "height": 1920,
+          "alt": "Joshua Tree fruits",
           "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
-            "width": 500,
-            "height": 500
+            "path": "/thumbnails/usa-130.jpg",
+            "width": 300,
+            "height": 200
           }
         },
         {
-          "url": "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
-          "alt": "Mountain Valley",
-          "description": "Spent an entire afternoon just sitting here, taking in the peaceful valley below",
-          "width": 800,
-          "height": 1200,
+          "type": "image",
+          "path": "/images/usa-158.jpg",
+          "width": 1920,
+          "height": 2880,
+          "alt": "Joshua Tree National Park",
           "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
-            "width": 400,
-            "height": 600
+            "path": "/thumbnails/usa-158.jpg",
+            "width": 133,
+            "height": 200
           }
         },
         {
-          "url": "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80",
-          "alt": "Rocky Cliff Face",
-          "description": "The scale of these cliffs made me feel so small - nature's power is humbling",
-          "width": 1200,
-          "height": 800,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
-          }
-        }
-      ]
-    },
-    {
-      "title": "Lost in the Forest",
-      "description": "Getting lost in these ancient woods was the best thing that happened to me",
-      "images": [
-        {
-          "url": "https://images.unsplash.com/photo-1441260038675-7329ab4cc264?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-          "alt": "Misty Forest Path",
-          "description": "The morning mist made everything feel magical - like stepping into a fairy tale",
-          "width": 1200,
-          "height": 800,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1441260038675-7329ab4cc264?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-          "alt": "Autumn Canopy",
-          "description": "Walking under this canopy of fall colors was like being in a natural cathedral",
-          "width": 800,
-          "height": 533,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=267&q=80",
-            "width": 400,
-            "height": 267
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
-          "alt": "Forest Stream",
-          "description": "Found this hidden stream while exploring off the beaten path",
-          "width": 1000,
-          "height": 1000,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
-            "width": 500,
-            "height": 500
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80",
-          "alt": "Sunbeams Through Trees",
-          "description": "These sunbeams breaking through the trees felt like nature's spotlight",
-          "width": 1200,
-          "height": 800,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
-          "alt": "Ancient Oak",
-          "description": "This oak tree has been here for centuries - I felt honored to stand in its presence",
-          "width": 800,
-          "height": 1200,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
-            "width": 400,
-            "height": 600
-          }
-        }
-      ]
-    },
-    {
-      "title": "My Coastal Escape",
-      "description": "The ocean has always called to me - these moments by the sea were pure magic",
-      "images": [
-        {
-          "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=800&q=80",
-          "alt": "Ocean Waves",
-          "description": "The power of these waves was incredible - I could feel the ocean's energy",
-          "width": 1200,
-          "height": 800,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
-          "alt": "Coastal Sunset",
-          "description": "This sunset was the perfect ending to a perfect day by the ocean",
-          "width": 800,
-          "height": 1200,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
-            "width": 400,
-            "height": 600
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=1000&q=80",
-          "alt": "Rocky Shore",
-          "description": "These rocks have been shaped by the ocean for thousands of years",
-          "width": 1000,
-          "height": 1000,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=500&q=80",
-            "width": 500,
-            "height": 500
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-          "alt": "Coastal Path",
-          "description": "This coastal trail offered the most incredible views around every bend",
-          "width": 1200,
-          "height": 800,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80",
-            "width": 600,
-            "height": 400
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1200&q=80",
-          "alt": "Lighthouse",
-          "description": "This historic lighthouse has guided ships for generations - felt like stepping back in time",
-          "width": 800,
-          "height": 1200,
-          "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=600&q=80",
-            "width": 400,
-            "height": 600
-          }
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1571068316344-75bc76f77890?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80",
-          "alt": "Beach Pebbles",
-          "description": "Spent hours collecting these smooth pebbles - each one tells a story",
+          "type": "video",
+          "path": "/images/usa-159.mp4",
           "width": 1920,
           "height": 1080,
           "thumbnail": {
-            "url": "https://images.unsplash.com/photo-1571068316344-75bc76f77890?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&h=540&q=80",
-            "width": 960,
-            "height": 540
+            "path": "/thumbnails/usa-159.jpg",
+            "width": 356,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "/images/usa-161.jpg",
+          "width": 2880,
+          "height": 1920,
+          "alt": "Baker Dam Trail",
+          "thumbnail": {
+            "path": "/thumbnails/usa-161.jpg",
+            "width": 300,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "/images/usa-166.jpg",
+          "width": 2880,
+          "height": 1920,
+          "alt": "Baker Dam Trail",
+          "thumbnail": {
+            "path": "/thumbnails/usa-166.jpg",
+            "width": 300,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "/images/usa-171.jpg",
+          "width": 1920,
+          "height": 2880,
+          "alt": "Joshua Tree",
+          "thumbnail": {
+            "path": "/thumbnails/usa-171.jpg",
+            "width": 133,
+            "height": 200
+          }
+        },
+        {
+          "type": "video",
+          "path": "/images/usa-183.mp4",
+          "width": 1080,
+          "height": 1920,
+          "thumbnail": {
+            "path": "/thumbnails/usa-183.jpg",
+            "width": 113,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "/images/usa-202.jpg",
+          "width": 2880,
+          "height": 1920,
+          "alt": "Cottonwood Tree Oasis",
+          "thumbnail": {
+            "path": "/thumbnails/usa-202.jpg",
+            "width": 300,
+            "height": 200
           }
         }
       ]

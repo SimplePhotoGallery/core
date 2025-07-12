@@ -1,6 +1,8 @@
-<script type="module">
-  import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe-lightbox.esm.js'; // eslint-disable-line import/no-unresolved
-  import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.esm.js'; //eslint-disable-line
+<script>
+  import PhotoSwipe from 'photoswipe';
+  import PhotoSwipeLightbox from 'photoswipe/lightbox';
+
+  import PhotoSwipeVideoPlugin from '@/lib/photoswipe-video-plugin';
 
   const lightbox = new PhotoSwipeLightbox({
     gallery: '.gallery-section__gallery',
@@ -12,27 +14,31 @@
     bgOpacity: 1,
   });
 
+  new PhotoSwipeVideoPlugin(lightbox, {
+    // options
+  });
+
   lightbox.on('contentDeactivate', ({ content }) => {
-    content.element.classList.remove('pswp__img--in-viewport');
+    content.element?.classList.remove('pswp__img--in-viewport');
   });
 
   lightbox.on('contentActivate', ({ content }) => {
-    content.element.classList.add('pswp__img--in-viewport');
+    content.element?.classList.add('pswp__img--in-viewport');
   });
 
   lightbox.on('uiRegister', function () {
-    lightbox.pswp.ui.registerElement({
+    lightbox.pswp?.ui?.registerElement({
       name: 'custom-caption',
       isButton: false,
       className: 'pswp__caption',
       appendTo: 'wrapper',
       onInit: (el) => {
-        lightbox.pswp.on('change', () => {
-          const currSlideElement = lightbox.pswp.currSlide.data.element;
+        lightbox.pswp?.on('change', () => {
+          const currSlideElement = lightbox.pswp?.currSlide?.data.element;
           let captionHTML = '';
           if (currSlideElement) {
             const caption = currSlideElement?.getAttribute('data-pswp-caption');
-            captionHTML = caption ?? currSlideElement.querySelector('img').getAttribute('alt');
+            captionHTML = caption ?? currSlideElement?.querySelector('img')?.getAttribute('alt') ?? '';
             el.innerHTML = captionHTML || '';
           }
         });
