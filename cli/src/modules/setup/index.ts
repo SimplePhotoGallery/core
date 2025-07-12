@@ -10,6 +10,8 @@ async function createSymbolicLinks(
   externalImagePath: string,
   publicImagesPath: string,
   publicThumbnailsPath: string,
+  galleryData: GalleryData,
+  cliGalleryPath: string,
   copyFallback: boolean = false,
 ): Promise<void> {
   try {
@@ -99,17 +101,31 @@ async function createSymbolicLinks(
       if (success) linkedCount++;
     }
 
-    const thumbnailsPath = path.join(externalImagePath, '.simple-photo-gallery', 'thumbnails');
-    try {
-      const thumbnailFiles = await fs.readdir(thumbnailsPath);
-      for (const file of thumbnailFiles) {
-        const sourcePath = path.join(thumbnailsPath, file);
-        const linkPath = path.join(publicThumbnailsPath, file);
-        const success = await createLink(sourcePath, linkPath, `thumbnail: ${file}`);
-        if (success) linkedCount++;
+    // Extract thumbnail paths from gallery data instead of hardcoding
+    const thumbnailPaths = new Set<string>();
+    for (const section of galleryData.sections) {
+      for (const image of section.images) {
+        if (image.thumbnail?.path) {
+          thumbnailPaths.add(image.thumbnail.path);
+        }
       }
-    } catch {
-      console.warn(`⚠️  No thumbnails directory found at: ${thumbnailsPath}`);
+    }
+
+    // Get the directory where gallery.json is located to calculate relative paths
+    const galleryDir = path.dirname(cliGalleryPath);
+
+    for (const thumbnailPath of thumbnailPaths) {
+      try {
+        // Calculate the full path to the thumbnail file relative to the gallery directory
+        const fullThumbnailPath = path.join(galleryDir, thumbnailPath);
+        const thumbnailFileName = path.basename(thumbnailPath);
+        const linkPath = path.join(publicThumbnailsPath, thumbnailFileName);
+
+        const success = await createLink(fullThumbnailPath, linkPath, `thumbnail: ${thumbnailFileName}`);
+        if (success) linkedCount++;
+      } catch (error) {
+        console.warn(`⚠️  Could not link thumbnail ${thumbnailPath}: ${error}`);
+      }
     }
 
     console.log(`✅ Successfully set up external media links!`);
@@ -180,7 +196,14 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
     // Create symbolic links
     const publicImagesPath = path.join(templateDir, 'public', 'images');
     const publicThumbnailsPath = path.join(templateDir, 'public', 'thumbnails');
-    await createSymbolicLinks(externalImagePath, publicImagesPath, publicThumbnailsPath, copyFallback);
+    await createSymbolicLinks(
+      externalImagePath,
+      publicImagesPath,
+      publicThumbnailsPath,
+      cliGallery,
+      cliGalleryPath,
+      copyFallback,
+    );
 
     console.log(`\n🎉 Gallery setup complete!`);
     console.log(`🌐 Your media files will be served from /images/ and /thumbnails/`);
