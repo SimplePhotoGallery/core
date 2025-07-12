@@ -3,8 +3,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import type { GalleryData } from '../../types';
 import type { SetupOptions } from './types';
+import type { GalleryData } from '../../types';
 
 async function createSymbolicLinks(
   externalImagePath: string,
@@ -199,7 +199,22 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
 }
 
 export async function setup(options: SetupOptions): Promise<void> {
-  const cliGalleryPath = path.resolve(options.cliGalleryPath);
+  // Validate required options
+  if (!options.cliGallery) {
+    console.error('❌ Error: --cli-gallery option is required');
+    console.log('');
+    console.log('Usage:');
+    console.log('  gallery setup -c <cli-gallery-path> [-o <output-path>]');
+    console.log('');
+    console.log('Examples:');
+    console.log('  gallery setup -c ../tmp/.simple-photo-gallery/gallery.json -o ../template/gallery.json');
+    console.log('  gallery setup -c ../my-photos/gallery.json -o ./gallery.json');
+
+    // eslint-disable-next-line unicorn/no-process-exit
+    process.exit(1);
+  }
+
+  const cliGalleryPath = path.resolve(options.cliGallery);
   const outputPath = path.resolve(options.output);
 
   console.log(`🚀 Setting up gallery with external images...\n`);

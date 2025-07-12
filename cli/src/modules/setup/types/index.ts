@@ -1,5 +1,5 @@
 export interface SetupOptions {
-  cliGalleryPath: string;
+  cliGallery?: string;
   output: string;
   copyFallback?: boolean;
 }

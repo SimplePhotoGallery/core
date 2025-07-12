@@ -40,26 +40,7 @@ program
   .option('-c, --cli-gallery <path>', 'Path to CLI-generated gallery.json file', '')
   .option('-o, --output <path>', 'Output path for template gallery.json', './gallery.json')
   .option('--copy-fallback', 'Copy files instead of creating symbolic links (for Windows compatibility)', false)
-  .action(async (options: { cliGallery: string; output: string; copyFallback: boolean }) => {
-    if (!options.cliGallery) {
-      console.error('❌ Error: --cli-gallery option is required');
-      console.log('');
-      console.log('Usage:');
-      console.log('  gallery setup -c <cli-gallery-path> [-o <output-path>]');
-      console.log('');
-      console.log('Examples:');
-      console.log('  gallery setup -c ../tmp/.simple-photo-gallery/gallery.json -o ../template/gallery.json');
-      console.log('  gallery setup -c ../my-photos/gallery.json -o ./gallery.json');
-      process.exit(1);
-    }
-
-    const setupOptions = {
-      cliGalleryPath: options.cliGallery,
-      output: options.output,
-      copyFallback: options.copyFallback,
-    };
-    await setup(setupOptions);
-  });
+  .action(setup);
 
 program
   .command('thumbnails')
