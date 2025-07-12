@@ -40,6 +40,9 @@ program
   .option('-c, --cli-gallery <path>', 'Path to CLI-generated gallery.json file', '')
   .option('-o, --output <path>', 'Output path for template gallery.json', './gallery.json')
   .option('--copy-fallback', 'Copy files instead of creating symbolic links (for Windows compatibility)', false)
+  .option('--public-dir <path>', 'Public directory name (default: public)', 'public')
+  .option('--images-dir <path>', 'Directory name for images in public folder (default: images)', 'images')
+  .option('--thumbnails-dir <path>', 'Directory name for thumbnails in public folder (default: thumbnails)', 'thumbnails')
   .action(setup);
 
 program

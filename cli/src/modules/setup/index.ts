@@ -3,7 +3,9 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import type { SetupOptions } from './types';
+import { DEFAULT_PUBLIC_DIR_CONFIG } from './consts/config';
+
+import type { PublicDirConfig, SetupOptions } from './types';
 import type { GalleryData } from '../../types';
 
 async function createSymbolicLinks(
@@ -144,7 +146,12 @@ async function createSymbolicLinks(
   }
 }
 
-async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyFallback: boolean = false): Promise<void> {
+async function convertAndSetup(
+  cliGalleryPath: string,
+  outputPath: string,
+  copyFallback: boolean = false,
+  publicDirConfig: PublicDirConfig = DEFAULT_PUBLIC_DIR_CONFIG,
+): Promise<void> {
   try {
     // Read the CLI-generated gallery JSON (source of truth)
     const cliGalleryContent = await fs.readFile(cliGalleryPath, 'utf8');
@@ -165,7 +172,7 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
     // Update headerImage path to public URL
     if (cliGallery.headerImage) {
       const headerFileName = path.basename(cliGallery.headerImage);
-      cliGallery.headerImage = `/images/${headerFileName}`;
+      cliGallery.headerImage = `/${publicDirConfig.images}/${headerFileName}`;
     }
 
     // Update image and thumbnail paths to public URLs
@@ -173,11 +180,11 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
       for (const image of section.images) {
         if (image.path) {
           const fileName = path.basename(image.path);
-          image.path = `/images/${fileName}`;
+          image.path = `/${publicDirConfig.images}/${fileName}`;
         }
         if (image.thumbnail && image.thumbnail.path) {
           const thumbName = path.basename(image.thumbnail.path);
-          image.thumbnail.path = `/thumbnails/${thumbName}`;
+          image.thumbnail.path = `/${publicDirConfig.thumbnails}/${thumbName}`;
         }
       }
     }
@@ -194,8 +201,8 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
     console.log(`📊 Total media files: ${cliGallery.sections.reduce((acc, s) => acc + s.images.length, 0)}`);
 
     // Create symbolic links
-    const publicImagesPath = path.join(templateDir, 'public', 'images');
-    const publicThumbnailsPath = path.join(templateDir, 'public', 'thumbnails');
+    const publicImagesPath = path.join(templateDir, publicDirConfig.publicDir, publicDirConfig.images);
+    const publicThumbnailsPath = path.join(templateDir, publicDirConfig.publicDir, publicDirConfig.thumbnails);
     await createSymbolicLinks(
       externalImagePath,
       publicImagesPath,
@@ -206,7 +213,8 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
     );
 
     console.log(`\n🎉 Gallery setup complete!`);
-    console.log(`🌐 Your media files will be served from /images/ and /thumbnails/`);
+    console.log(`📁 Public directory: ${publicDirConfig.publicDir}`);
+    console.log(`🌐 Your media files will be served from /${publicDirConfig.images}/ and /${publicDirConfig.thumbnails}/`);
     console.log(`🚀 You can now run: npm run dev`);
   } catch (error) {
     if (error instanceof Error) {
@@ -221,17 +229,25 @@ async function convertAndSetup(cliGalleryPath: string, outputPath: string, copyF
   }
 }
 
-export async function setup(options: SetupOptions): Promise<void> {
+export async function setup(
+  options: SetupOptions & { imagesDir?: string; thumbnailsDir?: string; publicDir?: string },
+): Promise<void> {
   // Validate required options
   if (!options.cliGallery) {
     console.error('❌ Error: --cli-gallery option is required');
     console.log('');
     console.log('Usage:');
-    console.log('  gallery setup -c <cli-gallery-path> [-o <output-path>]');
+    console.log(
+      '  gallery setup -c <cli-gallery-path> [-o <output-path>] [--public-dir <path>] [--images-dir <path>] [--thumbnails-dir <path>]',
+    );
     console.log('');
     console.log('Examples:');
     console.log('  gallery setup -c ../tmp/.simple-photo-gallery/gallery.json -o ../template/gallery.json');
-    console.log('  gallery setup -c ../my-photos/gallery.json -o ./gallery.json');
+    console.log('  gallery setup -c ../my-photos/gallery.json -o ./gallery.json --images-dir media --thumbnails-dir thumbs');
+    console.log('  gallery setup -c ../my-photos/gallery.json -o ./gallery.json --images-dir photos');
+    console.log(
+      '  gallery setup -c ../my-photos/gallery.json -o ./gallery.json --public-dir assets --images-dir photos --thumbnails-dir thumbs',
+    );
 
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(1);
@@ -244,7 +260,12 @@ export async function setup(options: SetupOptions): Promise<void> {
 
   try {
     await fs.access(cliGalleryPath);
-    await convertAndSetup(cliGalleryPath, outputPath, options.copyFallback);
+    const publicDirConfig: PublicDirConfig = {
+      publicDir: options.publicDir || DEFAULT_PUBLIC_DIR_CONFIG.publicDir,
+      images: options.imagesDir || DEFAULT_PUBLIC_DIR_CONFIG.images,
+      thumbnails: options.thumbnailsDir || DEFAULT_PUBLIC_DIR_CONFIG.thumbnails,
+    };
+    await convertAndSetup(cliGalleryPath, outputPath, options.copyFallback, publicDirConfig);
   } catch (error) {
     if (error instanceof Error && error.message.includes('ENOENT')) {
       throw new Error(`CLI gallery file not found: ${cliGalleryPath}`);

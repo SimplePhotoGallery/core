@@ -1,8 +1,6 @@
-// Import proper types from PhotoSwipe
 import type PhotoSwipe from 'photoswipe';
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
 
-// Define interfaces for types that aren't directly exported
 interface Slide {
   content: Content;
   height: number;
@@ -21,7 +19,7 @@ interface Content {
   onLoaded?: () => void;
   appendImage?: () => void;
   slide?: Slide;
-  _videoPosterImg?: HTMLImageElement; // Add proper typing for custom property
+  _videoPosterImg?: HTMLImageElement;
 }
 
 interface SlideData {
@@ -93,7 +91,6 @@ class VideoContentSetup {
 
     lightbox.addFilter('domItemData', (value: unknown, ...args: unknown[]) => {
       const itemData = value as Record<string, unknown>;
-      const _element = args[0] as HTMLElement; // Unused but required by interface
       const linkEl = args[1] as HTMLAnchorElement;
 
       if (itemData.type === 'video' && linkEl) {

@@ -23,7 +23,7 @@ Options:
 Converts CLI-generated gallery to template format and creates symbolic links to external media files.
 
 ```bash
-gallery setup -c <cli-gallery> -o <output> [--copy-fallback]
+gallery setup -c <cli-gallery> -o <output> [--copy-fallback] [--public-dir <path>] [--images-dir <path>] [--thumbnails-dir <path>]
 ```
 
 Options:
@@ -31,6 +31,9 @@ Options:
 - `-c, --cli-gallery <path>`: Path to CLI-generated gallery.json file (required)
 - `-o, --output <path>`: Output path for template gallery.json (default: ./gallery.json)
 - `--copy-fallback`: Copy files instead of creating symbolic links
+- `--public-dir <path>`: Public directory name (default: public)
+- `--images-dir <path>`: Directory name for images in public folder (default: images)
+- `--thumbnails-dir <path>`: Directory name for thumbnails in public folder (default: thumbnails)
 
 ### `gallery thumbnails`
 
@@ -44,6 +47,47 @@ Options:
 
 - `-p, --path <path>`: Path containing .simple-photo-gallery folder (default: current directory)
 - `-s, --size <size>`: Thumbnail height in pixels (default: 200)
+
+## Configurable Directory Structure
+
+The `gallery setup` command allows you to customize where your media files are stored in the public directory. By default, files are organized as:
+
+```
+template/
+├── public/
+│   ├── images/          # Original media files
+│   └── thumbnails/      # Generated thumbnails
+└── gallery.json
+```
+
+### Custom Directory Layout
+
+You can customize this structure using the directory options:
+
+```bash
+# Custom subdirectories
+gallery setup -c gallery.json -o template/gallery.json --images-dir media --thumbnails-dir thumbs
+
+# Custom public directory
+gallery setup -c gallery.json -o template/gallery.json --public-dir assets --images-dir photos --thumbnails-dir thumbs
+```
+
+This would create:
+
+```
+template/
+├── assets/              # Custom public directory
+│   ├── photos/          # Original media files
+│   └── thumbs/          # Generated thumbnails
+└── gallery.json
+```
+
+### URL Structure
+
+The directory configuration affects the URLs used in the gallery:
+
+- **Default**: `/images/filename.jpg` and `/thumbnails/filename.jpg`
+- **Custom**: `/photos/filename.jpg` and `/thumbs/filename.jpg`
 
 ## Symbolic Links and Copy Fallback
 
@@ -106,4 +150,17 @@ gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.
 
 # 4. Or setup with copy fallback (Windows compatibility)
 gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.json --copy-fallback
+```
+
+### Custom directory structure:
+
+```bash
+# Use custom directory names
+gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.json \
+  --public-dir assets \
+  --images-dir photos \
+  --thumbnails-dir thumbs
+
+# This creates: template/assets/photos/ and template/assets/thumbs/
+# URLs will be: /photos/filename.jpg and /thumbs/filename.jpg
 ```
