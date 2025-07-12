@@ -3,7 +3,7 @@ import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero
 
 interface Props {
   title: string;
-  description: string;
+  description?: string;
   backgroundImage: string;
 }
 
@@ -17,7 +17,7 @@ const { title, description, backgroundImage } = Astro.props;
   </div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>
-    <p class="hero__description">{description}</p>
+    {description && <p class="hero__description">{description}</p>}
     <HeroScrollToGalleryBtn />
   </div>
 </section>
