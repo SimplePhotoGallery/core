@@ -15,7 +15,7 @@ const { image } = Astro.props;
     data-pswp-width={image.width}
     data-pswp-height={image.height}
     data-pswp-type={image.type}
-    data-pswp-caption={`<p class="image-caption">${image.description}</p>`}>
+    data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}>
     <img
       src={image.thumbnail.path}
       alt={image.alt}
