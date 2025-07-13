@@ -17,11 +17,11 @@ const { image } = Astro.props;
     data-pswp-type={image.type}
     data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}>
     <img
-      src={image.thumbnail.path}
+      src={image.thumbnail?.path}
       alt={image.alt}
       loading="lazy"
-      width={image.thumbnail.width}
-      height={image.thumbnail.height}
+      width={image.thumbnail?.width}
+      height={image.thumbnail?.height}
     />
   </a>
 </div>

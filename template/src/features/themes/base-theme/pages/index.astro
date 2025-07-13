@@ -7,7 +7,8 @@ import galleryData from 'gallery.json';
 
 import type { GalleryData } from '@/features/themes/base-theme/types/gallery';
 
-const gallery: GalleryData = galleryData;
+const gallery = galleryData as GalleryData;
+
 const { title, description, headerImage, metadata, sections } = gallery;
 ---
 

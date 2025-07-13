@@ -39,6 +39,7 @@ export interface GalleryMetadata {
 export interface GalleryData {
   title: string;
   description?: string;
+  outputDir?: string;
   headerImage: string;
   metadata?: GalleryMetadata;
   sections: GallerySection[];

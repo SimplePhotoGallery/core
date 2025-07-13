@@ -5,8 +5,8 @@ import process from 'node:process';
 
 import { DEFAULT_PUBLIC_DIR_CONFIG } from './consts/config';
 
-import type { PublicDirConfig, SetupOptions } from './types';
 import type { GalleryData } from '../../types';
+import type { PublicDirConfig, SetupOptions } from './types';
 
 async function createSymbolicLinks(
   externalImagePath: string,

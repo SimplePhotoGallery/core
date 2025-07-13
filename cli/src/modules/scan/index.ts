@@ -3,10 +3,10 @@ import path from 'node:path';
 
 import { getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
-import type { ScanOptions } from './types';
 import type { MediaFile } from '../../types';
+import type { ScanOptions } from './types';
 
-async function scanDirectory(dirPath: string, recursive: boolean = false): Promise<MediaFile[]> {
+async function scanDirectory(dirPath: string, scanRoot: string, recursive: boolean = false): Promise<MediaFile[]> {
   const mediaFiles: MediaFile[] = [];
 
   try {
@@ -16,7 +16,7 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
       const fullPath = path.join(dirPath, entry.name);
 
       if (entry.isDirectory() && recursive) {
-        const subDirFiles = await scanDirectory(fullPath, recursive);
+        const subDirFiles = await scanDirectory(fullPath, scanRoot, recursive);
         mediaFiles.push(...subDirFiles);
       } else if (entry.isFile()) {
         const mediaType = isMediaFile(entry.name);
@@ -55,9 +55,12 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
             continue; // Skip this file
           }
 
+          // Calculate relative path from scan root
+          const relativePath = path.relative(scanRoot, fullPath);
+
           const mediaFile: MediaFile = {
             type: mediaType,
-            path: fullPath,
+            path: relativePath,
             width: metadata.width,
             height: metadata.height,
           };
@@ -96,7 +99,7 @@ export async function scan(options: ScanOptions): Promise<void> {
     await fs.mkdir(outputPath, { recursive: true });
 
     // Scan for media files
-    const mediaFiles = await scanDirectory(scanPath, options.recursive);
+    const mediaFiles = await scanDirectory(scanPath, scanPath, options.recursive);
 
     console.log(`Found ${mediaFiles.length} media files`);
 
@@ -104,7 +107,7 @@ export async function scan(options: ScanOptions): Promise<void> {
     const galleryData = {
       title: 'My Gallery',
       description: 'My gallery with fantastic photos.',
-      headerImage: mediaFiles[0].path,
+      headerImage: mediaFiles[0]?.path || '',
       metadata: { ogUrl: '' },
       sections: [
         {

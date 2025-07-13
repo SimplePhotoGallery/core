@@ -6,6 +6,7 @@ import { Command } from 'commander';
 
 import { scan } from './modules/scan';
 import { setup } from './modules/setup';
+import { setupAstro } from './modules/setup-template';
 import { thumbnails } from './modules/thumbnails';
 
 const program = new Command();
@@ -44,6 +45,23 @@ program
   .option('--images-dir <path>', 'Directory name for images in public folder (default: images)', 'images')
   .option('--thumbnails-dir <path>', 'Directory name for thumbnails in public folder (default: thumbnails)', 'thumbnails')
   .action(setup);
+
+program
+  .command('setup-template')
+  .description('Modify Astro config to point to external images directory')
+  .option('--astro-config <path>', 'Path to astro.config.ts file (required)', '')
+  .option('--images-path <path>', 'Path to images directory (required)', '')
+  .option('--gallery-json <path>', 'Path to gallery.json file (required)', '')
+  .option('--mode <mode>', 'Mode: dev or prod (default: prod)', 'prod')
+  .action((options: { astroConfig: string; imagesPath: string; galleryJson: string; mode: string }) => {
+    const setupAstroOptions = {
+      astroConfig: options.astroConfig,
+      imagesPath: options.imagesPath,
+      galleryJsonPath: options.galleryJson,
+      mode: options.mode as 'dev' | 'prod',
+    };
+    setupAstro(setupAstroOptions);
+  });
 
 program
   .command('thumbnails')

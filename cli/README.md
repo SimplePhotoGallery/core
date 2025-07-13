@@ -35,6 +35,21 @@ Options:
 - `--images-dir <path>`: Directory name for images in public folder (default: images)
 - `--thumbnails-dir <path>`: Directory name for thumbnails in public folder (default: thumbnails)
 
+### `gallery setup-astro`
+
+Modifies Astro config to point directly to external images directory and updates internal config to point to gallery.json (no symbolic links needed).
+
+```bash
+gallery setup-astro --images-path <path> --astro-config <path> --gallery-json <path> --internal-config <path>
+```
+
+Options:
+
+- `--images-path <path>`: Path to images directory (required)
+- `--astro-config <path>`: Path to astro.config.ts file (required)
+- `--gallery-json <path>`: Path to gallery.json file (required)
+- `--internal-config <path>`: Path to internal config file (src/config/index.ts) (required)
+
 ### `gallery thumbnails`
 
 Creates thumbnails for all media files in gallery.json.
@@ -89,9 +104,23 @@ The directory configuration affects the URLs used in the gallery:
 - **Default**: `/images/filename.jpg` and `/thumbnails/filename.jpg`
 - **Custom**: `/photos/filename.jpg` and `/thumbs/filename.jpg`
 
-## Symbolic Links and Copy Fallback
+## Setup Approaches
+
+### Symbolic Links Approach (`gallery setup`)
 
 The `gallery setup` command creates symbolic links to your external media files, allowing the web gallery to serve files from their original locations without duplicating them. This approach saves disk space and keeps your gallery in sync with your media library.
+
+### Direct Astro Config Approach (`gallery setup-astro`)
+
+The `gallery setup-astro` command modifies the Astro configuration to point the `publicDir` directly to your external media folder. This eliminates the need for symbolic links entirely and provides a cleaner, more straightforward setup.
+
+**Benefits of the Astro config approach:**
+
+- No symbolic links or file copying required
+- Works on all platforms without special permissions
+- Simpler file structure
+- Direct access to original files
+- No risk of broken links if files are moved
 
 ### How Symbolic Links Work
 
@@ -150,6 +179,12 @@ gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.
 
 # 4. Or setup with copy fallback (Windows compatibility)
 gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.json --copy-fallback
+
+# 5. Or use the new Astro config approach (recommended)
+gallery setup-astro --images-path ./tmp/.simple-photo-gallery --astro-config ./template/astro.config.ts --gallery-json ./template/gallery.json --internal-config ./template/src/config/index.ts
+
+# 6. Or specify custom astro config path
+gallery setup-astro --images-path ../my-photos --astro-config ./custom-astro.config.ts --gallery-json ./gallery.json --internal-config ./src/config/index.ts
 ```
 
 ### Custom directory structure:
