@@ -37,10 +37,10 @@ program
 program
   .command('setup-template')
   .description('Modify Astro config to point to external images directory')
-  .option('--astro-config <path>', 'Path to astro.config.ts file (required)', '')
-  .option('--images-path <path>', 'Path to images directory (required)', '')
-  .option('--gallery-json <path>', 'Path to gallery.json file (required)', '')
-  .option('--mode <mode>', 'Mode: dev or prod (default: prod)', 'prod')
+  .option('-c, --astro-config <path>', 'Path to astro.config.ts file (required)', '')
+  .option('-i, --images-path <path>', 'Path to images directory (required)', '')
+  .option('-g, --gallery-json <path>', 'Path to gallery.json file (required)', '')
+  .option('-m, --mode <mode>', 'Mode: dev or prod (default: prod)', 'prod')
   .action((options: { astroConfig: string; imagesPath: string; galleryJson: string; mode: string }) => {
     const setupAstroOptions = {
       astroConfig: options.astroConfig,

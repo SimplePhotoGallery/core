@@ -37,16 +37,13 @@ export async function thumbnails(options: ThumbnailOptions): Promise<void> {
 
       for (const mediaFile of section.images) {
         try {
-          // Since mediaFile.path is now just the filename, we need to resolve it relative to the scan directory
-          const scanDir = path.dirname(galleryPath); // Go up one level from .simple-photo-gallery
+          const scanDir = path.dirname(galleryPath);
           const originalPath = path.join(scanDir, mediaFile.path);
-          // const originalPath = path.resolve(galleryPath, mediaFile.path);
           const fileName = path.basename(originalPath);
           const fileNameWithoutExt = path.parse(fileName).name;
-          const thumbnailFileName = `${fileNameWithoutExt}.jpg`; // Always save as .jpg
+          const thumbnailFileName = `${fileNameWithoutExt}.jpg`;
           const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
           const relativeThumbnailPath = path.join('.simple-photo-gallery', 'thumbnails', thumbnailFileName);
-          // const relativeThumbnailPath = path.join('thumbnails', thumbnailFileName);
 
           console.log(`Processing ${mediaFile.type}: ${fileName}`);
 
