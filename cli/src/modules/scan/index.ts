@@ -6,19 +6,15 @@ import { getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 import type { ScanOptions } from './types';
 import type { MediaFile } from '../../types';
 
-async function scanDirectory(dirPath: string, recursive: boolean = false): Promise<MediaFile[]> {
+async function scanDirectoryOnly(dirPath: string): Promise<MediaFile[]> {
   const mediaFiles: MediaFile[] = [];
 
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
 
     for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name);
-
-      if (entry.isDirectory() && recursive) {
-        const subDirFiles = await scanDirectory(fullPath, recursive);
-        mediaFiles.push(...subDirFiles);
-      } else if (entry.isFile()) {
+      if (entry.isFile()) {
+        const fullPath = path.join(dirPath, entry.name);
         const mediaType = isMediaFile(entry.name);
         if (mediaType) {
           console.log(`Processing ${mediaType}: ${entry.name}`);
@@ -77,46 +73,98 @@ async function scanDirectory(dirPath: string, recursive: boolean = false): Promi
   return mediaFiles;
 }
 
+async function createGalleryJson(mediaFiles: MediaFile[], galleryJsonPath: string): Promise<void> {
+  const galleryData = {
+    title: 'My Gallery',
+    description: 'My gallery with fantastic photos.',
+    headerImage: mediaFiles[0]?.path || '',
+    metadata: { ogUrl: '' },
+    sections: [
+      {
+        images: mediaFiles,
+      },
+    ],
+  };
+
+  await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+}
+
+async function scanRecursively(dirPath: string, options: ScanOptions): Promise<number> {
+  let totalFiles = 0;
+
+  // Scan current directory for media files
+  const mediaFiles = await scanDirectoryOnly(dirPath);
+
+  if (mediaFiles.length > 0) {
+    const outputPath = options.output
+      ? path.resolve(options.output, path.relative(path.resolve(options.path), dirPath), 'gallery')
+      : path.join(dirPath, 'gallery');
+    const galleryJsonPath = path.join(outputPath, 'gallery.json');
+
+    // Create output directory
+    await fs.mkdir(outputPath, { recursive: true });
+
+    // Create gallery.json for this directory
+    await createGalleryJson(mediaFiles, galleryJsonPath);
+
+    console.log(`Gallery JSON created at: ${galleryJsonPath} (${mediaFiles.length} files)`);
+    totalFiles += mediaFiles.length;
+  }
+
+  // Recursively scan subdirectories
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      if (entry.isDirectory() && entry.name !== 'gallery') {
+        const subDirPath = path.join(dirPath, entry.name);
+        const subDirFiles = await scanRecursively(subDirPath, options);
+        totalFiles += subDirFiles;
+      }
+    }
+  } catch (error) {
+    console.error(`Error reading directory ${dirPath}:`, error);
+  }
+
+  return totalFiles;
+}
+
 export async function scan(options: ScanOptions): Promise<void> {
   const scanPath = path.resolve(options.path);
-  const outputPath = options.output
-    ? path.resolve(options.output, '.simple-photo-gallery')
-    : path.resolve(scanPath, '.simple-photo-gallery');
-  const galleryJsonPath = path.join(outputPath, 'gallery.json');
 
   console.log(`Scanning directory: ${scanPath}`);
-  console.log(`Output directory: ${outputPath}`);
   console.log(`Recursive: ${options.recursive}`);
 
   try {
     // Ensure scan path exists
     await fs.access(scanPath);
 
-    // Ensure output directory exists
-    await fs.mkdir(outputPath, { recursive: true });
+    if (options.recursive) {
+      // In recursive mode, create separate gallery.json for each directory
+      const totalFiles = await scanRecursively(scanPath, options);
+      console.log(`Total files processed: ${totalFiles}`);
+    } else {
+      // In non-recursive mode, create single gallery.json
+      const outputPath = options.output ? path.resolve(options.output, 'gallery') : path.resolve(scanPath, 'gallery');
+      const galleryJsonPath = path.join(outputPath, 'gallery.json');
 
-    // Scan for media files
-    const mediaFiles = await scanDirectory(scanPath, options.recursive);
+      console.log(`Output directory: ${outputPath}`);
 
-    console.log(`Found ${mediaFiles.length} media files`);
+      // Ensure output directory exists
+      await fs.mkdir(outputPath, { recursive: true });
 
-    // Create gallery.json
-    const galleryData = {
-      title: 'My Gallery',
-      description: 'My gallery with fantastic photos.',
-      headerImage: mediaFiles[0].path,
-      metadata: { ogUrl: '' },
-      sections: [
-        {
-          images: mediaFiles,
-        },
-      ],
-    };
+      // Scan for media files (non-recursively)
+      const mediaFiles = await scanDirectoryOnly(scanPath);
 
-    await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+      console.log(`Found ${mediaFiles.length} media files`);
 
-    console.log(`Gallery JSON created at: ${galleryJsonPath}`);
-    console.log(`Total files processed: ${mediaFiles.length}`);
+      if (mediaFiles.length > 0) {
+        await createGalleryJson(mediaFiles, galleryJsonPath);
+        console.log(`Gallery JSON created at: ${galleryJsonPath}`);
+      }
+
+      console.log(`Total files processed: ${mediaFiles.length}`);
+    }
   } catch (error) {
     throw new Error(`Error during scan: ${error}`);
   }
