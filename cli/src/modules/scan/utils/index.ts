@@ -1,3 +1,4 @@
+import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import exifReader from 'exif-reader';
@@ -58,4 +59,40 @@ export function isMediaFile(fileName: string): 'image' | 'video' | null {
   if (IMAGE_EXTENSIONS.has(ext)) return 'image';
   if (VIDEO_EXTENSIONS.has(ext)) return 'video';
   return null;
+}
+
+export function capitalizeTitle(folderName: string): string {
+  return folderName
+    .replace('-', ' ')
+    .replace('_', ' ')
+    .split(' ')
+    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+export async function hasMediaFiles(dirPath: string): Promise<boolean> {
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+
+    // Check for media files in current directory
+    for (const entry of entries) {
+      if (entry.isFile() && isMediaFile(entry.name)) {
+        return true;
+      }
+    }
+
+    // Check subdirectories recursively
+    for (const entry of entries) {
+      if (entry.isDirectory() && entry.name !== 'gallery') {
+        const subDirPath = path.join(dirPath, entry.name);
+        if (await hasMediaFiles(subDirPath)) {
+          return true;
+        }
+      }
+    }
+  } catch (error) {
+    console.error(`Error checking for media files in ${dirPath}:`, error);
+  }
+
+  return false;
 }
