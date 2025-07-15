@@ -1,0 +1,25 @@
+{
+  "title": "My Gallery",
+  "description": "My gallery with fantastic photos.",
+  "headerImage": "usa-127.jpg",
+  "metadata": {
+    "ogUrl": ""
+  },
+  "sections": [
+    {
+      "images": []
+    }
+  ],
+  "subgalleries": [
+    {
+      "title": "USA",
+      "headerImage": "usa/photo_1.jpg",
+      "path": "./usa"
+    },
+    {
+      "title": "Japan",
+      "headerImage": "japan/photo_1.jpg",
+      "path": "./japan"
+    }
+  ]
+}
