@@ -1,11 +1,10 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { getImageMetadata, getVideoDimensions, isMediaFile, capitalizeTitle } from './utils';
+import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
-import type { ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
-import type { ScanOptions } from './types';
+import type { ScanOptions, SubGallery } from './types';
 
 async function scanDirectoryOnly(dirPath: string): Promise<MediaFile[]> {
   const mediaFiles: MediaFile[] = [];
@@ -52,12 +51,9 @@ async function scanDirectoryOnly(dirPath: string): Promise<MediaFile[]> {
             continue; // Skip this file
           }
 
-          // Calculate relative path from scan root
-          const relativePath = path.relative(scanRoot, fullPath);
-
           const mediaFile: MediaFile = {
             type: mediaType,
-            path: relativePath,
+            path: fullPath,
             width: metadata.width,
             height: metadata.height,
           };
