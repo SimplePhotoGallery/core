@@ -1,7 +1,7 @@
 {
   "title": "My Gallery",
   "description": "My gallery with fantastic photos.",
-  "headerImage": "../usa-127.jpg",
+  "headerImage": "../ai-generated-nature-167.webp",
   "metadata": {
     "ogUrl": ""
   },
@@ -10,48 +10,87 @@
       "images": [
         {
           "type": "image",
-          "path": "../usa-127.jpg",
-          "width": 2880,
-          "height": 2160,
-          "alt": "Black Rock camping in Joshua Tree National Park",
+          "path": "../ai-generated-nature-167.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "gallery/thumbnails/usa-127.jpg",
-            "width": 267,
+            "path": "thumbnails/ai-generated-nature-167.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../usa-129.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Jackrabbit with long ears",
+          "path": "../ai-generated-nature-170.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "gallery/thumbnails/usa-129.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-170.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../usa-130.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Joshua Tree fruits",
+          "path": "../ai-generated-nature-172.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "gallery/thumbnails/usa-130.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-172.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../ai-generated-nature-177.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "thumbnails/ai-generated-nature-177.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../ai-generated-nature-179.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "thumbnails/ai-generated-nature-179.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../ai-generated-nature-185.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "thumbnails/ai-generated-nature-185.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../ai-generated-nature-192.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "thumbnails/ai-generated-nature-192.jpg",
+            "width": 200,
             "height": 200
           }
         }
       ]
     }
   ],
-  "subgalleries": [
-    {
-      "title": "Manhatan",
-      "headerImage": "../manhatan/usa-127.jpg",
-      "path": "./manhatan"
-    }
-  ]
+  "subGalleries": {
+    "title": "Sub Galleries",
+    "galleries": []
+  },
+  "outputDir": "../template/example/usa/san-francisco/twin-peaks/gallery"
 }

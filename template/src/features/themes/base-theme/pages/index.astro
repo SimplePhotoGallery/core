@@ -2,19 +2,26 @@
 import GallerySection from '@/features/themes/base-theme/components/gallery-section/GallerySection.astro';
 import Hero from '@/features/themes/base-theme/components/hero/Hero.astro';
 import PhotoSwipe from '@/features/themes/base-theme/components/lightbox/PhotoSwipe.astro';
+import SubGalleries from '@/features/themes/base-theme/components/sub-galleries/SubGalleries.astro';
 import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
 import galleryData from 'gallery.json';
+// import galleryData from 'gallery.json';
 
 import type { GalleryData } from '@/features/themes/base-theme/types/gallery';
 
 const gallery = galleryData as GalleryData;
 
-const { title, description, headerImage, metadata, sections } = gallery;
+const { title, description, headerImage, metadata, sections, subGalleries } = gallery;
 ---
 
 <MainLayout title={title} metadata={metadata}>
   <Hero title={title} description={description} backgroundImage={headerImage} />
 
+  {
+    subGalleries && subGalleries.galleries.length > 0 && (
+      <SubGalleries title={subGalleries.title} subGalleries={subGalleries.galleries} />
+    )
+  }
   {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
 
   <PhotoSwipe />

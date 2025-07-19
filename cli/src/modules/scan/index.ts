@@ -86,7 +86,7 @@ async function createGalleryJson(
     path: path.relative(galleryDir, file.path),
   }));
 
-  // Convert subgallery header image paths to be relative to gallery.json
+  // Convert subGallery header image paths to be relative to gallery.json
   const relativeSubGalleries = subGalleries.map((subGallery) => ({
     ...subGallery,
     headerImage: subGallery.headerImage ? path.relative(galleryDir, subGallery.headerImage) : '',
@@ -102,7 +102,10 @@ async function createGalleryJson(
         images: relativeMediaFiles,
       },
     ],
-    subgalleries: relativeSubGalleries,
+    subGalleries: {
+      title: 'Sub Galleries',
+      galleries: relativeSubGalleries,
+    },
   };
 
   await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
@@ -132,7 +135,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
           const result = await processDirectory(subDirPath, options);
           totalFiles += result.totalFiles;
 
-          // If the subdirectory had media files, add it as a subgallery
+          // If the subdirectory had media files, add it as a subGallery
           if (result.subGallery) {
             subGalleries.push(result.subGallery);
           }
@@ -143,7 +146,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
     }
   }
 
-  // Create gallery.json if there are media files or subgalleries
+  // Create gallery.json if there are media files or subGalleries
   if (mediaFiles.length > 0 || subGalleries.length > 0) {
     const outputPath = options.output
       ? path.resolve(options.output, path.relative(path.resolve(options.path), dirPath), 'gallery')
@@ -161,7 +164,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
     );
   }
 
-  // Return result with subgallery info if this directory has media files
+  // Return result with suGgallery info if this directory has media files
   const result: ProcessResult = { totalFiles };
 
   if (mediaFiles.length > 0 || subGalleries.length > 0) {
