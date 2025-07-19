@@ -80,7 +80,6 @@ function processGalleryJson(galleryDir: string, templateDir: string) {
   let galleryConfig;
   try {
     galleryConfig = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
-    // galleryConfig = JSON.parse(fs.readFileSync(templateGalleryJsonPath, 'utf8'));
   } catch {
     console.error(`Failed to parse gallery.json in ${galleryDir}`);
     return;
@@ -88,7 +87,6 @@ function processGalleryJson(galleryDir: string, templateDir: string) {
   // Set outputDir to the gallery subfolder
   galleryConfig.outputDir = path.join(galleryDir, 'gallery');
   fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryConfig, null, 2));
-  // fs.writeFileSync(templateGalleryJsonPath, JSON.stringify(galleryConfig, null, 2));
 
   // 3. Run npm run build in template directory
   try {
