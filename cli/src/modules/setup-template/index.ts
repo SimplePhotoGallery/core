@@ -4,6 +4,16 @@ import path from 'node:path';
 // __dirname workaround for ESM modules
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
+// Helper function to resolve paths relative to current file
+function resolveFromCurrentDir(...segments: string[]): string {
+  return path.resolve(__dirname, ...segments);
+}
+
+// Helper to get project root (4 levels up from cli/src/modules/setup-template)
+function getProjectRoot(): string {
+  return resolveFromCurrentDir('../../../../');
+}
+
 function findGalleryJsons(basePath: string, recursive: boolean): string[] {
   const foundDirs: string[] = [];
   function search(dir: string) {
@@ -125,7 +135,7 @@ function copyDirSync(src: string, dest: string) {
 
 export async function setupTemplate(options: { imagesPath: string; recursive: boolean }): Promise<void> {
   const { imagesPath, recursive } = options;
-  const templateDir = path.resolve(__dirname, '../../../../template');
+  const templateDir = path.join(getProjectRoot(), 'template');
   const galleryDirs = findGalleryJsons(imagesPath, recursive);
   if (galleryDirs.length === 0) {
     console.log('No gallery/gallery.json files found.');

@@ -12,5 +12,5 @@ export default defineConfig({
     assets: 'simple-photo-gallery-assets',
   },
   integrations: [relativeLinks()],
-  publicDir: 'public',
+  publicDir: 'public', //when developing, use public-dev dir to serve assets as public will be included in the build
 });
