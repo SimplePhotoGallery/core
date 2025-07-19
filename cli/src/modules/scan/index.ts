@@ -172,7 +172,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
     result.subGallery = {
       title: capitalizeTitle(dirName),
       headerImage: mediaFiles[0]?.path || '',
-      path: `../${dirName}/gallery`,
+      path: path.join('..', dirName, 'gallery'),
     };
   }
 
