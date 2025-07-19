@@ -5,7 +5,7 @@ import process from 'node:process';
 import { Command } from 'commander';
 
 import { scan } from './modules/scan';
-import { setupAstro } from './modules/setup-template';
+import { setupTemplate } from './modules/setup-template';
 import { thumbnails } from './modules/thumbnails';
 
 const program = new Command();
@@ -37,18 +37,14 @@ program
 program
   .command('setup-template')
   .description('Modify Astro config to point to external images directory')
-  .option('-c, --astro-config <path>', 'Path to astro.config.ts file (required)', '')
   .option('-i, --images-path <path>', 'Path to images directory (required)', '')
-  .option('-g, --gallery-json <path>', 'Path to gallery.json file (required)', '')
-  .option('-m, --mode <mode>', 'Mode: dev or prod (default: prod)', 'prod')
-  .action((options: { astroConfig: string; imagesPath: string; galleryJson: string; mode: string }) => {
+  .option('-r, --recursive', 'Scan subdirectories recursively', false)
+  .action(async (options: { imagesPath: string; recursive: boolean }) => {
     const setupAstroOptions = {
-      astroConfig: options.astroConfig,
       imagesPath: options.imagesPath,
-      galleryJsonPath: options.galleryJson,
-      mode: options.mode as 'dev' | 'prod',
+      recursive: options.recursive,
     };
-    setupAstro(setupAstroOptions);
+    await setupTemplate(setupAstroOptions);
   });
 
 program

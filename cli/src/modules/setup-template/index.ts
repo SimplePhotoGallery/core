@@ -1,179 +1,137 @@
-import { promises as fs } from 'node:fs';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
+// __dirname workaround for ESM modules
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-interface SetupAstroOptions {
-  astroConfig: string;
-  imagesPath: string;
-  galleryJsonPath: string;
-  mode?: 'dev' | 'prod';
-}
-
-async function copyGalleryJsonProd(galleryJsonPath: string, astroConfigPath: string): Promise<void> {
-  try {
-    // Get the directory where the astro config is located
-    const astroConfigDir = path.dirname(astroConfigPath);
-    const destinationPath = path.join(astroConfigDir, 'gallery.json');
-
-    // Calculate relative path from astro config to gallery.json directory
-    const relativeGalleryJsonPath = path.relative(astroConfigDir, path.dirname(galleryJsonPath));
-
-    // Read the gallery.json file
-    const galleryContent = await fs.readFile(galleryJsonPath, 'utf8');
-    const galleryData = JSON.parse(galleryContent);
-
-    // Add outputDir to gallery.json
-    galleryData.outputDir = relativeGalleryJsonPath;
-
-    // Add '../' prefix to headerImage
-    if (galleryData.headerImage) {
-      galleryData.headerImage = `../${galleryData.headerImage}`;
+function findGalleryJsons(basePath: string, recursive: boolean): string[] {
+  const foundDirs: string[] = [];
+  function search(dir: string) {
+    const galleryJsonPath = path.join(dir, 'gallery', 'gallery.json');
+    if (fs.existsSync(galleryJsonPath)) {
+      foundDirs.push(dir);
     }
-
-    // Process each section and image
-    if (galleryData.sections) {
-      for (const section of galleryData.sections) {
-        if (section.images) {
-          for (const image of section.images) {
-            // Add '../' prefix to image paths
-            if (image.path) {
-              image.path = `../${image.path}`;
-            }
-
-            // Remove '.simple-photo-gallery' from thumbnail paths
-            if (image.thumbnail && image.thumbnail.path) {
-              image.thumbnail.path = image.thumbnail.path.replace('.simple-photo-gallery/', '');
-            }
-          }
+    if (recursive) {
+      let entries: string[] = [];
+      try {
+        entries = fs.readdirSync(dir);
+      } catch {
+        return;
+      }
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry);
+        if (fs.statSync(fullPath).isDirectory()) {
+          search(fullPath);
         }
       }
     }
-
-    // Write the modified gallery.json file
-    await fs.writeFile(destinationPath, JSON.stringify(galleryData, null, 2));
-
-    console.log(`✅ Copied and modified gallery.json to: ${destinationPath}`);
-  } catch (error) {
-    throw new Error(`Error copying gallery.json: ${error}`);
   }
-}
-
-async function copyGalleryJsonDev(galleryJsonPath: string, astroConfigPath: string): Promise<void> {
-  try {
-    // Get the directory where the astro config is located
-    const astroConfigDir = path.dirname(astroConfigPath);
-    const destinationPath = path.join(astroConfigDir, 'gallery.json');
-
-    // Copy gallery.json as-is
-    await fs.copyFile(galleryJsonPath, destinationPath);
-
-    console.log(`✅ Copied gallery.json to: ${destinationPath}`);
-  } catch (error) {
-    throw new Error(`Error copying gallery.json: ${error}`);
-  }
-}
-
-async function modifyAstroConfig(astroConfigPath: string, imagesPath: string, mode: 'dev' | 'prod'): Promise<void> {
-  try {
-    // Read the astro config file
-    const astroConfigContent = await fs.readFile(astroConfigPath, 'utf8');
-
-    if (mode === 'dev') {
-      // Calculate relative path from astro config to images directory
-      const astroConfigDir = path.dirname(astroConfigPath);
-      const relativeImagesPath = path.relative(astroConfigDir, imagesPath);
-
-      // Replace the publicDir setting to point to the images path
-      const modifiedContent = astroConfigContent.replace(
-        /publicDir:\s*['"][^'"]*['"]/,
-        `publicDir: '${relativeImagesPath}'`,
-      );
-
-      // Write the modified astro config file
-      await fs.writeFile(astroConfigPath, modifiedContent);
-
-      console.log(`✅ Modified astro.config.ts to use images path: ${relativeImagesPath}`);
-    } else {
-      // In prod mode, ensure publicDir is set to 'public'
-      const modifiedContent = astroConfigContent.replace(/publicDir:\s*['"][^'"]*['"]/, `publicDir: 'public'`);
-
-      // Write the modified astro config file
-      await fs.writeFile(astroConfigPath, modifiedContent);
-
-      console.log(`✅ Modified astro.config.ts to use public directory`);
+  if (recursive) {
+    search(basePath);
+  } else {
+    // Check basePath itself
+    const galleryJsonPath = path.join(basePath, 'gallery', 'gallery.json');
+    if (fs.existsSync(galleryJsonPath)) {
+      foundDirs.push(basePath);
     }
-  } catch (error) {
-    throw new Error(`Error modifying astro.config.ts: ${error}`);
-  }
-}
-
-export async function setupAstro(options: SetupAstroOptions): Promise<void> {
-  const mode = options.mode || 'prod'; // Default to prod mode
-
-  // Validate required options
-  if (!options.imagesPath) {
-    throw new Error(
-      '❌ Error: --images-path option is required\n\nUsage:\n  gallery setup-astro --images-path <path> --astro-config <path> --gallery-json <path> [--mode <dev|prod>]\n\nExamples:\n  gallery setup-astro --images-path ../my-photos --astro-config ./astro.config.ts --gallery-json ./gallery.json\n  gallery setup-astro --images-path ../my-photos --astro-config ./astro.config.ts --gallery-json ./gallery.json --mode dev',
-    );
-  }
-
-  if (!options.astroConfig) {
-    throw new Error(
-      '❌ Error: --astro-config option is required\n\nUsage:\n  gallery setup-astro --images-path <path> --astro-config <path> --gallery-json <path> [--mode <dev|prod>]\n\nExamples:\n  gallery setup-astro --images-path ../my-photos --astro-config ./astro.config.ts --gallery-json ./gallery.json\n  gallery setup-astro --images-path ../my-photos --astro-config ./astro.config.ts --gallery-json ./gallery.json --mode dev',
-    );
-  }
-
-  if (!options.galleryJsonPath) {
-    throw new Error(
-      '❌ Error: --gallery-json option is required\n\nUsage:\n  gallery setup-astro --images-path <path> --astro-config <path> --gallery-json <path> [--mode <dev|prod>]\n\nExamples:\n  gallery setup-astro --images-path ../my-photos --astro-config ./astro.config.ts --gallery-json ./gallery.json\n  gallery setup-astro --images-path ../my-photos --astro-config ./astro.config.ts --gallery-json ./gallery.json --mode dev',
-    );
-  }
-
-  const imagesPath = path.resolve(options.imagesPath);
-  const astroConfigPath = path.resolve(options.astroConfig);
-  const galleryJsonPath = path.resolve(options.galleryJsonPath);
-
-  console.log(`🚀 Setting up Astro config for external images in ${mode} mode...\n`);
-
-  try {
-    // Verify all paths exist
-    await fs.access(imagesPath);
-    await fs.access(astroConfigPath);
-    await fs.access(galleryJsonPath);
-
-    console.log(`📁 Images Path: ${imagesPath}`);
-    console.log(`📁 Astro Config: ${astroConfigPath}`);
-    console.log(`📁 Gallery JSON: ${galleryJsonPath}`);
-    console.log(`🔧 Mode: ${mode}`);
-
-    // Copy gallery.json based on mode
-    await (mode === 'dev'
-      ? copyGalleryJsonDev(galleryJsonPath, astroConfigPath)
-      : copyGalleryJsonProd(galleryJsonPath, astroConfigPath));
-
-    // Modify astro.config.ts
-    await modifyAstroConfig(astroConfigPath, imagesPath, mode);
-
-    console.log(`\n🎉 Astro setup complete in ${mode} mode!`);
-    if (mode === 'dev') {
-      console.log(`📄 Gallery.json has been copied as-is`);
-      console.log(`🔧 Astro config modified to point to images directory`);
-    } else {
-      console.log(`📄 Gallery.json has been copied and modified with outputDir`);
-      console.log(`🔧 Astro config modified to use public directory`);
+    // Check direct subfolders
+    let entries: string[] = [];
+    try {
+      entries = fs.readdirSync(basePath);
+    } catch {
+      return foundDirs;
     }
-    console.log(`🚀 You can now run: npm run dev`);
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('ENOENT')) {
-      let errorMessage = '';
-      if (error.message.includes(imagesPath)) {
-        errorMessage = `Images path not found: ${imagesPath}`;
-      } else if (error.message.includes(astroConfigPath)) {
-        errorMessage = `Astro config file not found: ${astroConfigPath}`;
-      } else if (error.message.includes(galleryJsonPath)) {
-        errorMessage = `Gallery JSON file not found: ${galleryJsonPath}`;
+    for (const entry of entries) {
+      const fullPath = path.join(basePath, entry);
+      if (fs.statSync(fullPath).isDirectory()) {
+        const subGalleryJson = path.join(fullPath, 'gallery', 'gallery.json');
+        if (fs.existsSync(subGalleryJson)) {
+          foundDirs.push(fullPath);
+        }
       }
-      throw new Error(errorMessage);
     }
-    throw new Error(`Error during Astro setup: ${error}`);
+  }
+  return foundDirs;
+}
+
+function processGalleryJson(galleryDir: string, templateDir: string) {
+  const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
+  if (!fs.existsSync(galleryJsonPath)) {
+    console.log(`No gallery/gallery.json found in ${galleryDir}`);
+    return;
+  }
+
+  // 1. Copy gallery.json to template directory
+  const templateGalleryJsonPath = path.join(templateDir, 'gallery.json');
+  fs.copyFileSync(galleryJsonPath, templateGalleryJsonPath);
+
+  // 2. Modify/add outputDir property
+  let galleryConfig;
+  try {
+    galleryConfig = JSON.parse(fs.readFileSync(templateGalleryJsonPath, 'utf8'));
+  } catch {
+    console.error(`Failed to parse gallery.json in ${galleryDir}`);
+    return;
+  }
+  // Set outputDir to the gallery subfolder
+  galleryConfig.outputDir = path.join(galleryDir, 'gallery');
+  fs.writeFileSync(templateGalleryJsonPath, JSON.stringify(galleryConfig, null, 2));
+
+  // 3. Run npm run build in template directory
+  try {
+    execSync('npm run build', { cwd: templateDir, stdio: 'inherit' });
+  } catch {
+    console.error(`Build failed for ${galleryDir}`);
+    return;
+  }
+
+  // 4. Copy everything from _build to outputDir
+  const buildDir = path.join(galleryDir, '_build');
+  if (!fs.existsSync(buildDir)) {
+    console.error(`Build output directory not found: ${buildDir}`);
+    return;
+  }
+  const outputDir = path.join(galleryDir, 'gallery');
+  const buildEntries = fs.readdirSync(buildDir);
+  for (const entry of buildEntries) {
+    const src = path.join(buildDir, entry);
+    const dest = path.join(outputDir, entry);
+    // Remove existing if present
+    if (fs.existsSync(dest)) {
+      fs.rmSync(dest, { recursive: true, force: true });
+    }
+    // Copy file or directory
+    if (fs.statSync(src).isDirectory()) {
+      copyDirSync(src, dest);
+    } else {
+      fs.copyFileSync(src, dest);
+    }
+  }
+}
+
+function copyDirSync(src: string, dest: string) {
+  fs.mkdirSync(dest, { recursive: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+export async function setupTemplate(options: { imagesPath: string; recursive: boolean }): Promise<void> {
+  const { imagesPath, recursive } = options;
+  const templateDir = path.resolve(__dirname, '../../../../template');
+  const galleryDirs = findGalleryJsons(imagesPath, recursive);
+  if (galleryDirs.length === 0) {
+    console.log('No gallery/gallery.json files found.');
+    return;
+  }
+  for (const dir of galleryDirs) {
+    processGalleryJson(dir, templateDir);
   }
 }

@@ -15,9 +15,9 @@
           "height": 2160,
           "alt": "Black Rock camping in Joshua Tree National Park",
           "thumbnail": {
-            "path": "thumbnails/usa-127.jpg",
-            "width": 400,
-            "height": 300
+            "path": "gallery/thumbnails/usa-127.jpg",
+            "width": 267,
+            "height": 200
           }
         },
         {
@@ -27,9 +27,9 @@
           "height": 1920,
           "alt": "Jackrabbit with long ears",
           "thumbnail": {
-            "path": "thumbnails/usa-129.jpg",
-            "width": 450,
-            "height": 300
+            "path": "gallery/thumbnails/usa-129.jpg",
+            "width": 300,
+            "height": 200
           }
         },
         {
@@ -39,95 +39,19 @@
           "height": 1920,
           "alt": "Joshua Tree fruits",
           "thumbnail": {
-            "path": "thumbnails/usa-130.jpg",
-            "width": 450,
-            "height": 300
-          }
-        },
-        {
-          "type": "image",
-          "path": "../usa-158.jpg",
-          "width": 1920,
-          "height": 2880,
-          "alt": "Joshua Tree National Park",
-          "thumbnail": {
-            "path": "thumbnails/usa-158.jpg",
-            "width": 200,
-            "height": 300
-          }
-        },
-        {
-          "type": "video",
-          "path": "../usa-159.mp4",
-          "width": 1920,
-          "height": 1080,
-          "thumbnail": {
-            "path": "thumbnails/usa-159.jpg",
-            "width": 533,
-            "height": 300
-          }
-        },
-        {
-          "type": "image",
-          "path": "../usa-161.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Baker Dam Trail",
-          "thumbnail": {
-            "path": "thumbnails/usa-161.jpg",
-            "width": 450,
-            "height": 300
-          }
-        },
-        {
-          "type": "image",
-          "path": "../usa-166.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Baker Dam Trail",
-          "thumbnail": {
-            "path": "thumbnails/usa-166.jpg",
-            "width": 450,
-            "height": 300
-          }
-        },
-        {
-          "type": "image",
-          "path": "../usa-171.jpg",
-          "width": 1920,
-          "height": 2880,
-          "alt": "Joshua Tree",
-          "thumbnail": {
-            "path": "thumbnails/usa-171.jpg",
-            "width": 200,
-            "height": 300
-          }
-        },
-        {
-          "type": "video",
-          "path": "../usa-183.mp4",
-          "width": 1080,
-          "height": 1920,
-          "thumbnail": {
-            "path": "thumbnails/usa-183.jpg",
-            "width": 169,
-            "height": 300
-          }
-        },
-        {
-          "type": "image",
-          "path": "../usa-202.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Cottonwood Tree Oasis",
-          "thumbnail": {
-            "path": "thumbnails/usa-202.jpg",
-            "width": 450,
-            "height": 300
+            "path": "gallery/thumbnails/usa-130.jpg",
+            "width": 300,
+            "height": 200
           }
         }
       ]
     }
   ],
-  "outputDir": "../tmp/.simple-photo-gallery"
+  "subgalleries": [
+    {
+      "title": "Manhatan",
+      "headerImage": "../manhatan/usa-127.jpg",
+      "path": "./manhatan"
+    }
+  ]
 }
