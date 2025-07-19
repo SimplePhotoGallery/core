@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 // __dirname workaround for ESM modules
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -71,21 +72,23 @@ function processGalleryJson(galleryDir: string, templateDir: string) {
     return;
   }
 
-  // 1. Copy gallery.json to template directory
-  const templateGalleryJsonPath = path.join(templateDir, 'gallery.json');
-  fs.copyFileSync(galleryJsonPath, templateGalleryJsonPath);
+  // 1. Set environment variable for gallery.json path instead of copying
+  const originalEnv = { ...process.env };
+  process.env.GALLERY_JSON_PATH = galleryJsonPath;
 
-  // 2. Modify/add outputDir property
+  // 2. Modify/add outputDir property in the source gallery.json
   let galleryConfig;
   try {
-    galleryConfig = JSON.parse(fs.readFileSync(templateGalleryJsonPath, 'utf8'));
+    galleryConfig = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
+    // galleryConfig = JSON.parse(fs.readFileSync(templateGalleryJsonPath, 'utf8'));
   } catch {
     console.error(`Failed to parse gallery.json in ${galleryDir}`);
     return;
   }
   // Set outputDir to the gallery subfolder
   galleryConfig.outputDir = path.join(galleryDir, 'gallery');
-  fs.writeFileSync(templateGalleryJsonPath, JSON.stringify(galleryConfig, null, 2));
+  fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryConfig, null, 2));
+  // fs.writeFileSync(templateGalleryJsonPath, JSON.stringify(galleryConfig, null, 2));
 
   // 3. Run npm run build in template directory
   try {
@@ -93,15 +96,18 @@ function processGalleryJson(galleryDir: string, templateDir: string) {
   } catch {
     console.error(`Build failed for ${galleryDir}`);
     return;
+  } finally {
+    // Restore original environment
+    process.env = originalEnv;
   }
 
   // 4. Copy everything from _build to outputDir
-  const buildDir = path.join(galleryDir, '_build');
+  const buildDir = path.join(galleryConfig.outputDir, '_build');
   if (!fs.existsSync(buildDir)) {
     console.error(`Build output directory not found: ${buildDir}`);
     return;
   }
-  const outputDir = path.join(galleryDir, 'gallery');
+  const outputDir = path.join(galleryConfig.outputDir);
   const buildEntries = fs.readdirSync(buildDir);
   for (const entry of buildEntries) {
     const src = path.join(buildDir, entry);
@@ -117,6 +123,10 @@ function processGalleryJson(galleryDir: string, templateDir: string) {
       fs.copyFileSync(src, dest);
     }
   }
+
+  // 5. Clean up the _build directory
+  console.log('Cleaning up build directory...');
+  fs.rmSync(buildDir, { recursive: true, force: true });
 }
 
 function copyDirSync(src: string, dest: string) {
