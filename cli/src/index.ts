@@ -36,12 +36,12 @@ program
 
 program
   .command('setup-template')
-  .description('Modify Astro config to point to external images directory')
-  .option('-i, --images-path <path>', 'Path to images directory (required)', '')
+  .description('Setup and build Astro app for each gallery in the specified directory')
+  .option('-p, --path <path>', 'Path to images directory (required)', '')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(async (options: { imagesPath: string; recursive: boolean }) => {
+  .action(async (options: { path: string; recursive: boolean }) => {
     const setupAstroOptions = {
-      imagesPath: options.imagesPath,
+      path: options.path,
       recursive: options.recursive,
     };
     await setupTemplate(setupAstroOptions);
