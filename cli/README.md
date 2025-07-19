@@ -114,7 +114,7 @@ gallery thumbnails --path /path/to/gallery
 
 ### `gallery setup-template`
 
-Configure Astro template to work with external image directories.
+Configure Astro template to work with external image directories and build galleries.
 
 ```bash
 gallery setup-template [options]
@@ -122,26 +122,17 @@ gallery setup-template [options]
 
 **Options:**
 
-- `-c, --astro-config <path>` - Path to astro.config.ts file (required)
 - `-i, --images-path <path>` - Path to images directory (required)
-- `-g, --gallery-json <path>` - Path to gallery.json file (required)
-- `-m, --mode <mode>` - Mode: dev or prod (default: prod)
+- `-r, --recursive` - Scan subdirectories recursively for gallery/gallery.json files
 
 **Examples:**
 
 ```bash
-# Production mode setup
-gallery setup-template \
-  --images-path ../my-photos \
-  --astro-config ./astro.config.ts \
-  --gallery-json ./.simple-photo-gallery/gallery.json
+# Setup template for a single gallery directory
+gallery setup-template --images-path ../my-photos
 
-# Development mode setup
-gallery setup-template \
-  --images-path ../my-photos \
-  --astro-config ./astro.config.ts \
-  --gallery-json ./.simple-photo-gallery/gallery.json \
-  --mode dev
+# Setup template recursively for multiple gallery directories
+gallery setup-template --images-path ../my-photos --recursive
 ```
 
 ## Complete Workflow Examples
@@ -172,10 +163,7 @@ gallery thumbnails --size 250
 
 ```bash
 cd ../template
-gallery setup-template \
-  --images-path ../my-photos \
-  --astro-config ./astro.config.ts \
-  --gallery-json ../my-photos/.simple-photo-gallery/gallery.json
+gallery setup-template --images-path ../my-photos
 ```
 
 5. **Build and serve:**
@@ -253,43 +241,10 @@ gallery thumbnails --size 300
 
 ```bash
 cd ../template
-gallery setup-template \
-  --images-path ../my-photos \
-  --astro-config ./astro.config.ts \
-  --gallery-json ../my-photos/.simple-photo-gallery/gallery.json
+gallery setup-template --images-path ../my-photos
 
 npm run build
 npm run preview
-```
-
-### Development vs Production Modes
-
-**Development Mode:**
-
-- Uses direct paths to image files
-- Faster development workflow
-- Images served from original location
-
-```bash
-gallery setup-template \
-  --images-path ../my-photos \
-  --astro-config ./astro.config.ts \
-  --gallery-json ../my-photos/.simple-photo-gallery/gallery.json \
-  --mode dev
-```
-
-**Production Mode:**
-
-- Copies and optimizes gallery.json
-- Adjusts paths for production deployment
-- Uses public directory structure
-
-```bash
-gallery setup-template \
-  --images-path ../my-photos \
-  --astro-config ./astro.config.ts \
-  --gallery-json ../my-photos/.simple-photo-gallery/gallery.json \
-  --mode prod
 ```
 
 ## File Structure
@@ -347,11 +302,6 @@ _Note: Video processing requires ffmpeg to be installed and available in your PA
 
 - Run `gallery scan` first to create the gallery.json file
 - Check that the path to .simple-photo-gallery folder is correct
-
-**"Astro config not found" error:**
-
-- Ensure the astro.config.ts file exists at the specified path
-- Use absolute paths if needed
 
 **Thumbnail generation fails:**
 
