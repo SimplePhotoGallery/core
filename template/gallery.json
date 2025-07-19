@@ -1,86 +1,88 @@
 {
   "title": "My Gallery",
   "description": "My gallery with fantastic photos.",
-  "headerImage": "../ai-generated-nature-167.webp",
+  "headerImage": "example/ai-generated-nature-195.webp",
   "metadata": {
     "ogUrl": ""
   },
   "sections": [
     {
+      "title": "My beautiful photos",
+      "description": "Collection of my beautiful photos",
       "images": [
         {
           "type": "image",
-          "path": "../ai-generated-nature-167.webp",
+          "path": "example//ai-generated-nature-177.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-167.jpg",
+            "path": "example/thumbnails/ai-generated-nature-177.jpg",
             "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../ai-generated-nature-170.webp",
+          "path": "example/ai-generated-nature-179.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-170.jpg",
+            "path": "example/thumbnails/ai-generated-nature-179.jpg",
             "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../ai-generated-nature-172.webp",
+          "path": "example/ai-generated-nature-185.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-172.jpg",
+            "path": "example/thumbnails/ai-generated-nature-185.jpg",
             "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../ai-generated-nature-177.webp",
+          "path": "example/ai-generated-nature-192.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-177.jpg",
+            "path": "example/thumbnails/ai-generated-nature-192.jpg",
             "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../ai-generated-nature-179.webp",
+          "path": "example/ai-generated-nature-195.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-179.jpg",
+            "path": "example/thumbnails/ai-generated-nature-195.jpg",
             "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../ai-generated-nature-185.webp",
+          "path": "example/ai-generated-nature-196.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-185.jpg",
+            "path": "example/thumbnails/ai-generated-nature-196.jpg",
             "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "../ai-generated-nature-192.webp",
+          "path": "example/ai-generated-nature-199.webp",
           "width": 1024,
           "height": 1024,
           "thumbnail": {
-            "path": "thumbnails/ai-generated-nature-192.jpg",
+            "path": "example/thumbnails/ai-generated-nature-199.jpg",
             "width": 200,
             "height": 200
           }
@@ -90,7 +92,18 @@
   ],
   "subGalleries": {
     "title": "Sub Galleries",
-    "galleries": []
-  },
-  "outputDir": "../template/example/usa/san-francisco/twin-peaks/gallery"
+    "description": "Explore more collections",
+    "galleries": [
+      {
+        "title": "Tokyo",
+        "headerImage": "example/ai-generated-nature-196.webp",
+        "path": "example/tokyo"
+      },
+      {
+        "title": "Osaka",
+        "headerImage": "example/ai-generated-nature-199.webp",
+        "path": "example/osaka"
+      }
+    ]
+  }
 }

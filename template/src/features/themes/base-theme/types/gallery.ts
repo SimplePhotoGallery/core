@@ -50,7 +50,8 @@ export interface GalleryData {
   metadata?: GalleryMetadata;
   sections: GallerySection[];
   subGalleries?: {
-    title: string;
+    title?: string;
+    description?: string;
     galleries: SubGallery[];
   };
 }

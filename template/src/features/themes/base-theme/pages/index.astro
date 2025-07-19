@@ -5,7 +5,6 @@ import PhotoSwipe from '@/features/themes/base-theme/components/lightbox/PhotoSw
 import SubGalleries from '@/features/themes/base-theme/components/sub-galleries/SubGalleries.astro';
 import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
 import galleryData from 'gallery.json';
-// import galleryData from 'gallery.json';
 
 import type { GalleryData } from '@/features/themes/base-theme/types/gallery';
 
@@ -19,7 +18,11 @@ const { title, description, headerImage, metadata, sections, subGalleries } = ga
 
   {
     subGalleries && subGalleries.galleries.length > 0 && (
-      <SubGalleries title={subGalleries.title} subGalleries={subGalleries.galleries} />
+      <SubGalleries
+        title={subGalleries.title}
+        description={subGalleries.description}
+        subGalleries={subGalleries.galleries}
+      />
     )
   }
   {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
