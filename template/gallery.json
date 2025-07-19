@@ -1,134 +1,96 @@
 {
   "title": "My Gallery",
   "description": "My gallery with fantastic photos.",
-  "headerImage": "/images/usa-127.jpg",
+  "headerImage": "../ai-generated-nature-167.webp",
   "metadata": {
     "ogUrl": ""
   },
   "sections": [
     {
-      "title": "My Photos",
-      "description": "A collection of photos from my camera",
       "images": [
         {
           "type": "image",
-          "path": "/images/usa-127.jpg",
-          "width": 2880,
-          "height": 2160,
-          "alt": "Black Rock camping in Joshua Tree National Park",
+          "path": "../ai-generated-nature-167.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-127.jpg",
-            "width": 267,
+            "path": "thumbnails/ai-generated-nature-167.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "/images/usa-129.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Jackrabbit with long ears",
+          "path": "../ai-generated-nature-170.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-129.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-170.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "/images/usa-130.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Joshua Tree fruits",
+          "path": "../ai-generated-nature-172.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-130.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-172.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "/images/usa-158.jpg",
-          "width": 1920,
-          "height": 2880,
-          "alt": "Joshua Tree National Park",
+          "path": "../ai-generated-nature-177.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-158.jpg",
-            "width": 133,
-            "height": 200
-          }
-        },
-        {
-          "type": "video",
-          "path": "/images/usa-159.mp4",
-          "width": 1920,
-          "height": 1080,
-          "thumbnail": {
-            "path": "/thumbnails/usa-159.jpg",
-            "width": 356,
+            "path": "thumbnails/ai-generated-nature-177.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "/images/usa-161.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Baker Dam Trail",
+          "path": "../ai-generated-nature-179.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-161.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-179.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "/images/usa-166.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Baker Dam Trail",
+          "path": "../ai-generated-nature-185.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-166.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-185.jpg",
+            "width": 200,
             "height": 200
           }
         },
         {
           "type": "image",
-          "path": "/images/usa-171.jpg",
-          "width": 1920,
-          "height": 2880,
-          "alt": "Joshua Tree",
+          "path": "../ai-generated-nature-192.webp",
+          "width": 1024,
+          "height": 1024,
           "thumbnail": {
-            "path": "/thumbnails/usa-171.jpg",
-            "width": 133,
-            "height": 200
-          }
-        },
-        {
-          "type": "video",
-          "path": "/images/usa-183.mp4",
-          "width": 1080,
-          "height": 1920,
-          "thumbnail": {
-            "path": "/thumbnails/usa-183.jpg",
-            "width": 113,
-            "height": 200
-          }
-        },
-        {
-          "type": "image",
-          "path": "/images/usa-202.jpg",
-          "width": 2880,
-          "height": 1920,
-          "alt": "Cottonwood Tree Oasis",
-          "thumbnail": {
-            "path": "/thumbnails/usa-202.jpg",
-            "width": 300,
+            "path": "thumbnails/ai-generated-nature-192.jpg",
+            "width": 200,
             "height": 200
           }
         }
       ]
     }
-  ]
+  ],
+  "subGalleries": {
+    "title": "Sub Galleries",
+    "galleries": []
+  },
+  "outputDir": "../template/example/usa/san-francisco/twin-peaks/gallery"
 }

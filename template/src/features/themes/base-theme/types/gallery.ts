@@ -18,6 +18,12 @@ export interface GallerySection {
   images: GalleryImage[];
 }
 
+export interface SubGallery {
+  title: string;
+  headerImage: string;
+  path: string;
+}
+
 export interface GalleryMetadata {
   description?: string;
   ogUrl?: string;
@@ -39,7 +45,13 @@ export interface GalleryMetadata {
 export interface GalleryData {
   title: string;
   description?: string;
+  outputDir?: string;
   headerImage: string;
   metadata?: GalleryMetadata;
   sections: GallerySection[];
+  subGalleries?: {
+    title?: string;
+    description?: string;
+    galleries: SubGallery[];
+  };
 }

@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { createImageThumbnail, createVideoThumbnail } from './utils';
 
-import type { ThumbnailOptions } from './types';
 import type { GalleryData, MediaFile } from '../../types';
+import type { ThumbnailOptions } from './types';
 
 async function findGalleryDirectories(basePath: string): Promise<string[]> {
   const galleryDirs: Set<string> = new Set();
@@ -122,7 +122,7 @@ async function processGalleryData(
         const fileNameWithoutExt = path.parse(fileName).name;
         const thumbnailFileName = `${fileNameWithoutExt}.jpg`; // Always save as .jpg
         const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
-        const relativeThumbnailPath = path.join('gallery', 'thumbnails', thumbnailFileName);
+        const relativeThumbnailPath = path.join('thumbnails', thumbnailFileName);
 
         console.log(`Processing ${mediaFile.type}: ${fileName}`);
 

@@ -5,7 +5,7 @@ import process from 'node:process';
 import { Command } from 'commander';
 
 import { scan } from './modules/scan';
-import { setup } from './modules/setup';
+import { setupTemplate } from './modules/setup-template';
 import { thumbnails } from './modules/thumbnails';
 
 const program = new Command();
@@ -35,15 +35,17 @@ program
   .action(scan);
 
 program
-  .command('setup')
-  .description('Convert CLI gallery to template format and create symbolic links')
-  .option('-c, --cli-gallery <path>', 'Path to CLI-generated gallery.json file', '')
-  .option('-o, --output <path>', 'Output path for template gallery.json', './gallery.json')
-  .option('--copy-fallback', 'Copy files instead of creating symbolic links (for Windows compatibility)', false)
-  .option('--public-dir <path>', 'Public directory name (default: public)', 'public')
-  .option('--images-dir <path>', 'Directory name for images in public folder (default: images)', 'images')
-  .option('--thumbnails-dir <path>', 'Directory name for thumbnails in public folder (default: thumbnails)', 'thumbnails')
-  .action(setup);
+  .command('setup-template')
+  .description('Setup and build Astro app for each gallery in the specified directory')
+  .option('-p, --path <path>', 'Path to images directory (required)', '')
+  .option('-r, --recursive', 'Scan subdirectories recursively', false)
+  .action(async (options: { path: string; recursive: boolean }) => {
+    const setupAstroOptions = {
+      path: options.path,
+      recursive: options.recursive,
+    };
+    await setupTemplate(setupAstroOptions);
+  });
 
 program
   .command('thumbnails')

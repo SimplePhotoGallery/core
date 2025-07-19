@@ -1,166 +1,352 @@
 # Simple Photo Gallery CLI
 
-A command-line tool for creating and managing photo galleries with external media support.
+A command-line tool for creating beautiful photo galleries from your image and video collections. This CLI helps you scan directories, generate thumbnails, and set up Astro-based gallery websites.
+
+## Features
+
+- 📸 **Media Scanning**: Automatically scan directories for images and videos
+- 🖼️ **Thumbnail Generation**: Create optimized thumbnails for fast loading
+- 🎥 **Video Support**: Handle video files with ffmpeg integration
+- 📱 **Responsive Design**: Generate galleries that work on all devices
+- ⚡ **Fast Performance**: Optimized thumbnails and lazy loading
+- 🔧 **Astro Integration**: Seamless setup with Astro static site generator
+
+## Installation
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- ffmpeg (for video processing)
+
+### Install ffmpeg
+
+**macOS:**
+
+```bash
+brew install ffmpeg
+```
+
+**Ubuntu/Debian:**
+
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
+
+**Windows:**
+Download from [ffmpeg.org](https://ffmpeg.org/download.html)
+
+### Install the CLI
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd simple-photo-gallery-public/cli
+
+# Install dependencies
+npm install
+
+# Build the CLI
+npm run build
+
+# Link globally (optional)
+npm link
+```
 
 ## Commands
 
 ### `gallery scan`
 
-Scans a directory for images and videos and creates a `gallery.json` file.
+Scan a directory for images and videos to create a `gallery.json` file.
 
 ```bash
-gallery scan -p <path> -o <output> -r
+gallery scan [options]
 ```
 
-Options:
+**Options:**
 
-- `-p, --path <path>`: Path to scan for media files (default: current directory)
-- `-o, --output <path>`: Output directory for gallery.json
-- `-r, --recursive`: Scan subdirectories recursively
+- `-p, --path <path>` - Path to scan for media files (default: current directory)
+- `-o, --output <path>` - Output directory for gallery.json
+- `-r, --recursive` - Scan subdirectories recursively
 
-### `gallery setup`
-
-Converts CLI-generated gallery to template format and creates symbolic links to external media files.
+**Examples:**
 
 ```bash
-gallery setup -c <cli-gallery> -o <output> [--copy-fallback] [--public-dir <path>] [--images-dir <path>] [--thumbnails-dir <path>]
+# Scan current directory
+gallery scan
+
+# Scan specific directory
+gallery scan --path /path/to/photos
+
+# Scan recursively
+gallery scan --path /path/to/photos --recursive
+
+# Specify output directory
+gallery scan --path /path/to/photos --output /path/to/output
 ```
-
-Options:
-
-- `-c, --cli-gallery <path>`: Path to CLI-generated gallery.json file (required)
-- `-o, --output <path>`: Output path for template gallery.json (default: ./gallery.json)
-- `--copy-fallback`: Copy files instead of creating symbolic links
-- `--public-dir <path>`: Public directory name (default: public)
-- `--images-dir <path>`: Directory name for images in public folder (default: images)
-- `--thumbnails-dir <path>`: Directory name for thumbnails in public folder (default: thumbnails)
 
 ### `gallery thumbnails`
 
-Creates thumbnails for all media files in gallery.json.
+Generate thumbnails for all media files in the gallery.
 
 ```bash
-gallery thumbnails -p <path> -s <size>
+gallery thumbnails [options]
 ```
 
-Options:
+**Options:**
 
-- `-p, --path <path>`: Path containing .simple-photo-gallery folder (default: current directory)
-- `-s, --size <size>`: Thumbnail height in pixels (default: 200)
+- `-p, --path <path>` - Path containing .simple-photo-gallery folder (default: current directory)
+- `-s, --size <size>` - Thumbnail height in pixels (default: 200)
 
-## Configurable Directory Structure
+**Examples:**
 
-The `gallery setup` command allows you to customize where your media files are stored in the public directory. By default, files are organized as:
+```bash
+# Generate thumbnails with default size
+gallery thumbnails
+
+# Generate thumbnails with custom size
+gallery thumbnails --size 300
+
+# Specify gallery path
+gallery thumbnails --path /path/to/gallery
+```
+
+### `gallery setup-template`
+
+Configure Astro template to work with external image directories and build galleries.
+
+```bash
+gallery setup-template [options]
+```
+
+**Options:**
+
+- `-i, --images-path <path>` - Path to images directory (required)
+- `-r, --recursive` - Scan subdirectories recursively for gallery/gallery.json files
+
+**Examples:**
+
+```bash
+# Setup template for a single gallery directory
+gallery setup-template --images-path ../my-photos
+
+# Setup template recursively for multiple gallery directories
+gallery setup-template --images-path ../my-photos --recursive
+```
+
+## Complete Workflow Examples
+
+### Basic Gallery Creation
+
+1. **Prepare your photos directory:**
+
+```bash
+mkdir my-photos
+# Copy your photos and videos to my-photos/
+```
+
+2. **Scan for media files:**
+
+```bash
+cd my-photos
+gallery scan --recursive
+```
+
+3. **Generate thumbnails:**
+
+```bash
+gallery thumbnails --size 250
+```
+
+4. **Set up Astro template:**
+
+```bash
+cd ../template
+gallery setup-template --images-path ../my-photos
+```
+
+5. **Build and serve:**
+
+```bash
+npm run dev
+```
+
+### Advanced Workflow with Multiple Sections
+
+1. **Organize photos in subdirectories:**
 
 ```
+my-photos/
+├── vacation/
+│   ├── beach.jpg
+│   ├── mountains.jpg
+│   └── sunset.mp4
+├── family/
+│   ├── birthday.jpg
+│   └── christmas.jpg
+└── events/
+    ├── wedding.jpg
+    └── graduation.jpg
+```
+
+2. **Scan with recursive option:**
+
+```bash
+cd my-photos
+gallery scan --recursive
+```
+
+3. **Edit gallery.json to create sections:**
+
+```json
+{
+  "title": "My Photo Collection",
+  "description": "A collection of my favorite moments",
+  "headerImage": "vacation/beach.jpg",
+  "metadata": { "ogUrl": "" },
+  "sections": [
+    {
+      "title": "Vacation Memories",
+      "description": "Amazing trips and adventures",
+      "images": [
+        // vacation images will be here
+      ]
+    },
+    {
+      "title": "Family Moments",
+      "description": "Precious family memories",
+      "images": [
+        // family images will be here
+      ]
+    },
+    {
+      "title": "Special Events",
+      "description": "Important life events",
+      "images": [
+        // events images will be here
+      ]
+    }
+  ]
+}
+```
+
+4. **Generate thumbnails:**
+
+```bash
+gallery thumbnails --size 300
+```
+
+5. **Set up and build:**
+
+```bash
+cd ../template
+gallery setup-template --images-path ../my-photos
+
+npm run build
+npm run preview
+```
+
+## File Structure
+
+After running the CLI, your project will have this structure:
+
+```
+my-photos/
+├── .simple-photo-gallery/
+│   ├── gallery.json          # Gallery metadata and file list
+│   └── thumbnails/           # Generated thumbnails
+│       ├── image1.jpg
+│       ├── image2.jpg
+│       └── video1.jpg
+├── photo1.jpg
+├── photo2.jpg
+└── video1.mp4
+
 template/
-├── public/
-│   ├── images/          # Original media files
-│   └── thumbnails/      # Generated thumbnails
-└── gallery.json
+├── astro.config.ts           # Modified Astro config
+├── gallery.json              # Copied gallery data
+└── ... (other Astro files)
 ```
 
-### Custom Directory Layout
+## Supported Media Formats
 
-You can customize this structure using the directory options:
+**Images:**
 
-```bash
-# Custom subdirectories
-gallery setup -c gallery.json -o template/gallery.json --images-dir media --thumbnails-dir thumbs
+- JPEG (.jpg, .jpeg)
+- PNG (.png)
+- WebP (.webp)
+- GIF (.gif)
+- TIFF (.tiff, .tif)
 
-# Custom public directory
-gallery setup -c gallery.json -o template/gallery.json --public-dir assets --images-dir photos --thumbnails-dir thumbs
-```
+**Videos:**
 
-This would create:
+- MP4 (.mp4)
+- MOV (.mov)
+- AVI (.avi)
+- WebM (.webm)
+- MKV (.mkv)
 
-```
-template/
-├── assets/              # Custom public directory
-│   ├── photos/          # Original media files
-│   └── thumbs/          # Generated thumbnails
-└── gallery.json
-```
+_Note: Video processing requires ffmpeg to be installed and available in your PATH._
 
-### URL Structure
+## Troubleshooting
 
-The directory configuration affects the URLs used in the gallery:
+### Common Issues
 
-- **Default**: `/images/filename.jpg` and `/thumbnails/filename.jpg`
-- **Custom**: `/photos/filename.jpg` and `/thumbs/filename.jpg`
+**"ffprobe not found" error:**
 
-## Symbolic Links and Copy Fallback
+- Install ffmpeg: `brew install ffmpeg` (macOS) or `sudo apt install ffmpeg` (Ubuntu)
+- Ensure ffmpeg is in your PATH
 
-The `gallery setup` command creates symbolic links to your external media files, allowing the web gallery to serve files from their original locations without duplicating them. This approach saves disk space and keeps your gallery in sync with your media library.
+**"Gallery not found" error:**
 
-### How Symbolic Links Work
+- Run `gallery scan` first to create the gallery.json file
+- Check that the path to .simple-photo-gallery folder is correct
 
-1. **Unix-like systems (macOS, Linux)**: Uses native `fs.symlink()` to create symbolic links
-2. **Windows**: Attempts multiple linking strategies:
-   - First tries `fs.symlink()` (requires Developer Mode or admin privileges)
-   - Falls back to `mklink` command (requires admin privileges)
-   - If both fail, can use copy fallback
+**Thumbnail generation fails:**
 
-### Copy Fallback Option
+- Check file permissions
+- Ensure sufficient disk space
+- Verify media files are not corrupted
 
-When symbolic links cannot be created (common on Windows), you can use the `--copy-fallback` option to copy files instead:
+### Getting Help
 
-```bash
-gallery setup -c gallery.json -o template/gallery.json --copy-fallback
-```
-
-**Platform-specific behavior:**
-
-- **macOS/Linux**: Symbolic links work by default. Copy fallback is available if needed.
-- **Windows**: Symbolic links require either:
-  - Administrator privileges, OR
-  - Developer Mode enabled (Windows Settings > Update & Security > For developers)
-
-  If neither is available, use `--copy-fallback` to copy files instead.
-
-### Benefits of Symbolic Links
-
-- **Space efficient**: No duplicate files
-- **Always up-to-date**: Changes to original files are reflected in the gallery
-- **Fast setup**: No file copying required
-
-### When to Use Copy Fallback
-
-- Windows systems without admin access or Developer Mode
-- When you want a completely self-contained gallery
-- When the original media files might be moved or deleted
+- Check that all required dependencies are installed
+- Verify file paths are correct and accessible
+- Ensure ffmpeg is properly installed for video processing
+- Review the generated gallery.json file for any issues
 
 ## Development
 
-To use during development, you can run the tool with `yarn gallery`.
-
-## Examples
-
-### Basic workflow:
+### Building from Source
 
 ```bash
-# 1. Scan your photos directory
-gallery scan -p ~/Photos -o ./tmp -r
+# Install dependencies
+npm install
 
-# 2. Create thumbnails
-gallery thumbnails -p ./tmp -s 300
+# Build the CLI
+npm run build
 
-# 3. Setup for web gallery (with symbolic links)
-gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.json
-
-# 4. Or setup with copy fallback (Windows compatibility)
-gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.json --copy-fallback
+# Run in development mode
+npm run gallery
 ```
 
-### Custom directory structure:
+### Code Quality
 
 ```bash
-# Use custom directory names
-gallery setup -c ./tmp/.simple-photo-gallery/gallery.json -o ./template/gallery.json \
-  --public-dir assets \
-  --images-dir photos \
-  --thumbnails-dir thumbs
+# Check TypeScript
+npm run check
 
-# This creates: template/assets/photos/ and template/assets/thumbs/
-# URLs will be: /photos/filename.jpg and /thumbs/filename.jpg
+# Lint code
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Format code
+npm run format
 ```
+
+## License
+
+MIT License - see LICENSE file for details.

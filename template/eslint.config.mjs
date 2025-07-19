@@ -35,6 +35,7 @@ const eslintConfig = [
       globals: {
         ...globals.jest,
         ...globals.browser,
+        ...globals.node,
         AddEventListenerOptions: 'readonly',
         EventListener: 'readonly',
       },
