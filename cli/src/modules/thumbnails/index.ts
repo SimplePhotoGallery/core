@@ -122,7 +122,7 @@ async function processGalleryData(
         const fileNameWithoutExt = path.parse(fileName).name;
         const thumbnailFileName = `${fileNameWithoutExt}.jpg`; // Always save as .jpg
         const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
-        const relativeThumbnailPath = path.join('thumbnails', thumbnailFileName);
+        const relativeThumbnailPath = path.join('thumbnails', thumbnailFileName).replace(/^\.\//, '');
 
         console.log(`Processing ${mediaFile.type}: ${fileName}`);
 

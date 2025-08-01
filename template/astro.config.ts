@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
-import { defineConfig } from 'astro/config';
 import relativeLinks from 'astro-relative-links';
+import { defineConfig } from 'astro/config';
 
 // Dynamically import gallery.json from source path or fallback to local
 const sourceGalleryPath = process.env.GALLERY_JSON_PATH;
@@ -15,10 +15,10 @@ export default defineConfig({
   output: 'static',
   outDir: galleryConfig.outputDir + '/_build',
   build: {
-    assets: 'simple-photo-gallery-assets',
+    assets: 'gallery/simple-photo-gallery-assets',
   },
   integrations: [relativeLinks()],
-  publicDir: 'public', //when developing, use public-dev dir to serve assets as public will be included in the build
+  publicDir: 'public',
   vite: {
     define: {
       'process.env.GALLERY_JSON_PATH': JSON.stringify(sourceGalleryPath || './gallery.json'),

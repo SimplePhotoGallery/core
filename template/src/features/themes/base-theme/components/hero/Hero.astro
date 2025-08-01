@@ -1,4 +1,5 @@
 ---
+import { DEFAULT_STATIC_ASSETS_PATH } from '@/config';
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
 
 interface Props {
@@ -13,7 +14,7 @@ const { title, description, backgroundImage } = Astro.props;
 <section class="hero">
   <div
     class="hero__bg"
-    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage}')`}>
+    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImage || `${DEFAULT_STATIC_ASSETS_PATH}/hero-placeholder.png`}')`}>
   </div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>

@@ -24,3 +24,4 @@ pnpm-debug.log*
 .idea/
 
 example/**/gallery/
+example/**/index.html
