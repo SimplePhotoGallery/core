@@ -1,4 +1,6 @@
 ---
+import { DEFAULT_STATIC_ASSETS_PATH } from '@/config';
+
 import type { GalleryMetadata } from '@/features/themes/base-theme/types/gallery';
 
 interface Props {
@@ -42,6 +44,7 @@ const { title, metadata } = Astro.props;
   {metadata?.description && <meta name="twitter:description" content={metadata.description} />}
   {metadata?.ogImage && <meta name="twitter:image" content={metadata.ogImage} />}
 
+  <link rel="icon" href={`${DEFAULT_STATIC_ASSETS_PATH}/favicon.ico`} sizes="32x32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
