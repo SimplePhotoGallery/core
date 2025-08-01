@@ -112,7 +112,7 @@ function processGalleryJson(galleryDir: string, templateDir: string) {
             // Always prefix with gallery/ for thumbnails
             let thumb = img.thumbnail.path.replace(/^\.\/?|^\.\//, '');
             if (!thumb.startsWith('gallery/')) {
-              thumb = 'gallery/' + thumb;
+              thumb = path.join('gallery', thumb);
             }
             img.thumbnail.path = thumb;
           }
