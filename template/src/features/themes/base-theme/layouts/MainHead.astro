@@ -16,6 +16,8 @@ const { title, metadata } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
 
+  <base href="/" />
+
   {/* Basic SEO */}
   {metadata?.keywords && <meta name="keywords" content={metadata.keywords} />}
   {metadata?.author && <meta name="author" content={metadata.author} />}
@@ -43,6 +45,24 @@ const { title, metadata } = Astro.props;
   <meta name="twitter:title" content={title} />
   {metadata?.description && <meta name="twitter:description" content={metadata.description} />}
   {metadata?.ogImage && <meta name="twitter:image" content={metadata.ogImage} />}
+
+  <script is:inline>
+    (function () {
+      // 1. Grab (or create) the <base> element.
+      let base = document.querySelector('base');
+      if (!base) {
+        base = document.createElement('base');
+        document.head.prepend(base);
+      }
+    
+      // 2. Decide whether the current path ends in “directory” vs “file”.
+      const p          = location.pathname;
+      const looksFile  = /\.[a-z0-9]+$/i.test(p.split('/').pop() || '');
+    
+      // 3. If it’s “directory without slash”, stick a slash on and update <base>.
+      base.href = (!p.endsWith('/') && !looksFile) ? p + '/' : './';
+    })();
+  </script>
 
   <link rel="icon" href={`${DEFAULT_STATIC_ASSETS_PATH}/favicon.ico`} sizes="32x32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
