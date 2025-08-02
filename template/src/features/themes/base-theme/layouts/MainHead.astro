@@ -48,18 +48,17 @@ const { title, metadata } = Astro.props;
 
   <script is:inline>
     (function () {
-      // 1. Grab (or create) the <base> element.
       let base = document.querySelector('base');
       if (!base) {
         base = document.createElement('base');
         document.head.prepend(base);
       }
     
-      // 2. Decide whether the current path ends in “directory” vs “file”.
+      // Decide whether the current path ends in “directory” vs “file”.
       const p          = location.pathname;
       const looksFile  = /\.[a-z0-9]+$/i.test(p.split('/').pop() || '');
     
-      // 3. If it’s “directory without slash”, stick a slash on and update <base>.
+      // If it’s “directory without slash”, stick a slash on and update <base>.
       base.href = (!p.endsWith('/') && !looksFile) ? p + '/' : './';
     })();
   </script>
