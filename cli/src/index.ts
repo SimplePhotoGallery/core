@@ -14,52 +14,37 @@ program.name('gallery').description('Simple Photo Gallery CLI').version('0.0.1')
 
 program
   .command('init')
-  .description('Initialize a new gallery project')
-  .action(() => {
-    console.log('Hello from gallery init!');
-  });
-
-program
-  .command('build')
-  .description('Build the gallery project')
-  .action(() => {
-    console.log('Hello from gallery build!');
-  });
-
-program
-  .command('scan')
-  .description('Scan directory for images and videos and create gallery.json')
-  .option('-p, --path <path>', 'Path to scan for media files', process.cwd())
-  .option('-o, --output <path>', 'Output directory for gallery.json', '')
+  .description('Initialize a gallery by scaning a folder for images and videos')
+  .option(
+    '-p, --path <path>',
+    'Path where the gallery should be initialized. Default: current working directory',
+    process.cwd(),
+  )
+  .option('-o, --output <path>', 'Output directory for the gallery.json file', '')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .action(scan);
 
 program
-  .command('setup-template')
-  .description('Setup and build Astro app for each gallery in the specified directory')
-  .option('-p, --path <path>', 'Path to images directory (required)', '')
+  .command('thumbnails')
+  .description('Create thumbnails for all media files in the gallery')
+  .option(
+    '-p, --path <path>',
+    'Path to the folder containing the gallery.json file. Default: current working directory',
+    process.cwd(),
+  )
+  .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(async (options: { path: string; recursive: boolean }) => {
-    const setupAstroOptions = {
-      path: options.path,
-      recursive: options.recursive,
-    };
-    await setupTemplate(setupAstroOptions);
-  });
+  .action(thumbnails);
 
 program
-  .command('thumbnails')
-  .description('Create thumbnails for all media files in gallery.json')
-  .option('-p, --path <path>', 'Path containing .simple-photo-gallery folder', process.cwd())
-  .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
-  .option('-r, --recursive', 'Scan subdirectories recursively for gallery/gallery.json files', false)
-  .action(async (options: { path: string; size: string; recursive: boolean }) => {
-    const thumbnailOptions = {
-      path: options.path,
-      size: Number.parseInt(options.size) || 200,
-      recursive: options.recursive,
-    };
-    await thumbnails(thumbnailOptions);
-  });
+  .command('build')
+  .description('Build the HTML gallery in the specified directory')
+  .option(
+    '-p, --path <path>',
+    'Path to the folder containing the gallery.json file. Default: current working directory',
+    process.cwd(),
+  )
+  .option('-r, --recursive', 'Scan subdirectories recursively', false)
+  .action(setupTemplate);
 
 program.parse();
