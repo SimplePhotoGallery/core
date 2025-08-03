@@ -228,7 +228,7 @@ function copyDirSync(src: string, dest: string) {
   }
 }
 
-export async function setupTemplate(options: { path: string; recursive: boolean }): Promise<void> {
+export async function build(options: { path: string; recursive: boolean }): Promise<void> {
   const { path: imagesPath, recursive } = options;
   const templateDir = path.join(getProjectRoot(), 'template');
   const galleryDirs = findGalleryJsons(imagesPath, recursive);

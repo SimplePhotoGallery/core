@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
-import type { MediaFile } from '../../types';
 import type { ScanOptions, SubGallery } from './types';
+import type { MediaFile } from '../../types';
 
 async function scanDirectoryOnly(dirPath: string): Promise<MediaFile[]> {
   const mediaFiles: MediaFile[] = [];
@@ -179,7 +179,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
   return result;
 }
 
-export async function scan(options: ScanOptions): Promise<void> {
+export async function init(options: ScanOptions): Promise<void> {
   const scanPath = path.resolve(options.path);
 
   console.log(`Scanning directory: ${scanPath}`);

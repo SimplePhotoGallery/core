@@ -4,8 +4,8 @@ import process from 'node:process';
 
 import { Command } from 'commander';
 
-import { scan } from './modules/scan';
-import { setupTemplate } from './modules/setup-template';
+import { build } from './modules/build';
+import { init } from './modules/init';
 import { thumbnails } from './modules/thumbnails';
 
 const program = new Command();
@@ -22,7 +22,7 @@ program
   )
   .option('-o, --output <path>', 'Output directory for the gallery.json file', '')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(scan);
+  .action(init);
 
 program
   .command('thumbnails')
@@ -45,6 +45,6 @@ program
     process.cwd(),
   )
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(setupTemplate);
+  .action(build);
 
 program.parse();

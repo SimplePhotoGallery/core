@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { createImageThumbnail, createVideoThumbnail } from './utils';
 
-import type { GalleryData, MediaFile } from '../../types';
 import type { ThumbnailOptions } from './types';
+import type { GalleryData, MediaFile } from '../../types';
 
 async function findGalleryDirectories(basePath: string): Promise<string[]> {
   const galleryDirs: Set<string> = new Set();
@@ -176,6 +176,8 @@ async function processGalleryData(
 }
 
 export async function thumbnails(options: ThumbnailOptions): Promise<void> {
+  const size = Number.parseInt(options.size);
+
   console.log(`Thumbnail size (height): ${options.size}px`);
 
   let galleryDirectories: string[];
@@ -217,7 +219,7 @@ export async function thumbnails(options: ThumbnailOptions): Promise<void> {
   // Process each gallery directory
   let totalProcessed = 0;
   for (const galleryDir of galleryDirectories) {
-    const processed = await processGalleryDirectory(galleryDir, options.size);
+    const processed = await processGalleryDirectory(galleryDir, size);
     totalProcessed += processed;
   }
 

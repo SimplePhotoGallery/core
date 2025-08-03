@@ -1,5 +1,5 @@
 export interface ThumbnailOptions {
   path: string;
-  size: number;
+  size: string;
   recursive?: boolean;
 }
