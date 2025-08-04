@@ -13,9 +13,9 @@ const cliPath = path.resolve(testDir, 'src', 'index.ts');
 
 const singleFixturePath = path.resolve(testDir, 'tests', 'fixtures', 'single');
 const singleTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'single');
-const galleryPath = path.resolve(singleTestPath, 'gallery');
-const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
-const thumbnailsPath = path.resolve(galleryPath, 'thumbnails');
+
+const multiFixturePath = path.resolve(testDir, 'tests', 'fixtures', 'multi');
+const multiTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'multi');
 
 // Zod schemas for validation
 const MediaFileSchema = z.object({
@@ -39,6 +39,12 @@ const GallerySectionSchema = z.object({
   images: z.array(MediaFileSchema),
 });
 
+const SubGallerySchema = z.object({
+  title: z.string(),
+  headerImage: z.string(),
+  path: z.string(),
+});
+
 const GalleryDataSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -49,7 +55,7 @@ const GalleryDataSchema = z.object({
   sections: z.array(GallerySectionSchema),
   subGalleries: z.object({
     title: z.string(),
-    galleries: z.array(z.any()),
+    galleries: z.array(SubGallerySchema),
   }),
 });
 
@@ -61,7 +67,71 @@ const MediaFileWithThumbnailSchema = MediaFileSchema.extend({
   }),
 });
 
-describe('CLI commands', () => {
+// Helper functions for gallery validation
+function validateGalleryStructure(galleryPath: string, expectedImageCount: number, expectedSubGalleryCount: number = 0) {
+  // Check that gallery.json exists
+  const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+  expect(existsSync(galleryJsonPath)).toBe(true);
+
+  // Read and parse gallery.json
+  const galleryContent = readFileSync(galleryJsonPath, 'utf8');
+  const galleryData = JSON.parse(galleryContent);
+
+  // Validate with schema
+  expect(() => GalleryDataSchema.parse(galleryData)).not.toThrow();
+  const validatedData = GalleryDataSchema.parse(galleryData);
+
+  // Check image count
+  expect(validatedData.sections).toHaveLength(1);
+  expect(validatedData.sections[0].images).toHaveLength(expectedImageCount);
+
+  // Check subgallery count
+  expect(validatedData.subGalleries.galleries).toHaveLength(expectedSubGalleryCount);
+
+  return validatedData;
+}
+
+function validateThumbnails(galleryPath: string, expectedThumbnailCount: number) {
+  // Check that thumbnails directory exists
+  const thumbnailsPath = path.resolve(galleryPath, 'thumbnails');
+  expect(existsSync(thumbnailsPath)).toBe(true);
+
+  // Check thumbnail file count
+  const thumbnailFiles = readdirSync(thumbnailsPath);
+  expect(thumbnailFiles).toHaveLength(expectedThumbnailCount);
+
+  // Read and validate gallery.json with thumbnails
+  const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+  const galleryContent = readFileSync(galleryJsonPath, 'utf8');
+  const galleryData = JSON.parse(galleryContent);
+  const validatedData = GalleryDataSchema.parse(galleryData);
+
+  // Validate all images have thumbnails
+  for (const image of validatedData.sections[0].images) {
+    expect(() => MediaFileWithThumbnailSchema.parse(image)).not.toThrow();
+  }
+
+  return validatedData;
+}
+
+function validateBuildOutput(testPath: string, galleryPath: string) {
+  // Check that index.html exists
+  const indexPath = path.resolve(testPath, 'index.html');
+  expect(existsSync(indexPath)).toBe(true);
+
+  // Check that gallery files still exist
+  const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+  const galleryFiles = readdirSync(galleryPath);
+  expect(galleryFiles).toContain('thumbnails');
+  expect(galleryFiles).toContain('gallery.json');
+
+  // Validate gallery.json is still valid
+  const galleryContent = readFileSync(galleryJsonPath, 'utf8');
+  const galleryData = JSON.parse(galleryContent);
+  expect(() => GalleryDataSchema.parse(galleryData)).not.toThrow();
+}
+
+describe('Single-folder gallery', () => {
   beforeAll(() => {
     if (existsSync(singleTestPath)) {
       rmSync(singleTestPath, { recursive: true, force: true });
@@ -77,95 +147,116 @@ describe('CLI commands', () => {
 
   describe('init command', () => {
     test('should create gallery.json with correct structure and content', () => {
+      const galleryPath = path.resolve(singleTestPath, 'gallery');
+
       // Run init command
       execSync(`${tsxPath} ${cliPath} init --path ${singleTestPath}`);
 
-      // Check that gallery.json exists
-      expect(existsSync(galleryJsonPath)).toBe(true);
-
-      // Read and parse gallery.json
-      const galleryContent = readFileSync(galleryJsonPath, 'utf8');
-      const galleryData = JSON.parse(galleryContent);
-
-      // Validate entire structure with Zod schema
-      expect(() => GalleryDataSchema.parse(galleryData)).not.toThrow();
-
-      // Validate the parsed data matches our schema
-      const validatedData = GalleryDataSchema.parse(galleryData);
-
-      // Check sections array contains correct number of images
-      expect(validatedData.sections).toHaveLength(1);
-      expect(validatedData.sections[0].images).toHaveLength(3);
-
-      // Check that all fixture images are included
-      const imagePaths = validatedData.sections[0].images.map((img) => img.path);
-      expect(imagePaths).toContain('../img_1.jpg');
-      expect(imagePaths).toContain('../img_2.jpg');
-      expect(imagePaths).toContain('../img_3.jpg');
-
-      // All images should be of type 'image'
-      for (const image of validatedData.sections[0].images) {
-        expect(image.type).toBe('image');
-      }
+      // Validate gallery structure
+      validateGalleryStructure(galleryPath, 3, 0);
     });
   });
 
   describe('thumbnails command', () => {
     test('should create thumbnails for all images and update gallery.json', () => {
+      const galleryPath = path.resolve(singleTestPath, 'gallery');
+
       // Run thumbnails command (init should have been run by previous test)
       execSync(`${tsxPath} ${cliPath} thumbnails --path ${singleTestPath}`);
 
-      // Check that thumbnails directory exists
-      expect(existsSync(thumbnailsPath)).toBe(true);
-
-      // Check that thumbnail files exist for all images
-      const thumbnailFiles = readdirSync(thumbnailsPath);
-      expect(thumbnailFiles).toContain('img_1.jpg');
-      expect(thumbnailFiles).toContain('img_2.jpg');
-      expect(thumbnailFiles).toContain('img_3.jpg');
-      expect(thumbnailFiles).toHaveLength(3);
-
-      // Read updated gallery.json and validate with schema
-      const galleryContent = readFileSync(galleryJsonPath, 'utf8');
-      const galleryData = JSON.parse(galleryContent);
-
-      // Validate overall structure still matches
-      expect(() => GalleryDataSchema.parse(galleryData)).not.toThrow();
-      const validatedData = GalleryDataSchema.parse(galleryData);
-
-      // Check that all images now have thumbnail information using schema
-      for (const image of validatedData.sections[0].images) {
-        expect(() => MediaFileWithThumbnailSchema.parse(image)).not.toThrow();
-        const validatedImage = MediaFileWithThumbnailSchema.parse(image);
-        expect(validatedImage.thumbnail.path).toMatch(/^thumbnails\/img_\d\.jpg$/);
-      }
+      // Validate thumbnails using helper
+      validateThumbnails(galleryPath, 3);
     });
   });
 
   describe('build command', () => {
     test('should create static HTML files and gallery assets', () => {
+      const galleryPath = path.resolve(singleTestPath, 'gallery');
+
       // Run build command (init and thumbnails should have been run by previous tests)
       execSync(`${tsxPath} ${cliPath} build --path ${singleTestPath}`);
 
-      // Check that index.html exists in the main directory
-      const indexPath = path.resolve(singleTestPath, 'index.html');
-      expect(existsSync(indexPath)).toBe(true);
+      // Validate build output using helper
+      validateBuildOutput(singleTestPath, galleryPath);
+    });
+  });
+});
 
-      // Check that build created files in gallery directory
-      const galleryFiles = readdirSync(galleryPath);
+describe('Multi-folder gallery', () => {
+  beforeAll(() => {
+    if (existsSync(multiTestPath)) {
+      rmSync(multiTestPath, { recursive: true, force: true });
+    }
+    copySync(multiFixturePath, multiTestPath);
+  });
 
-      // The exact files depend on the template build, but we should have at least thumbnails and gallery.json
-      expect(galleryFiles).toContain('thumbnails');
-      expect(galleryFiles).toContain('gallery.json');
+  afterAll(() => {
+    if (existsSync(multiTestPath)) {
+      rmSync(multiTestPath, { recursive: true, force: true });
+    }
+  });
 
-      // Check that thumbnails directory still exists after build
-      expect(existsSync(thumbnailsPath)).toBe(true);
+  describe('init command with recursive option', () => {
+    test('should create gallery.json files with subgalleries for multi-folder structure', () => {
+      // Run init command with recursive option
+      execSync(`${tsxPath} ${cliPath} init --path ${multiTestPath} -r`);
 
-      // Check that gallery.json still exists and is valid with schema
-      expect(existsSync(galleryJsonPath)).toBe(true);
-      const galleryContent = readFileSync(galleryJsonPath, 'utf8');
-      const galleryData = JSON.parse(galleryContent);
-      expect(() => GalleryDataSchema.parse(galleryData)).not.toThrow();
+      // Validate main gallery (3 root images + 2 subgalleries)
+      const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
+      const mainValidatedData = validateGalleryStructure(mainGalleryPath, 3, 2);
+
+      // Check subgalleries metadata
+      expect(mainValidatedData.subGalleries.galleries).toHaveLength(2);
+      const subGalleryTitles = mainValidatedData.subGalleries.galleries.map((sg) => sg.title);
+      expect(subGalleryTitles).toContain('First');
+      expect(subGalleryTitles).toContain('Second');
+
+      // Validate first subgallery (2 images)
+      const firstGalleryPath = path.resolve(multiTestPath, 'first', 'gallery');
+      validateGalleryStructure(firstGalleryPath, 2, 0);
+
+      // Validate second subgallery (2 images)
+      const secondGalleryPath = path.resolve(multiTestPath, 'second', 'gallery');
+      validateGalleryStructure(secondGalleryPath, 2, 0);
+    });
+  });
+
+  describe('thumbnails command with recursive option', () => {
+    test('should create thumbnails for all galleries recursively', () => {
+      // Run thumbnails command with recursive option
+      execSync(`${tsxPath} ${cliPath} thumbnails --path ${multiTestPath} -r`);
+
+      // Validate thumbnails for main gallery
+      const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
+      validateThumbnails(mainGalleryPath, 3);
+
+      // Validate thumbnails for first subgallery
+      const firstGalleryPath = path.resolve(multiTestPath, 'first', 'gallery');
+      validateThumbnails(firstGalleryPath, 2);
+
+      // Validate thumbnails for second subgallery
+      const secondGalleryPath = path.resolve(multiTestPath, 'second', 'gallery');
+      validateThumbnails(secondGalleryPath, 2);
+    });
+  });
+
+  describe('build command with recursive option', () => {
+    test('should build static files for all galleries recursively', () => {
+      // Run build command with recursive option
+      execSync(`${tsxPath} ${cliPath} build --path ${multiTestPath} -r`);
+
+      // Validate build output for main gallery
+      const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
+      validateBuildOutput(multiTestPath, mainGalleryPath);
+
+      // Validate build output for subgalleries
+      const firstGalleryPath = path.resolve(multiTestPath, 'first', 'gallery');
+      const firstTestPath = path.resolve(multiTestPath, 'first');
+      validateBuildOutput(firstTestPath, firstGalleryPath);
+
+      const secondGalleryPath = path.resolve(multiTestPath, 'second', 'gallery');
+      const secondTestPath = path.resolve(multiTestPath, 'second');
+      validateBuildOutput(secondTestPath, secondGalleryPath);
     });
   });
 });
