@@ -33,6 +33,11 @@ jobs:
         working-directory: ./cli
         run: yarn install --immutable
 
+      # TODO: Create a better way to ensure the template dependencies are installed
+      - name: Install dependencies for the template
+        working-directory: ./template
+        run: npm install
+
       - name: Run checks
         working-directory: ./cli
         run: yarn check
