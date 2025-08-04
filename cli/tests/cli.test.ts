@@ -4,7 +4,8 @@ import path from 'node:path';
 import process from 'node:process';
 
 import { copySync } from 'fs-extra';
-import { z } from 'zod';
+
+import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '../src/types';
 
 const testDir = process.cwd();
 
@@ -17,54 +18,8 @@ const singleTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'singl
 const multiFixturePath = path.resolve(testDir, 'tests', 'fixtures', 'multi');
 const multiTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'multi');
 
-// Zod schemas for validation
-const MediaFileSchema = z.object({
-  type: z.enum(['image', 'video']),
-  path: z.string(),
-  alt: z.string().optional(),
-  width: z.number(),
-  height: z.number(),
-  thumbnail: z
-    .object({
-      path: z.string(),
-      width: z.number(),
-      height: z.number(),
-    })
-    .optional(),
-});
-
-const GallerySectionSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  images: z.array(MediaFileSchema),
-});
-
-const SubGallerySchema = z.object({
-  title: z.string(),
-  headerImage: z.string(),
-  path: z.string(),
-});
-
-const GalleryDataSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  headerImage: z.string(),
-  metadata: z.object({
-    ogUrl: z.string(),
-  }),
-  sections: z.array(GallerySectionSchema),
-  subGalleries: z.object({
-    title: z.string(),
-    galleries: z.array(SubGallerySchema),
-  }),
-});
-
 const MediaFileWithThumbnailSchema = MediaFileSchema.extend({
-  thumbnail: z.object({
-    path: z.string(),
-    width: z.number(),
-    height: z.number(),
-  }),
+  thumbnail: ThumbnailSchema,
 });
 
 // Helper functions for gallery validation
