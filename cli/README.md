@@ -56,12 +56,12 @@ npm link
 
 ## Commands
 
-### `gallery scan`
+### `gallery init`
 
 Scan a directory for images and videos to create a `gallery.json` file.
 
 ```bash
-gallery scan [options]
+gallery init [options]
 ```
 
 **Options:**
@@ -74,16 +74,16 @@ gallery scan [options]
 
 ```bash
 # Scan current directory
-gallery scan
+gallery init
 
 # Scan specific directory
-gallery scan --path /path/to/photos
+gallery init --path /path/to/photos
 
 # Scan recursively
-gallery scan --path /path/to/photos --recursive
+gallery init --path /path/to/photos --recursive
 
 # Specify output directory
-gallery scan --path /path/to/photos --output /path/to/output
+gallery init --path /path/to/photos --output /path/to/output
 ```
 
 ### `gallery thumbnails`
@@ -112,12 +112,12 @@ gallery thumbnails --size 300
 gallery thumbnails --path /path/to/gallery
 ```
 
-### `gallery setup-template`
+### `gallery build`
 
 Configure Astro template to work with external image directories and build galleries.
 
 ```bash
-gallery setup-template [options]
+gallery build [options]
 ```
 
 **Options:**
@@ -129,10 +129,10 @@ gallery setup-template [options]
 
 ```bash
 # Setup template for a single gallery directory
-gallery setup-template --images-path ../my-photos
+gallery build --images-path ../my-photos
 
 # Setup template recursively for multiple gallery directories
-gallery setup-template --images-path ../my-photos --recursive
+gallery build --images-path ../my-photos --recursive
 ```
 
 ## Complete Workflow Examples
@@ -150,7 +150,7 @@ mkdir my-photos
 
 ```bash
 cd my-photos
-gallery scan --recursive
+gallery init
 ```
 
 3. **Generate thumbnails:**
@@ -163,7 +163,7 @@ gallery thumbnails --size 250
 
 ```bash
 cd ../template
-gallery setup-template --images-path ../my-photos
+gallery build
 ```
 
 5. **Build and serve:**
@@ -194,7 +194,7 @@ my-photos/
 
 ```bash
 cd my-photos
-gallery scan --recursive
+gallery init --recursive
 ```
 
 3. **Edit gallery.json to create sections:**
@@ -234,17 +234,14 @@ gallery scan --recursive
 4. **Generate thumbnails:**
 
 ```bash
-gallery thumbnails --size 300
+gallery thumbnails --size 300 --recursive
 ```
 
 5. **Set up and build:**
 
 ```bash
 cd ../template
-gallery setup-template --images-path ../my-photos
-
-npm run build
-npm run preview
+gallery build --recursive
 ```
 
 ## File Structure
@@ -300,7 +297,7 @@ _Note: Video processing requires ffmpeg to be installed and available in your PA
 
 **"Gallery not found" error:**
 
-- Run `gallery scan` first to create the gallery.json file
+- Run `gallery init` first to create the gallery.json file
 - Check that the path to .simple-photo-gallery folder is correct
 
 **Thumbnail generation fails:**
