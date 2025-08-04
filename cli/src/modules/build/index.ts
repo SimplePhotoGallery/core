@@ -5,35 +5,9 @@ import process from 'node:process';
 
 import { resolveFromCurrentDir } from './utils';
 
+import { findGalleries } from '../../utils';
+
 import type { BuildOptions } from './types';
-
-function findGalleriesToBuild(basePath: string, recursive: boolean): string[] {
-  const galleryDirs: string[] = [];
-
-  // Check basePath itself
-  const galleryJsonPath = path.join(basePath, 'gallery', 'gallery.json');
-  if (fs.existsSync(galleryJsonPath)) {
-    galleryDirs.push(basePath);
-  }
-
-  // If recursive, search all subdirectories
-  if (recursive) {
-    try {
-      const entries = fs.readdirSync(basePath, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name !== 'gallery') {
-          const subPath = path.join(basePath, entry.name);
-          const subResults = findGalleriesToBuild(subPath, recursive);
-          galleryDirs.push(...subResults);
-        }
-      }
-    } catch {
-      // Silently ignore errors when reading directories
-    }
-  }
-
-  return galleryDirs;
-}
 
 function buildGallery(galleryDir: string, templateDir: string) {
   // Make sure the gallery.json file exists
@@ -79,7 +53,7 @@ export async function build(options: BuildOptions): Promise<void> {
   const templateDir = path.join(resolveFromCurrentDir('../../../../../'), 'template');
 
   // Find all gallery directories
-  const galleryDirs = findGalleriesToBuild(options.path, options.recursive);
+  const galleryDirs = findGalleries(options.path, options.recursive);
 
   // If no galleries are found, exit
   if (galleryDirs.length === 0) {
