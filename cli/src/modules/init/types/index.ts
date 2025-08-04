@@ -9,3 +9,8 @@ export interface SubGallery {
   headerImage: string;
   path: string;
 }
+
+export interface ProcessDirectoryResult {
+  totalFiles: number;
+  subGallery?: SubGallery;
+}
