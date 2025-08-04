@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 
 temp
 tmp
+
+# Temporary test fixtures
+cli/tests/fixtures/test
