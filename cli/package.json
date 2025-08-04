@@ -22,7 +22,8 @@
     "commander": "^12.0.0",
     "exif-reader": "^2.0.1",
     "node-ffprobe": "^3.0.0",
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.0",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -45,8 +46,7 @@
     "ts-jest": "^29.4.1",
     "tsx": "^4.20.3",
     "typescript": "^5.9.0",
-    "typescript-eslint": "^8.38.0",
-    "zod": "^4.0.14"
+    "typescript-eslint": "^8.38.0"
   },
   "packageManager": "yarn@4.9.2"
 }
