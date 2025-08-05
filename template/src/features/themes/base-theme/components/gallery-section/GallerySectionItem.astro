@@ -1,4 +1,6 @@
 ---
+import { getGalleryPath } from '@/features/themes/base-theme/utils';
+
 import type { GalleryImage } from '@/features/themes/base-theme/types/gallery';
 
 interface Props {
@@ -10,14 +12,14 @@ const { image } = Astro.props;
 
 <div class="gallery-section__item">
   <a
-    href={image.path}
-    data-pswp-src={image.path}
+    href={getGalleryPath(image.path)}
+    data-pswp-src={getGalleryPath(image.path)}
     data-pswp-width={image.width}
     data-pswp-height={image.height}
     data-pswp-type={image.type}
     data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}>
     <img
-      src={image.thumbnail?.path}
+      src={getGalleryPath(image.thumbnail?.path)}
       alt={image.alt}
       loading="lazy"
       width={image.thumbnail?.width}

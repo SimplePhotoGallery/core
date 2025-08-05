@@ -3,10 +3,10 @@ import path from 'node:path';
 
 import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
+import type { ProcessDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
-import type { ScanOptions, SubGallery } from './types';
 
-async function scanDirectoryOnly(dirPath: string): Promise<MediaFile[]> {
+async function scanDirectory(dirPath: string): Promise<MediaFile[]> {
   const mediaFiles: MediaFile[] = [];
 
   try {
@@ -111,17 +111,12 @@ async function createGalleryJson(
   await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 }
 
-interface ProcessResult {
-  totalFiles: number;
-  subGallery?: SubGallery;
-}
-
-async function processDirectory(dirPath: string, options: ScanOptions): Promise<ProcessResult> {
+async function processDirectory(dirPath: string, options: ScanOptions): Promise<ProcessDirectoryResult> {
   let totalFiles = 0;
   const subGalleries: SubGallery[] = [];
 
   // Scan current directory for media files
-  const mediaFiles = await scanDirectoryOnly(dirPath);
+  const mediaFiles = await scanDirectory(dirPath);
   totalFiles += mediaFiles.length;
 
   // Process subdirectories only if recursive mode is enabled
@@ -165,7 +160,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
   }
 
   // Return result with suGgallery info if this directory has media files
-  const result: ProcessResult = { totalFiles };
+  const result: ProcessDirectoryResult = { totalFiles };
 
   if (mediaFiles.length > 0 || subGalleries.length > 0) {
     const dirName = path.basename(dirPath);
@@ -179,7 +174,7 @@ async function processDirectory(dirPath: string, options: ScanOptions): Promise<
   return result;
 }
 
-export async function scan(options: ScanOptions): Promise<void> {
+export async function init(options: ScanOptions): Promise<void> {
   const scanPath = path.resolve(options.path);
 
   console.log(`Scanning directory: ${scanPath}`);

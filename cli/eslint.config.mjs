@@ -10,7 +10,15 @@ const tseslintConfig = tseslint.config(eslint.configs.recommended, tseslint.conf
 
 const eslintConfig = [
   {
-    ignores: ['node_modules', '.github', 'tsconfig.tsbuildinfo', '**/dist/*', 'tsconfig.json', 'eslint.config.mjs'],
+    ignores: [
+      'node_modules',
+      '.github',
+      'tsconfig.tsbuildinfo',
+      '**/dist/*',
+      'tsconfig.json',
+      'eslint.config.mjs',
+      'jest.config.cjs',
+    ],
   },
   ...tseslintConfig,
   eslintConfigPrettier,
