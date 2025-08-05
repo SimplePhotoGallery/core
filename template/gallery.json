@@ -1,0 +1,95 @@
+{
+  "title": "My Gallery",
+  "description": "My gallery with fantastic photos.",
+  "headerImage": "../ai-generated-nature-177.webp",
+  "metadata": {
+    "ogUrl": ""
+  },
+  "sections": [
+    {
+      "images": [
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-177.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-177.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-179.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-179.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-185.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-185.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-192.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-192.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-195.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-195.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-196.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-196.jpg",
+            "width": 200,
+            "height": 200
+          }
+        },
+        {
+          "type": "image",
+          "path": "../example/japan/ai-generated-nature-199.webp",
+          "width": 1024,
+          "height": 1024,
+          "thumbnail": {
+            "path": "../example/japan/gallery/thumbnails/ai-generated-nature-199.jpg",
+            "width": 200,
+            "height": 200
+          }
+        }
+      ]
+    }
+  ],
+  "subGalleries": {
+    "title": "Sub Galleries",
+    "galleries": []
+  }
+}
