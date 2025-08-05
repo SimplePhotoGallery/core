@@ -1,7 +1,7 @@
 {
   "title": "My Gallery",
   "description": "My gallery with fantastic photos.",
-  "headerImage": "../ai-generated-nature-177.webp",
+  "headerImage": "../example/japan/ai-generated-nature-177.webp",
   "metadata": {
     "ogUrl": ""
   },
