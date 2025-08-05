@@ -53,13 +53,13 @@ const { title, metadata } = Astro.props;
         base = document.createElement('base');
         document.head.prepend(base);
       }
-    
+
       // Decide whether the current path ends in “directory” vs “file”.
-      const p          = location.pathname;
-      const looksFile  = /\.[a-z0-9]+$/i.test(p.split('/').pop() || '');
-    
+      const p = location.pathname;
+      const looksFile = /\.[a-z0-9]+$/i.test(p.split('/').pop() || '');
+
       // If it’s “directory without slash”, stick a slash on and update <base>.
-      base.href = (!p.endsWith('/') && !looksFile) ? p + '/' : './';
+      base.href = !p.endsWith('/') && !looksFile ? p + '/' : './';
     })();
   </script>
 
@@ -70,6 +70,4 @@ const { title, metadata } = Astro.props;
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet"
   />
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.css" />
 </head>
