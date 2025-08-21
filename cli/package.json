@@ -1,5 +1,5 @@
 {
-  "name": "@simple-photo-gallery/cli",
+  "name": "simple-photo-gallery",
   "version": "0.0.1",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
@@ -8,9 +8,13 @@
   "bin": {
     "gallery": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "gallery": "tsx src/index.ts",
-    "build": "tsc",
+    "build": "tsc && cp -r ../template dist/template",
     "check": "tsc --noEmit && eslint . && prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -19,6 +23,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@simple-photo-gallery/template": "workspace:*",
     "commander": "^12.0.0",
     "exif-reader": "^2.0.1",
     "node-ffprobe": "^3.0.0",
@@ -47,6 +52,5 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.38.0"
-  },
-  "packageManager": "yarn@4.9.2"
+  }
 }
