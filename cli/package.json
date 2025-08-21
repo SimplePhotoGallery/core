@@ -1,5 +1,5 @@
 {
-  "name": "simple-photo-gallery",
+  "name": "@simple-photo-gallery/cli",
   "version": "0.0.1",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",

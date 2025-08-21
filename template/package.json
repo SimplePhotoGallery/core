@@ -1,5 +1,5 @@
 {
-  "name": "simple-photo-gallery-public-template",
+  "name": "@simple-photo-gallery/template",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
