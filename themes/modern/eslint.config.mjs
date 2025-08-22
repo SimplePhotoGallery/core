@@ -39,6 +39,9 @@ const eslintConfig = [
         AddEventListenerOptions: 'readonly',
         EventListener: 'readonly',
       },
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     settings: {
       'import/resolver': {
