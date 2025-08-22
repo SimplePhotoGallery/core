@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -14,7 +14,7 @@
     "src"
   ],
   "bin": {
-    "simple-photo-gallery": "./dist/index.js"
+    "simple-photo-gallery": "./dist/src/index.js"
   },
   "scripts": {
     "gallery": "tsx src/index.ts",
