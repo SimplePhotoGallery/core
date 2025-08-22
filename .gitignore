@@ -145,3 +145,6 @@ tmp
 
 # Temporary test fixtures
 cli/tests/fixtures/test
+
+# Example galleries
+**/example/**/gallery/
