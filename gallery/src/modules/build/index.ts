@@ -63,6 +63,6 @@ export async function build(options: BuildOptions): Promise<void> {
 
   // Process each gallery
   for (const dir of galleryDirs) {
-    buildGallery(dir, themeDir);
+    buildGallery(path.resolve(dir), themeDir);
   }
 }
