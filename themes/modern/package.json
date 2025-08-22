@@ -9,6 +9,12 @@
     "url": "https://github.com/SimplePhotoGallery/core"
   },
   "homepage": "https://simple.photo",
+  "files": [
+    "public",
+    "src",
+    "astro.config.ts",
+    "tsconfig.json"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
