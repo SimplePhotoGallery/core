@@ -8332,7 +8332,7 @@ __metadata:
     typescript-eslint: "npm:^8.38.0"
     zod: "npm:^4.0.14"
   bin:
-    simple-photo-gallery: ./dist/src/index.js
+    simple-photo-gallery: ./dist/index.js
   languageName: unknown
   linkType: soft
 
