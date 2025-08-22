@@ -18,6 +18,7 @@ const eslintConfig = [
       'tsconfig.json',
       'eslint.config.mjs',
       'jest.config.cjs',
+      '.prettierrc.mjs',
     ],
   },
   ...tseslintConfig,
