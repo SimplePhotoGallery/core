@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -10,15 +10,14 @@
   },
   "homepage": "https://simple.photo",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
-  "bin": {
-    "simple-photo-gallery": "./dist/src/index.js"
-  },
+  "bin": "./dist/index.js",
   "scripts": {
     "gallery": "tsx src/index.ts",
-    "build": "tsc",
+    "clean": "rm -rf dist",
+    "compile": "tsc --noEmit",
+    "build": "yarn clean && tsup",
     "check": "tsc --noEmit && eslint . && prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -54,6 +53,7 @@
     "jest": "^30.0.5",
     "prettier": "^3.4.2",
     "ts-jest": "^29.4.1",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.38.0"
