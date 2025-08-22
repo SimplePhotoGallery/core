@@ -4,8 +4,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "cli",
-      "template"
+      "gallery",
+      "themes/*"
     ]
   },
   "engines": {
