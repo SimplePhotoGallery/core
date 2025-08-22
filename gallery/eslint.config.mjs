@@ -29,6 +29,10 @@ const eslintConfig = [
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+        project: './tsconfig.json',
+      },
       globals: {
         ...globals.jest,
         ...globals.browser,

@@ -3,8 +3,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { resolveFromCurrentDir } from './utils';
-
 import { findGalleries } from '../../utils';
 
 import type { BuildOptions } from './types';
@@ -51,8 +49,8 @@ function buildGallery(galleryDir: string, templateDir: string) {
 export async function build(options: BuildOptions): Promise<void> {
   // Get the template directory
   // Resolve the theme-modern package directory
-  const themePath = require.resolve('@simple-photo-gallery/theme-modern/package.json');
-  const themeDir = path.dirname(themePath);
+  const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
+  const themeDir = path.dirname(new URL(themePath).pathname);
 
   // Find all gallery directories
   const galleryDirs = findGalleries(options.path, options.recursive);
