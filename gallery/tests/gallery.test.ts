@@ -9,7 +9,7 @@ import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '../src/type
 
 const testDir = process.cwd();
 
-const tsxPath = path.resolve(testDir, 'node_modules', '.bin', 'tsx');
+const tsxPath = path.resolve(testDir, '..', 'node_modules', '.bin', 'tsx');
 const cliPath = path.resolve(testDir, 'src', 'index.ts');
 
 const singleFixturePath = path.resolve(testDir, 'tests', 'fixtures', 'single');
