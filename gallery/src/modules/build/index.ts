@@ -22,7 +22,7 @@ function buildGallery(galleryDir: string, templateDir: string) {
     process.env.GALLERY_JSON_PATH = galleryJsonPath;
     process.env.GALLERY_OUTPUT_DIR = path.join(galleryDir, 'gallery');
 
-    execSync('npm run build', { cwd: templateDir, stdio: 'inherit' });
+    execSync('yarn build', { cwd: templateDir, stdio: 'inherit' });
   } catch (error) {
     console.error(error);
     console.error(`Build failed for ${galleryDir}`);
