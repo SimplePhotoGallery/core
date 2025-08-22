@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -24,7 +24,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:fix": "prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "@simple-photo-gallery/theme-modern": "0.0.1",
