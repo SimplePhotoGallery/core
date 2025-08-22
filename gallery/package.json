@@ -4,14 +4,18 @@
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
-  "type": "module",
-  "bin": {
-    "gallery": "./dist/index.js"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimplePhotoGallery/core"
   },
+  "homepage": "https://simple.photo",
   "files": [
     "dist",
     "src"
   ],
+  "bin": {
+    "gallery": "./dist/index.js"
+  },
   "scripts": {
     "gallery": "tsx src/index.ts",
     "build": "tsc",
@@ -52,5 +56,6 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.38.0"
-  }
+  },
+  "type": "module"
 }

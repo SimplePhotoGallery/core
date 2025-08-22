@@ -1,7 +1,14 @@
 {
   "name": "@simple-photo-gallery/theme-modern",
-  "type": "module",
   "version": "0.0.1",
+  "description": "Modern theme for Simple Photo Gallery",
+  "license": "MIT",
+  "author": "Vladimir Haltakov, Tomasz Rusin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimplePhotoGallery/core"
+  },
+  "homepage": "https://simple.photo",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -36,5 +43,6 @@
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.35.1"
-  }
+  },
+  "type": "module"
 }
