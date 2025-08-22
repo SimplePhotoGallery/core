@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@simple-photo-gallery/theme-modern": "0.0.1",
-    "astro": "^5.13.3",
     "commander": "^12.0.0",
     "exif-reader": "^2.0.1",
     "node-ffprobe": "^3.0.0",

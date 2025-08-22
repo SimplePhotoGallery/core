@@ -2554,82 +2554,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:^5.13.3":
-  version: 5.13.3
-  resolution: "astro@npm:5.13.3"
-  dependencies:
-    "@astrojs/compiler": "npm:^2.12.2"
-    "@astrojs/internal-helpers": "npm:0.7.2"
-    "@astrojs/markdown-remark": "npm:6.3.6"
-    "@astrojs/telemetry": "npm:3.3.0"
-    "@capsizecss/unpack": "npm:^2.4.0"
-    "@oslojs/encoding": "npm:^1.1.0"
-    "@rollup/pluginutils": "npm:^5.1.4"
-    acorn: "npm:^8.14.1"
-    aria-query: "npm:^5.3.2"
-    axobject-query: "npm:^4.1.0"
-    boxen: "npm:8.0.1"
-    ci-info: "npm:^4.2.0"
-    clsx: "npm:^2.1.1"
-    common-ancestor-path: "npm:^1.0.1"
-    cookie: "npm:^1.0.2"
-    cssesc: "npm:^3.0.0"
-    debug: "npm:^4.4.0"
-    deterministic-object-hash: "npm:^2.0.2"
-    devalue: "npm:^5.1.1"
-    diff: "npm:^5.2.0"
-    dlv: "npm:^1.1.3"
-    dset: "npm:^3.1.4"
-    es-module-lexer: "npm:^1.6.0"
-    esbuild: "npm:^0.25.0"
-    estree-walker: "npm:^3.0.3"
-    flattie: "npm:^1.1.1"
-    fontace: "npm:~0.3.0"
-    github-slugger: "npm:^2.0.0"
-    html-escaper: "npm:3.0.3"
-    http-cache-semantics: "npm:^4.1.1"
-    import-meta-resolve: "npm:^4.1.0"
-    js-yaml: "npm:^4.1.0"
-    kleur: "npm:^4.1.5"
-    magic-string: "npm:^0.30.17"
-    magicast: "npm:^0.3.5"
-    mrmime: "npm:^2.0.1"
-    neotraverse: "npm:^0.6.18"
-    p-limit: "npm:^6.2.0"
-    p-queue: "npm:^8.1.0"
-    package-manager-detector: "npm:^1.1.0"
-    picomatch: "npm:^4.0.2"
-    prompts: "npm:^2.4.2"
-    rehype: "npm:^13.0.2"
-    semver: "npm:^7.7.1"
-    sharp: "npm:^0.33.3"
-    shiki: "npm:^3.2.1"
-    smol-toml: "npm:^1.3.4"
-    tinyexec: "npm:^0.3.2"
-    tinyglobby: "npm:^0.2.12"
-    tsconfck: "npm:^3.1.5"
-    ultrahtml: "npm:^1.6.0"
-    unifont: "npm:~0.5.0"
-    unist-util-visit: "npm:^5.0.0"
-    unstorage: "npm:^1.15.0"
-    vfile: "npm:^6.0.3"
-    vite: "npm:^6.3.4"
-    vitefu: "npm:^1.0.6"
-    xxhash-wasm: "npm:^1.1.0"
-    yargs-parser: "npm:^21.1.1"
-    yocto-spinner: "npm:^0.2.1"
-    zod: "npm:^3.24.4"
-    zod-to-json-schema: "npm:^3.24.5"
-    zod-to-ts: "npm:^1.2.0"
-  dependenciesMeta:
-    sharp:
-      optional: true
-  bin:
-    astro: astro.js
-  checksum: 10c0/d4e382f4ce05d6fd84d9a5ba8c3e6ad0c73af82ecc131b57d7bd9202db5f956e5280560e98e79d0c290fcfee20b7614768db5b2f74ab78e0ccf29ba4ae4105aa
-  languageName: node
-  linkType: hard
-
 "astrojs-compiler-sync@npm:^1.0.0":
   version: 1.1.1
   resolution: "astrojs-compiler-sync@npm:1.1.1"
@@ -8387,7 +8311,6 @@ __metadata:
     "@types/node": "npm:^24.0.10"
     "@typescript-eslint/eslint-plugin": "npm:^8.38.0"
     "@typescript-eslint/parser": "npm:^8.38.0"
-    astro: "npm:^5.13.3"
     commander: "npm:^12.0.0"
     eslint: "npm:^9.30.1"
     eslint-config-prettier: "npm:^10.1.5"
