@@ -50,7 +50,9 @@ function buildGallery(galleryDir: string, templateDir: string) {
 
 export async function build(options: BuildOptions): Promise<void> {
   // Get the template directory
-  const templateDir = path.join(resolveFromCurrentDir('../../../../../'), 'template');
+  // Resolve the theme-modern package directory
+  const themePath = require.resolve('@simple-photo-gallery/theme-modern/package.json');
+  const themeDir = path.dirname(themePath);
 
   // Find all gallery directories
   const galleryDirs = findGalleries(options.path, options.recursive);
@@ -63,6 +65,6 @@ export async function build(options: BuildOptions): Promise<void> {
 
   // Process each gallery
   for (const dir of galleryDirs) {
-    buildGallery(dir, templateDir);
+    buildGallery(dir, themeDir);
   }
 }
