@@ -3,10 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+import { type GalleryData, GalleryDataSchema } from '../../types';
 import { askUserForConfirmation, findGalleries } from '../../utils';
 
 import type { BuildOptions } from './types';
-import { GalleryData, GalleryDataSchema } from '../../types';
 
 function checkFileIsOneFolderUp(filePath: string) {
   const normalizedPath = path.normalize(filePath);
@@ -15,8 +15,8 @@ function checkFileIsOneFolderUp(filePath: string) {
 }
 
 function copyPhotos(galleryData: GalleryData, galleryDir: string) {
-  galleryData.sections.forEach((section) => {
-    section.images.forEach((image) => {
+  for (const section of galleryData.sections) {
+    for (const image of section.images) {
       if (!checkFileIsOneFolderUp(image.path)) {
         const sourcePath = path.join(galleryDir, 'gallery', image.path);
         const fileName = path.basename(image.path);
@@ -24,8 +24,8 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string) {
 
         fs.copyFileSync(sourcePath, destPath);
       }
-    });
-  });
+    }
+  }
 }
 
 async function buildGallery(galleryDir: string, templateDir: string, baseUrl?: string) {
