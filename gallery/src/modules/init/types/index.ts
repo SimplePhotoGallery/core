@@ -1,6 +1,6 @@
 export interface ScanOptions {
-  path: string;
-  output: string;
+  photos: string;
+  gallery?: string;
   recursive: boolean;
 }
 
