@@ -6,7 +6,7 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
-  },
-  "include": ["scripts/**/*"]
+    "skipLibCheck": true,
+    "noEmit": true
+  }
 }

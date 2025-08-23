@@ -24,24 +24,18 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
-          cache-dependency-path: "cli/yarn.lock"
+          cache-dependency-path: "yarn.lock"
 
       - name: Enable Corepack
         run: corepack enable
 
       - name: Install dependencies
-        working-directory: ./cli
         run: yarn install --immutable
 
-      # TODO: Create a better way to ensure the template dependencies are installed
-      - name: Install dependencies for the template
-        working-directory: ./template
-        run: npm install
-
       - name: Run checks
-        working-directory: ./cli
+        working-directory: ./gallery
         run: yarn check
 
       - name: Run tests
-        working-directory: ./cli
+        working-directory: ./gallery
         run: yarn test

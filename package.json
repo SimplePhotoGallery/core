@@ -1,0 +1,15 @@
+{
+  "name": "@simple-photo-gallery/workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "gallery",
+      "themes/*"
+    ]
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "yarn@4.9.3"
+}

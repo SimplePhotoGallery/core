@@ -1,0 +1,54 @@
+{
+  "name": "@simple-photo-gallery/theme-modern",
+  "version": "0.0.1",
+  "description": "Modern theme for Simple Photo Gallery",
+  "license": "MIT",
+  "author": "Vladimir Haltakov, Tomasz Rusin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimplePhotoGallery/core"
+  },
+  "homepage": "https://simple.photo",
+  "files": [
+    "public",
+    "src",
+    "astro.config.ts",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "eslint . --ext .astro,.js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .astro,.js,.jsx,.ts,.tsx --fix",
+    "format": "prettier  --check './**/*.{js,jsx,ts,tsx,css,scss,md,json,astro}' --config ./.prettierrc.mjs --ignore-path ./.prettierignore",
+    "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,scss,md,json,astro}'  --config ./.prettierrc.mjs --ignore-path ./.prettierignore",
+    "check": "npm run lint && npm run format"
+  },
+  "dependencies": {
+    "@types/photoswipe": "^4.1.6",
+    "astro": "^5.11.0",
+    "astro-relative-links": "^0.4.2",
+    "photoswipe": "^5.4.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.30.1",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-astro": "^1.3.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-unicorn": "^60.0.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.1"
+  },
+  "type": "module"
+}
