@@ -1,7 +1,7 @@
 ---
 import { DEFAULT_STATIC_ASSETS_PATH } from '@/config';
 import Container from '@/features/themes/base-theme/components/container/Container.astro';
-import { getGalleryPath } from '@/features/themes/base-theme/utils';
+import { getPhotoPath, getSubgalleryThumbnailPath } from '@/features/themes/base-theme/utils';
 
 interface SubGallery {
   title: string;
@@ -31,10 +31,10 @@ const { title, description, subGalleries } = Astro.props;
     <div class="sub-galleries__grid">
       {
         subGalleries.map((subgallery) => (
-          <a href={getGalleryPath(subgallery.path)} class="sub-galleries__item">
+          <a href={getPhotoPath(subgallery.path)} class="sub-galleries__item">
             <div class="sub-galleries__item-image">
               <img
-                src={getGalleryPath(subgallery.headerImage) || `${DEFAULT_STATIC_ASSETS_PATH}/images/gallery-placeholder.png`}
+                src={getSubgalleryThumbnailPath(subgallery.headerImage) || `${DEFAULT_STATIC_ASSETS_PATH}/images/gallery-placeholder.png`}
                 alt={subgallery.title}
                 loading="lazy"
               />
