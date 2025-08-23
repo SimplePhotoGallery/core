@@ -3,17 +3,53 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { findGalleries } from '../../utils';
+import { askUserForConfirmation, findGalleries } from '../../utils';
 
 import type { BuildOptions } from './types';
+import { GalleryData, GalleryDataSchema } from '../../types';
 
-function buildGallery(galleryDir: string, templateDir: string) {
+function checkFileIsOneFolderUp(filePath: string) {
+  const normalizedPath = path.normalize(filePath);
+  const pathParts = normalizedPath.split(path.sep);
+  return pathParts.length === 2 && pathParts[0] === '..';
+}
+
+function copyPhotos(galleryData: GalleryData, galleryDir: string) {
+  galleryData.sections.forEach((section) => {
+    section.images.forEach((image) => {
+      if (!checkFileIsOneFolderUp(image.path)) {
+        const sourcePath = path.join(galleryDir, 'gallery', image.path);
+        const fileName = path.basename(image.path);
+        const destPath = path.join(galleryDir, fileName);
+
+        fs.copyFileSync(sourcePath, destPath);
+      }
+    });
+  });
+}
+
+async function buildGallery(galleryDir: string, templateDir: string) {
   // Make sure the gallery.json file exists
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   if (!fs.existsSync(galleryJsonPath)) {
     console.log(`No gallery/gallery.json found in ${galleryDir}`);
     return;
   }
+
+  // Read the gallery.json file
+  const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
+  const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+
+  // Check if the photos need to be copied
+  const shouldCopyPhotos = galleryData.sections.some((section) =>
+    section.images.some((image) => !checkFileIsOneFolderUp(image.path)),
+  );
+
+  if (
+    shouldCopyPhotos &&
+    (await askUserForConfirmation('All photos need to be copied. Are you sure you want to continue? (y/N): '))
+  )
+    copyPhotos(galleryData, galleryDir);
 
   // Build the template
   const originalEnv = { ...process.env };
