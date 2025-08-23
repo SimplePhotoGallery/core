@@ -47,13 +47,12 @@ function buildGallery(galleryDir: string, templateDir: string) {
 }
 
 export async function build(options: BuildOptions): Promise<void> {
-  // Get the template directory
-  // Resolve the theme-modern package directory
+  // Get the astro theme directory from the default one
   const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
   const themeDir = path.dirname(new URL(themePath).pathname);
 
   // Find all gallery directories
-  const galleryDirs = findGalleries(options.path, options.recursive);
+  const galleryDirs = findGalleries(options.gallery, options.recursive);
 
   // If no galleries are found, exit
   if (galleryDirs.length === 0) {
