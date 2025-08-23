@@ -105,7 +105,7 @@ describe('Single-folder gallery', () => {
       const galleryPath = path.resolve(singleTestPath, 'gallery');
 
       // Run init command
-      execSync(`${tsxPath} ${cliPath} init --path ${singleTestPath}`);
+      execSync(`${tsxPath} ${cliPath} init --photos ${singleTestPath}`);
 
       // Validate gallery structure
       validateGalleryStructure(galleryPath, 3, 0);
@@ -117,7 +117,7 @@ describe('Single-folder gallery', () => {
       const galleryPath = path.resolve(singleTestPath, 'gallery');
 
       // Run thumbnails command (init should have been run by previous test)
-      execSync(`${tsxPath} ${cliPath} thumbnails --path ${singleTestPath}`);
+      execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${singleTestPath}`);
 
       // Validate thumbnails using helper
       validateThumbnails(galleryPath, 3);
@@ -129,7 +129,7 @@ describe('Single-folder gallery', () => {
       const galleryPath = path.resolve(singleTestPath, 'gallery');
 
       // Run build command (init and thumbnails should have been run by previous tests)
-      execSync(`${tsxPath} ${cliPath} build --path ${singleTestPath}`);
+      execSync(`${tsxPath} ${cliPath} build --gallery ${singleTestPath}`);
 
       // Validate build output using helper
       validateBuildOutput(singleTestPath, galleryPath);
@@ -154,7 +154,7 @@ describe('Multi-folder gallery', () => {
   describe('init command with recursive option', () => {
     test('should create gallery.json files with subgalleries for multi-folder structure', () => {
       // Run init command with recursive option
-      execSync(`${tsxPath} ${cliPath} init --path ${multiTestPath} -r`);
+      execSync(`${tsxPath} ${cliPath} init --photos ${multiTestPath} -r`);
 
       // Validate main gallery (3 root images + 2 subgalleries)
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
@@ -179,7 +179,7 @@ describe('Multi-folder gallery', () => {
   describe('thumbnails command with recursive option', () => {
     test('should create thumbnails for all galleries recursively', () => {
       // Run thumbnails command with recursive option
-      execSync(`${tsxPath} ${cliPath} thumbnails --path ${multiTestPath} -r`);
+      execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${multiTestPath} -r`);
 
       // Validate thumbnails for main gallery
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
@@ -198,7 +198,7 @@ describe('Multi-folder gallery', () => {
   describe('build command with recursive option', () => {
     test('should build static files for all galleries recursively', () => {
       // Run build command with recursive option
-      execSync(`${tsxPath} ${cliPath} build --path ${multiTestPath} -r`);
+      execSync(`${tsxPath} ${cliPath} build --gallery ${multiTestPath} -r`);
 
       // Validate build output for main gallery
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
