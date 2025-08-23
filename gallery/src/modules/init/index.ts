@@ -143,10 +143,11 @@ async function processDirectory(scanPath: string, outputPath: string, recursive:
 
   // Create gallery.json if there are media files or subGalleries
   if (mediaFiles.length > 0 || subGalleries.length > 0) {
-    const galleryJsonPath = path.join(outputPath, 'gallery', 'gallery.json');
+    const galleryPath = path.join(outputPath, 'gallery');
+    const galleryJsonPath = path.join(galleryPath, 'gallery.json');
 
     // Create output directory
-    await fs.mkdir(outputPath, { recursive: true });
+    await fs.mkdir(galleryPath, { recursive: true });
 
     // Create gallery.json for this directory
     await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries);
