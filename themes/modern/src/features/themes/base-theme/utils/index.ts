@@ -22,10 +22,10 @@ export const getRelativePath = (resourcePath: string) => {
  * @param resourcePath - The path to the photo on the hard disk
  * @returns The normalized path relative to the gallery root directory
  */
-export const getPhotoPath = (photoPath: string) => {
+export const getPhotoPath = (photoPath: string, mediaBaseUrl?: string) => {
   const resourceBasename = path.basename(photoPath);
 
-  return path.join('.', resourceBasename);
+  return mediaBaseUrl ? `${mediaBaseUrl}/${resourceBasename}` : path.join('.', resourceBasename);
 };
 
 /**

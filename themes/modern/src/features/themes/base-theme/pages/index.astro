@@ -15,11 +15,11 @@ const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 
 const gallery = galleryData as GalleryData;
 
-const { title, description, headerImage, metadata, sections, subGalleries } = gallery;
+const { title, description, headerImage, metadata, sections, subGalleries, mediaBaseUrl } = gallery;
 ---
 
 <MainLayout title={title} metadata={metadata}>
-  <Hero title={title} description={description} backgroundImage={headerImage} />
+  <Hero title={title} description={description} backgroundImage={headerImage} mediaBaseUrl={mediaBaseUrl} />
 
   {
     subGalleries && subGalleries.galleries.length > 0 && (
@@ -30,7 +30,7 @@ const { title, description, headerImage, metadata, sections, subGalleries } = ga
       />
     )
   }
-  {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
+  {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} mediaBaseUrl={mediaBaseUrl} />)}
 
   <PhotoSwipe />
 </MainLayout>

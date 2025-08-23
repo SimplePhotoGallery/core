@@ -5,15 +5,16 @@ import type { GalleryImage } from '@/features/themes/base-theme/types/gallery';
 
 interface Props {
   image: GalleryImage;
+  mediaBaseUrl?: string;
 }
 
-const { image } = Astro.props;
+const { image, mediaBaseUrl } = Astro.props;
 ---
 
 <div class="gallery-section__item">
   <a
-    href={getPhotoPath(image.path)}
-    data-pswp-src={getPhotoPath(image.path)}
+    href={getPhotoPath(image.path, mediaBaseUrl)}
+    data-pswp-src={getPhotoPath(image.path, mediaBaseUrl)}
     data-pswp-width={image.width}
     data-pswp-height={image.height}
     data-pswp-type={image.type}

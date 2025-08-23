@@ -28,7 +28,7 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string) {
   });
 }
 
-async function buildGallery(galleryDir: string, templateDir: string) {
+async function buildGallery(galleryDir: string, templateDir: string, baseUrl?: string) {
   // Make sure the gallery.json file exists
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   if (!fs.existsSync(galleryJsonPath)) {
@@ -40,16 +40,24 @@ async function buildGallery(galleryDir: string, templateDir: string) {
   const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
   const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
 
-  // Check if the photos need to be copied
-  const shouldCopyPhotos = galleryData.sections.some((section) =>
-    section.images.some((image) => !checkFileIsOneFolderUp(image.path)),
-  );
+  // Check if the photos need to be copied. Not needed if the baseUrl is provided.
+  if (!baseUrl) {
+    const shouldCopyPhotos = galleryData.sections.some((section) =>
+      section.images.some((image) => !checkFileIsOneFolderUp(image.path)),
+    );
 
-  if (
-    shouldCopyPhotos &&
-    (await askUserForConfirmation('All photos need to be copied. Are you sure you want to continue? (y/N): '))
-  )
-    copyPhotos(galleryData, galleryDir);
+    if (
+      shouldCopyPhotos &&
+      (await askUserForConfirmation('All photos need to be copied. Are you sure you want to continue? (y/N): '))
+    )
+      copyPhotos(galleryData, galleryDir);
+  }
+
+  // If the baseUrl is provided, update the gallery.json file
+  if (baseUrl) {
+    galleryData.mediaBaseUrl = baseUrl;
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  }
 
   // Build the template
   const originalEnv = { ...process.env };
@@ -98,6 +106,7 @@ export async function build(options: BuildOptions): Promise<void> {
 
   // Process each gallery
   for (const dir of galleryDirs) {
-    buildGallery(path.resolve(dir), themeDir);
+    const baseUrl = options.baseUrl ? `${options.baseUrl}/${path.relative(options.gallery, dir)}` : undefined;
+    buildGallery(path.resolve(dir), themeDir, baseUrl);
   }
 }

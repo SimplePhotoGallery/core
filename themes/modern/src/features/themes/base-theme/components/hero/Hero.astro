@@ -7,15 +7,16 @@ interface Props {
   title: string;
   description?: string;
   backgroundImage: string;
+  mediaBaseUrl?: string;
 }
 
-const { title, description, backgroundImage } = Astro.props;
+const { title, description, backgroundImage, mediaBaseUrl } = Astro.props;
 ---
 
 <section class="hero">
   <div
     class="hero__bg"
-    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${getPhotoPath(backgroundImage) || `${DEFAULT_STATIC_ASSETS_PATH}/images/hero-placeholder.png`}')`}>
+    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${getPhotoPath(backgroundImage, mediaBaseUrl) || `${DEFAULT_STATIC_ASSETS_PATH}/images/hero-placeholder.png`}')`}>
   </div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>

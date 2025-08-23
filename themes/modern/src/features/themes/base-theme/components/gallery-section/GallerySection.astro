@@ -8,16 +8,17 @@ import type { GallerySection as GallerySectionType } from '@/features/themes/bas
 interface Props {
   section: GallerySectionType;
   sectionIndex: number;
+  mediaBaseUrl?: string;
 }
 
-const { section, sectionIndex } = Astro.props;
+const { section, sectionIndex, mediaBaseUrl } = Astro.props;
 ---
 
 <section class={`gallery-section gallery-section-${sectionIndex}`}>
   <Container>
     <GallerySectionHeader section={section} />
     <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
-      {section.images.map((image) => <GallerySectionItem image={image} />)}
+      {section.images.map((image) => <GallerySectionItem image={image} mediaBaseUrl={mediaBaseUrl} />)}
     </div>
   </Container>
 </section>
