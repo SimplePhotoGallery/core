@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
+import readline from 'node:readline';
 
 /**
  * Finds all gallery directories that contain a gallery/gallery.json file.
@@ -34,4 +36,26 @@ export const findGalleries = (basePath: string, recursive: boolean): string[] =>
   }
 
   return galleryDirs;
+};
+
+/**
+ * Asks the user for confirmation via a yes/no question in the terminal.
+ *
+ * @param question - The question to ask the user
+ * @returns Promise that resolves to true if user answers 'y' or 'yes', false otherwise
+ */
+
+export const askUserForConfirmation = async (question: string) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const answer = await new Promise<string>((resolve) => {
+    rl.question(question, resolve);
+  });
+
+  rl.close();
+
+  return answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes';
 };

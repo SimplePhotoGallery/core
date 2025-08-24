@@ -148,3 +148,6 @@ cli/tests/fixtures/test
 
 # Example galleries
 **/example/**/gallery/
+
+# Astro
+.astro

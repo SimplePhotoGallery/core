@@ -7,6 +7,7 @@ import { GalleryDataSchema, type MediaFile } from '../../types';
 import { findGalleries } from '../../utils';
 
 import type { ThumbnailOptions } from './types';
+
 const processGallery = async (galleryDir: string, size: number): Promise<number> => {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
@@ -97,7 +98,7 @@ export async function thumbnails(options: ThumbnailOptions): Promise<void> {
   const size = Number.parseInt(options.size);
 
   // Find all gallery directories
-  const galleryDirs = findGalleries(options.path, options.recursive);
+  const galleryDirs = findGalleries(options.gallery, options.recursive);
 
   // If no galleries are found, exit
   if (galleryDirs.length === 0) {

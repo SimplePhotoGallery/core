@@ -1,4 +1,5 @@
 export interface BuildOptions {
-  path: string;
+  gallery: string;
   recursive: boolean;
+  baseUrl?: string;
 }

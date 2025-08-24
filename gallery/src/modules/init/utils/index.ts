@@ -17,7 +17,7 @@ export async function getImageMetadata(filePath: string): Promise<{ width: numbe
       try {
         const exifData = exifReader(metadata.exif);
         if (exifData.Image?.ImageDescription) {
-          description = exifData.Image.ImageDescription;
+          description = exifData.Image.ImageDescription.toString();
         } else if (exifData.Image?.Description) {
           description = exifData.Image.Description.toString();
         }

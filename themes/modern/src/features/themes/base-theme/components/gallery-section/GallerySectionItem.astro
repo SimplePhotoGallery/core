@@ -1,25 +1,26 @@
 ---
-import { getGalleryPath } from '@/features/themes/base-theme/utils';
+import { getPhotoPath, getRelativePath } from '@/features/themes/base-theme/utils';
 
 import type { GalleryImage } from '@/features/themes/base-theme/types/gallery';
 
 interface Props {
   image: GalleryImage;
+  mediaBaseUrl?: string;
 }
 
-const { image } = Astro.props;
+const { image, mediaBaseUrl } = Astro.props;
 ---
 
 <div class="gallery-section__item">
   <a
-    href={getGalleryPath(image.path)}
-    data-pswp-src={getGalleryPath(image.path)}
+    href={getPhotoPath(image.path, mediaBaseUrl)}
+    data-pswp-src={getPhotoPath(image.path, mediaBaseUrl)}
     data-pswp-width={image.width}
     data-pswp-height={image.height}
     data-pswp-type={image.type}
     data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}>
     <img
-      src={getGalleryPath(image.thumbnail?.path)}
+      src={getRelativePath(image.thumbnail?.path)}
       alt={image.alt}
       loading="lazy"
       width={image.thumbnail?.width}

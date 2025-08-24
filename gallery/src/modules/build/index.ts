@@ -3,16 +3,60 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { findGalleries } from '../../utils';
+import { type GalleryData, GalleryDataSchema } from '../../types';
+import { askUserForConfirmation, findGalleries } from '../../utils';
 
 import type { BuildOptions } from './types';
 
-function buildGallery(galleryDir: string, templateDir: string) {
+function checkFileIsOneFolderUp(filePath: string) {
+  const normalizedPath = path.normalize(filePath);
+  const pathParts = normalizedPath.split(path.sep);
+  return pathParts.length === 2 && pathParts[0] === '..';
+}
+
+function copyPhotos(galleryData: GalleryData, galleryDir: string) {
+  for (const section of galleryData.sections) {
+    for (const image of section.images) {
+      if (!checkFileIsOneFolderUp(image.path)) {
+        const sourcePath = path.join(galleryDir, 'gallery', image.path);
+        const fileName = path.basename(image.path);
+        const destPath = path.join(galleryDir, fileName);
+
+        fs.copyFileSync(sourcePath, destPath);
+      }
+    }
+  }
+}
+
+async function buildGallery(galleryDir: string, templateDir: string, baseUrl?: string) {
   // Make sure the gallery.json file exists
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   if (!fs.existsSync(galleryJsonPath)) {
     console.log(`No gallery/gallery.json found in ${galleryDir}`);
     return;
+  }
+
+  // Read the gallery.json file
+  const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
+  const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+
+  // Check if the photos need to be copied. Not needed if the baseUrl is provided.
+  if (!baseUrl) {
+    const shouldCopyPhotos = galleryData.sections.some((section) =>
+      section.images.some((image) => !checkFileIsOneFolderUp(image.path)),
+    );
+
+    if (
+      shouldCopyPhotos &&
+      (await askUserForConfirmation('All photos need to be copied. Are you sure you want to continue? (y/N): '))
+    )
+      copyPhotos(galleryData, galleryDir);
+  }
+
+  // If the baseUrl is provided, update the gallery.json file
+  if (baseUrl) {
+    galleryData.mediaBaseUrl = baseUrl;
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
   }
 
   // Build the template
@@ -47,13 +91,12 @@ function buildGallery(galleryDir: string, templateDir: string) {
 }
 
 export async function build(options: BuildOptions): Promise<void> {
-  // Get the template directory
-  // Resolve the theme-modern package directory
+  // Get the astro theme directory from the default one
   const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
   const themeDir = path.dirname(new URL(themePath).pathname);
 
   // Find all gallery directories
-  const galleryDirs = findGalleries(options.path, options.recursive);
+  const galleryDirs = findGalleries(options.gallery, options.recursive);
 
   // If no galleries are found, exit
   if (galleryDirs.length === 0) {
@@ -63,6 +106,7 @@ export async function build(options: BuildOptions): Promise<void> {
 
   // Process each gallery
   for (const dir of galleryDirs) {
-    buildGallery(path.resolve(dir), themeDir);
+    const baseUrl = options.baseUrl ? `${options.baseUrl}/${path.relative(options.gallery, dir)}` : undefined;
+    buildGallery(path.resolve(dir), themeDir, baseUrl);
   }
 }

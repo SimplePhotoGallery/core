@@ -16,22 +16,21 @@ program
   .command('init')
   .description('Initialize a gallery by scaning a folder for images and videos')
   .option(
-    '-p, --path <path>',
-    'Path where the gallery should be initialized. Default: current working directory',
+    '-p, --photos <path>',
+    'Path to the folder where the photos are stored. Default: current working directory',
     process.cwd(),
   )
-  .option('-o, --output <path>', 'Output directory for the gallery.json file', '')
-  .option('-r, --recursive', 'Scan subdirectories recursively', false)
+  .option(
+    '-g, --gallery <path>',
+    'Path to the directory where the gallery will be initialized. Default: same directory as the photos folder',
+  )
+  .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
   .action(init);
 
 program
   .command('thumbnails')
   .description('Create thumbnails for all media files in the gallery')
-  .option(
-    '-p, --path <path>',
-    'Path to the folder containing the gallery.json file. Default: current working directory',
-    process.cwd(),
-  )
+  .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .action(thumbnails);
@@ -39,12 +38,9 @@ program
 program
   .command('build')
   .description('Build the HTML gallery in the specified directory')
-  .option(
-    '-p, --path <path>',
-    'Path to the folder containing the gallery.json file. Default: current working directory',
-    process.cwd(),
-  )
+  .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
+  .option('-b, --base-url <url>', 'Base URL where the photos are hosted')
   .action(build);
 
 program.parse();

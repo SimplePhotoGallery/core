@@ -48,6 +48,7 @@ export interface GalleryData {
   outputDir?: string;
   headerImage: string;
   metadata?: GalleryMetadata;
+  mediaBaseUrl?: string;
   sections: GallerySection[];
   subGalleries?: {
     title?: string;
