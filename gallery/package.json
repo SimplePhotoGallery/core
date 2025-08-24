@@ -29,6 +29,7 @@
   "dependencies": {
     "@simple-photo-gallery/theme-modern": "0.0.1",
     "commander": "^12.0.0",
+    "consola": "^3.4.2",
     "exif-reader": "^2.0.1",
     "node-ffprobe": "^3.0.0",
     "sharp": "^0.33.0",
