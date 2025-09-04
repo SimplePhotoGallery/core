@@ -17,28 +17,32 @@ program
   .version('0.0.1')
   .option('-v, --verbose', 'Verbose output (debug level)', false)
   .option('-q, --quiet', 'Minimal output (only warnings/errors)', false)
-  .option('--no-color', 'Disable colors')
   .showHelpAfterError(true);
 
-function createUI(globalOpts: ReturnType<typeof program.opts>): ConsolaInstance {
-  const level = globalOpts.quiet ? LogLevels.warn : globalOpts.verbose ? LogLevels.debug : LogLevels.info;
-  // Consola auto-picks fancy vs basic; we just control colors and level.
+const createConsolaUI = (globalOpts: ReturnType<typeof program.opts>): ConsolaInstance => {
+  let level = LogLevels.info;
+
+  if (globalOpts.quiet) {
+    level = LogLevels.warn;
+  } else if (globalOpts.verbose) {
+    level = LogLevels.debug;
+  }
+
   return createConsola({
     level,
-    formatOptions: { colors: globalOpts.color !== false },
   }).withTag('gallery');
-}
+};
 
 // Wrap handlers so they receive (opts, ui)
-const withUI =
+const withConsolaUI =
   <O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) =>
   async (opts: O) => {
-    const ui = createUI(program.opts());
+    const ui = createConsolaUI(program.opts());
     try {
       await handler(opts, ui);
     } catch (error: any) {
       ui.error(error?.message ?? String(error));
-      if (program.opts().verbose) ui.log(error); // stack in verbose
+      if (program.opts().verbose) ui.log(error);
       process.exitCode = 1;
     }
   };
@@ -56,7 +60,7 @@ program
     'Path to the directory where the gallery will be initialized. Default: same directory as the photos folder',
   )
   .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
-  .action(withUI(init));
+  .action(withConsolaUI(init));
 
 program
   .command('thumbnails')
@@ -64,7 +68,7 @@ program
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(withUI(thumbnails));
+  .action(withConsolaUI(thumbnails));
 
 program
   .command('build')
@@ -72,6 +76,6 @@ program
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .option('-b, --base-url <url>', 'Base URL where the photos are hosted')
-  .action(withUI(build));
+  .action(withConsolaUI(build));
 
 program.parse();
