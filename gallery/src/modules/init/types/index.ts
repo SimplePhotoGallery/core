@@ -1,3 +1,5 @@
+import type { MediaFile } from '../../../types';
+
 export interface ScanOptions {
   photos: string;
   gallery?: string;
@@ -10,7 +12,13 @@ export interface SubGallery {
   path: string;
 }
 
+export interface ScanDirectoryResult {
+  mediaFiles: MediaFile[];
+  subGalleryDirectories: string[];
+}
+
 export interface ProcessDirectoryResult {
   totalFiles: number;
+  totalGalleries: number;
   subGallery?: SubGallery;
 }

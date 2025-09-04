@@ -30,7 +30,7 @@ const createConsolaUI = (globalOpts: ReturnType<typeof program.opts>): ConsolaIn
 
   return createConsola({
     level,
-  }).withTag('gallery');
+  }).withTag('simple-photo-gallery');
 };
 
 // Wrap handlers so they receive (opts, ui)
@@ -41,8 +41,8 @@ const withConsolaUI =
     try {
       await handler(opts, ui);
     } catch (error: any) {
-      ui.error(error?.message ?? String(error));
-      if (program.opts().verbose) ui.log(error);
+      ui.debug(error);
+
       process.exitCode = 1;
     }
   };

@@ -3,11 +3,15 @@ import path from 'node:path';
 
 import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
-import type { ProcessDirectoryResult, ScanOptions, SubGallery } from './types';
+import type { ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
+import type { ConsolaInstance } from 'consola';
 
-async function scanDirectory(dirPath: string): Promise<MediaFile[]> {
+async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
+  ui.start(`Scanning ${dirPath}`);
+
   const mediaFiles: MediaFile[] = [];
+  const subGalleryDirectories: string[] = [];
 
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -16,39 +20,36 @@ async function scanDirectory(dirPath: string): Promise<MediaFile[]> {
       if (entry.isFile()) {
         const fullPath = path.join(dirPath, entry.name);
         const mediaType = isMediaFile(entry.name);
+
         if (mediaType) {
-          console.log(`Processing ${mediaType}: ${entry.name}`);
+          ui.debug(`  Processing ${mediaType}: ${entry.name}`);
 
           let metadata: { width: number; height: number; description?: string } = { width: 0, height: 0 };
 
+          // Process the media file to get the metadata
           try {
             if (mediaType === 'image') {
               metadata = await getImageMetadata(fullPath);
             } else if (mediaType === 'video') {
-              try {
-                const videoDimensions = await getVideoDimensions(fullPath);
-                metadata = { ...videoDimensions };
-              } catch (videoError: unknown) {
-                if (
-                  typeof videoError === 'object' &&
-                  videoError !== null &&
-                  'message' in videoError &&
-                  typeof (videoError as { message: string }).message === 'string' &&
-                  ((videoError as { message: string }).message.includes('ffprobe') ||
-                    (videoError as { message: string }).message.includes('ffmpeg'))
-                ) {
-                  console.error(
-                    `Error: ffprobe (part of ffmpeg) is required to process videos. Please install ffmpeg and ensure it is available in your PATH. Skipping video: ${entry.name}`,
-                  );
-                } else {
-                  console.error(`Error processing video ${entry.name}:`, videoError);
-                }
-                continue; // Skip this file
-              }
+              const videoDimensions = await getVideoDimensions(fullPath);
+              metadata = { ...videoDimensions };
             }
-          } catch (mediaError) {
-            console.error(`Error processing file ${entry.name}:`, mediaError);
-            continue; // Skip this file
+          } catch (error) {
+            // Check for ffmpeg error
+            if (error instanceof Error && (error.message.includes('ffprobe') || error.message.includes('ffmpeg'))) {
+              ui.warn(
+                `Error processing ${path.basename(entry.name)}: ffprobe (part of ffmpeg) is required to process videos. Please install ffmpeg and ensure it is available in your PATH`,
+              );
+            } else if (error instanceof Error && error.message.includes('unsupported image format')) {
+              ui.warn(`Error processing ${path.basename(entry.name)}: unsupported image format`);
+            } else {
+              ui.warn(`Error processing ${path.basename(entry.name)}`);
+            }
+
+            ui.debug(error);
+
+            // Skip the file
+            continue;
           }
 
           const mediaFile: MediaFile = {
@@ -64,19 +65,30 @@ async function scanDirectory(dirPath: string): Promise<MediaFile[]> {
 
           mediaFiles.push(mediaFile);
         }
+      } else if (entry.isDirectory() && entry.name !== 'gallery') {
+        subGalleryDirectories.push(path.join(dirPath, entry.name));
       }
     }
   } catch (error) {
-    console.error(`Error scanning directory ${dirPath}:`, error);
+    if (error instanceof Error && error.message.includes('ENOENT')) {
+      ui.error(`Directory does not exist: ${dirPath}`);
+    } else if (error instanceof Error && error.message.includes('ENOTDIR')) {
+      ui.error(`Path is not a directory: ${dirPath}`);
+    } else {
+      ui.error(`Error scanning directory ${dirPath}:`, error);
+    }
+
+    throw error;
   }
 
-  return mediaFiles;
+  return { mediaFiles, subGalleryDirectories };
 }
 
 async function createGalleryJson(
   mediaFiles: MediaFile[],
   galleryJsonPath: string,
   subGalleries: SubGallery[] = [],
+  ui: ConsolaInstance,
 ): Promise<void> {
   const galleryDir = path.dirname(galleryJsonPath);
 
@@ -108,32 +120,45 @@ async function createGalleryJson(
     },
   };
 
-  await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  try {
+    await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  } catch (error) {
+    ui.error(`Error writing gallery.json at ${galleryJsonPath}`);
+    throw error;
+  }
 }
 
-async function processDirectory(scanPath: string, outputPath: string, recursive: boolean): Promise<ProcessDirectoryResult> {
+async function processDirectory(
+  scanPath: string,
+  outputPath: string,
+  recursive: boolean,
+  ui: ConsolaInstance,
+): Promise<ProcessDirectoryResult> {
   let totalFiles = 0;
+  let totalGalleries = 1;
   const subGalleries: SubGallery[] = [];
 
   // Scan current directory for media files
-  const mediaFiles = await scanDirectory(scanPath);
+  const { mediaFiles, subGalleryDirectories } = await scanDirectory(scanPath, ui);
   totalFiles += mediaFiles.length;
 
   // Process subdirectories only if recursive mode is enabled
   if (recursive) {
     try {
-      const entries = await fs.readdir(scanPath, { withFileTypes: true });
+      for (const subGalleryDir of subGalleryDirectories) {
+        const result = await processDirectory(
+          subGalleryDir,
+          path.join(outputPath, path.basename(subGalleryDir)),
+          recursive,
+          ui,
+        );
 
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name !== 'gallery') {
-          const subDirPath = path.join(scanPath, entry.name);
-          const result = await processDirectory(subDirPath, path.join(outputPath, entry.name), recursive);
-          totalFiles += result.totalFiles;
+        totalFiles += result.totalFiles;
+        totalGalleries += result.totalGalleries;
 
-          // If the subdirectory had media files, add it as a subGallery
-          if (result.subGallery) {
-            subGalleries.push(result.subGallery);
-          }
+        // If the result contains a valid subGallery, add it to the list
+        if (result.subGallery) {
+          subGalleries.push(result.subGallery);
         }
       }
     } catch (error) {
@@ -150,16 +175,17 @@ async function processDirectory(scanPath: string, outputPath: string, recursive:
     await fs.mkdir(galleryPath, { recursive: true });
 
     // Create gallery.json for this directory
-    await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries);
+    await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries, ui);
 
-    console.log(
-      `Gallery JSON created at: ${galleryJsonPath} (${mediaFiles.length} files, ${subGalleries.length} subgalleries)`,
+    ui.success(
+      `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
     );
   }
 
   // Return result with suGgallery info if this directory has media files
-  const result: ProcessDirectoryResult = { totalFiles };
+  const result: ProcessDirectoryResult = { totalFiles, totalGalleries };
 
+  // If this directory has media files or subGalleries, create a subGallery in the result
   if (mediaFiles.length > 0 || subGalleries.length > 0) {
     const dirName = path.basename(scanPath);
     result.subGallery = {
@@ -172,21 +198,20 @@ async function processDirectory(scanPath: string, outputPath: string, recursive:
   return result;
 }
 
-export async function init(options: ScanOptions): Promise<void> {
-  const scanPath = path.resolve(options.photos);
-  const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
-
-  console.log(`Scanning directory: ${scanPath}`);
-  console.log(`Recursive: ${options.recursive}`);
-
+export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<void> {
   try {
-    // Ensure scan path exists
-    await fs.access(scanPath);
+    const scanPath = path.resolve(options.photos);
+    const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
 
     // Process the directory tree with the specified recursion setting
-    const result = await processDirectory(scanPath, outputPath, options.recursive);
-    console.log(`Total files processed: ${result.totalFiles}`);
+    const result = await processDirectory(scanPath, outputPath, options.recursive, ui);
+
+    // Log the number of media files found
+    ui.box(
+      `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,
+    );
   } catch (error) {
-    throw new Error(`Error during scan: ${error}`);
+    ui.error('Error initializing gallery');
+    throw error;
   }
 }
