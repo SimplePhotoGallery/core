@@ -1,18 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { LogLevels, type ConsolaInstance } from 'consola';
+
 import { createImageThumbnail, createVideoThumbnail } from './utils';
 
 import { GalleryDataSchema, type MediaFile } from '../../types';
-import { findGalleries } from '../../utils';
+import { findGalleries, handleFileProcessingError } from '../../utils';
 
 import type { ThumbnailOptions } from './types';
 
-const processGallery = async (galleryDir: string, size: number): Promise<number> => {
+const processGallery = async (galleryDir: string, size: number, ui: ConsolaInstance): Promise<number> => {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
 
-  console.log(`\nProcessing gallery in: ${galleryDir}`);
+  ui.start(`Creating thumbnails: ${galleryDir}`);
 
   try {
     // Ensure thumbnails directory exists
@@ -26,7 +28,7 @@ const processGallery = async (galleryDir: string, size: number): Promise<number>
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, size);
+        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, size, ui);
       }
 
       processedCount += section.images.length;
@@ -35,9 +37,11 @@ const processGallery = async (galleryDir: string, size: number): Promise<number>
     // Write updated gallery.json
     fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 
+    ui.success(`Created thumbnails for ${processedCount} media files`);
+
     return processedCount;
   } catch (error) {
-    console.error(`Error creating thumbnails for ${galleryDir}:`, error);
+    ui.error(`Error creating thumbnails for ${galleryDir}:`, error);
     return 0;
   }
 };
@@ -47,6 +51,7 @@ async function processMediaFile(
   galleryDir: string,
   thumbnailsPath: string,
   size: number,
+  ui: ConsolaInstance,
 ): Promise<MediaFile> {
   try {
     // Resolve the path relative to the gallery.json file location, not the gallery directory
@@ -59,17 +64,14 @@ async function processMediaFile(
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
     const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
 
-    console.log(`Processing ${mediaFile.type}: ${fileName}`);
+    ui.debug(`Processing ${mediaFile.type}: ${fileName}`);
 
-    let thumbnailDimensions: { width: number; height: number };
+    let thumbnailDimensions: { width: number; height: number } = { width: 0, height: 0 };
 
     if (mediaFile.type === 'image') {
       thumbnailDimensions = await createImageThumbnail(filePath, thumbnailPath, size);
     } else if (mediaFile.type === 'video') {
-      thumbnailDimensions = await createVideoThumbnail(filePath, thumbnailPath, size);
-    } else {
-      console.warn(`Unknown media type: ${mediaFile.type}, skipping...`);
-      return mediaFile;
+      thumbnailDimensions = await createVideoThumbnail(filePath, thumbnailPath, size, ui.level === LogLevels.debug);
     }
 
     // Update media file with thumbnail information
@@ -84,39 +86,50 @@ async function processMediaFile(
 
     return updatedMediaFile;
   } catch (error) {
-    if (error instanceof Error && error.message === 'FFMPEG_NOT_AVAILABLE') {
-      console.warn(`⚠ Skipping video thumbnail (ffmpeg not available): ${path.basename(mediaFile.path)}`);
-    } else {
-      console.error(`Error processing ${mediaFile.path}:`, error);
-    }
+    handleFileProcessingError(error, path.basename(mediaFile.path), ui);
 
     return mediaFile;
   }
 }
 
-export async function thumbnails(options: ThumbnailOptions): Promise<void> {
-  const size = Number.parseInt(options.size);
+export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance): Promise<void> {
+  try {
+    // Parse the thumbnail size
+    const size = Number.parseInt(options.size);
+    if (Number.isNaN(size)) {
+      ui.error('Invalid size provided. Size must be a valid number.');
+      return;
+    }
+    if (size < 10 || size > 2000) {
+      ui.error('Invalid size provided. Size must be between 10 and 2000.');
+      return;
+    }
 
-  // Find all gallery directories
-  const galleryDirs = findGalleries(options.gallery, options.recursive);
+    // Find all gallery directories
+    const galleryDirs = findGalleries(options.gallery, options.recursive);
+    if (galleryDirs.length === 0) {
+      ui.error('No galleries found.');
+      return;
+    }
 
-  // If no galleries are found, exit
-  if (galleryDirs.length === 0) {
-    console.log('No gallery/gallery.json files found.');
-    return;
-  }
+    // Process each gallery directory
+    let totalGalleries = 0;
+    let totalProcessed = 0;
+    for (const galleryDir of galleryDirs) {
+      const processed = await processGallery(galleryDir, size, ui);
 
-  // Process each gallery directory
-  let totalProcessed = 0;
-  for (const galleryDir of galleryDirs) {
-    const processed = await processGallery(galleryDir, size);
-    totalProcessed += processed;
-  }
+      if (processed > 0) {
+        ++totalGalleries;
+        totalProcessed += processed;
+      }
+    }
 
-  // Log processing stats
-  if (options.recursive) {
-    console.log(`Completed processing ${totalProcessed} total media files across ${galleryDirs.length} galleries.`);
-  } else {
-    console.log(`Completed processing ${totalProcessed} media files.`);
+    // Log the number of media files processed
+    ui.box(
+      `Created thumbnails for ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} with ${totalProcessed} media ${totalProcessed === 1 ? 'file' : 'files'}`,
+    );
+  } catch (error) {
+    ui.error('Error creating thumbnails');
+    throw error;
   }
 }

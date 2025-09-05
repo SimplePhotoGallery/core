@@ -3,6 +3,8 @@ import path from 'node:path';
 import process from 'node:process';
 import readline from 'node:readline';
 
+import type { ConsolaInstance } from 'consola';
+
 /**
  * Finds all gallery directories that contain a gallery/gallery.json file.
  *
@@ -58,4 +60,21 @@ export const askUserForConfirmation = async (question: string) => {
   rl.close();
 
   return answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes';
+};
+
+export const handleFileProcessingError = (error: unknown, filename: string, ui: ConsolaInstance) => {
+  if (error instanceof Error && (error.message.includes('ffprobe') || error.message.includes('ffmpeg'))) {
+    // Handle ffmpeg error
+    ui.warn(
+      `Error processing ${filename}: ffprobe (part of ffmpeg) is required to process videos. Please install ffmpeg and ensure it is available in your PATH`,
+    );
+  } else if (error instanceof Error && error.message.includes('unsupported image format')) {
+    // Handle unsupported image format error
+    ui.warn(`Error processing ${filename}: unsupported image format`);
+  } else {
+    // Handle unknown error
+    ui.warn(`Error processing ${filename}`);
+  }
+
+  ui.debug(error);
 };

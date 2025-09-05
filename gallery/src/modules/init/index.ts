@@ -6,6 +6,7 @@ import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } fr
 import type { ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
 import type { ConsolaInstance } from 'consola';
+import { handleFileProcessingError } from '../../utils';
 
 async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
   ui.start(`Scanning ${dirPath}`);
@@ -35,18 +36,8 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
               metadata = { ...videoDimensions };
             }
           } catch (error) {
-            // Check for ffmpeg error
-            if (error instanceof Error && (error.message.includes('ffprobe') || error.message.includes('ffmpeg'))) {
-              ui.warn(
-                `Error processing ${path.basename(entry.name)}: ffprobe (part of ffmpeg) is required to process videos. Please install ffmpeg and ensure it is available in your PATH`,
-              );
-            } else if (error instanceof Error && error.message.includes('unsupported image format')) {
-              ui.warn(`Error processing ${path.basename(entry.name)}: unsupported image format`);
-            } else {
-              ui.warn(`Error processing ${path.basename(entry.name)}`);
-            }
-
-            ui.debug(error);
+            // Handle the file processing error
+            handleFileProcessingError(error, path.basename(entry.name), ui);
 
             // Skip the file
             continue;
