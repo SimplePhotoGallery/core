@@ -1,9 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { capitalizeTitle, getImageMetadata, getVideoDimensions, getMediaFileType } from './utils';
-
-import { handleFileProcessingError } from '../../utils';
+import { capitalizeTitle, getMediaFileType } from './utils';
 
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
@@ -22,36 +20,12 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
         const mediaType = getMediaFileType(entry.name);
 
         if (mediaType) {
-          ui.debug(`  Processing ${mediaType}: ${entry.name}`);
-
-          let metadata: { width: number; height: number; description?: string } = { width: 0, height: 0 };
-
-          // Process the media file to get the metadata
-          try {
-            if (mediaType === 'image') {
-              metadata = await getImageMetadata(fullPath);
-            } else if (mediaType === 'video') {
-              const videoDimensions = await getVideoDimensions(fullPath);
-              metadata = { ...videoDimensions };
-            }
-          } catch (error) {
-            // Handle the file processing error
-            handleFileProcessingError(error, path.basename(entry.name), ui);
-
-            // Skip the file
-            continue;
-          }
-
           const mediaFile: MediaFile = {
             type: mediaType,
             path: fullPath,
-            width: metadata.width,
-            height: metadata.height,
+            width: 0,
+            height: 0,
           };
-
-          if (metadata.description) {
-            mediaFile.alt = metadata.description;
-          }
 
           mediaFiles.push(mediaFile);
         }
