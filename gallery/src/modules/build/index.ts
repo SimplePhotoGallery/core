@@ -11,13 +11,25 @@ import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 
-function checkFileIsOneFolderUp(filePath: string) {
+/**
+ * Checks if a file path points to a location one folder up from the current directory.
+ * @param filePath - The file path to check
+ * @returns True if the path points one folder up, false otherwise
+ */
+function checkFileIsOneFolderUp(filePath: string): boolean {
   const normalizedPath = path.normalize(filePath);
   const pathParts = normalizedPath.split(path.sep);
   return pathParts.length === 2 && pathParts[0] === '..';
 }
 
-function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaInstance) {
+/**
+ * Copies photos from the gallery directory to the output directory.
+ * Only copies photos that are not already in the parent directory.
+ * @param galleryData - The gallery data containing photo information
+ * @param galleryDir - The base gallery directory path
+ * @param ui - The ConsolaInstance for logging messages
+ */
+function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaInstance): void {
   for (const section of galleryData.sections) {
     for (const image of section.images) {
       if (!checkFileIsOneFolderUp(image.path)) {
@@ -32,7 +44,14 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
   }
 }
 
-async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string) {
+/**
+ * Builds a single gallery by generating thumbnails, copying photos if needed, and building the HTML template.
+ * @param galleryDir - The directory containing the gallery
+ * @param templateDir - The directory containing the template to build
+ * @param ui - The ConsolaInstance for logging messages
+ * @param baseUrl - Optional base URL for hosting photos remotely
+ */
+async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string): Promise<void> {
   ui.start(`Building gallery ${galleryDir}`);
 
   // Generate the thumbnails if needed
@@ -96,6 +115,11 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   ui.success(`Gallery built successfully`);
 }
 
+/**
+ * Main function for the build command. Builds HTML galleries from gallery configurations.
+ * @param options - Configuration options for building galleries
+ * @param ui - The ConsolaInstance for logging messages
+ */
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<void> {
   try {
     // Find all gallery directories

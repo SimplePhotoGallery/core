@@ -9,6 +9,10 @@ import { build } from './modules/build';
 import { init } from './modules/init';
 import { thumbnails } from './modules/thumbnails';
 
+/**
+ * Main CLI program instance using Commander.js.
+ * Defines the CLI structure, commands, and options for the photo gallery tool.
+ */
 const program = new Command();
 
 program
@@ -19,7 +23,12 @@ program
   .option('-q, --quiet', 'Minimal output (only warnings/errors)', false)
   .showHelpAfterError(true);
 
-const createConsolaUI = (globalOpts: ReturnType<typeof program.opts>): ConsolaInstance => {
+/**
+ * Creates a Consola UI instance with appropriate log level based on global options.
+ * @param globalOpts - The global command line options from the program
+ * @returns A configured ConsolaInstance with the appropriate log level and tag
+ */
+function createConsolaUI(globalOpts: ReturnType<typeof program.opts>): ConsolaInstance {
   let level = LogLevels.info;
 
   if (globalOpts.quiet) {
@@ -31,12 +40,17 @@ const createConsolaUI = (globalOpts: ReturnType<typeof program.opts>): ConsolaIn
   return createConsola({
     level,
   }).withTag('simple-photo-gallery');
-};
+}
 
-// Wrap handlers so they receive (opts, ui)
-const withConsolaUI =
-  <O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) =>
-  async (opts: O) => {
+/**
+ * Higher-order function that wraps command handlers to provide them with a ConsolaInstance.
+ * Handles error logging and process exit codes automatically.
+ * @template O - The type of options the handler accepts
+ * @param handler - The command handler function that accepts options and a UI instance
+ * @returns A wrapped async function that handles UI creation and error management
+ */
+function withConsolaUI<O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) {
+  return async (opts: O) => {
     const ui = createConsolaUI(program.opts());
     try {
       await handler(opts, ui);
@@ -46,6 +60,7 @@ const withConsolaUI =
       process.exitCode = 1;
     }
   };
+}
 
 program
   .command('init')

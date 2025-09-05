@@ -5,12 +5,11 @@ import type { ConsolaInstance } from 'consola';
 
 /**
  * Finds all gallery directories that contain a gallery/gallery.json file.
- *
  * @param basePath - The base directory to search from
  * @param recursive - Whether to search subdirectories recursively
  * @returns Array of paths to directories containing gallery/gallery.json files
  */
-export const findGalleries = (basePath: string, recursive: boolean): string[] => {
+export function findGalleries(basePath: string, recursive: boolean): string[] {
   const galleryDirs: string[] = [];
 
   // Check basePath itself
@@ -36,9 +35,16 @@ export const findGalleries = (basePath: string, recursive: boolean): string[] =>
   }
 
   return galleryDirs;
-};
+}
 
-export const handleFileProcessingError = (error: unknown, filename: string, ui: ConsolaInstance) => {
+/**
+ * Handles and logs errors that occur during file processing.
+ * Provides user-friendly error messages based on the type of error encountered.
+ * @param error - The error that occurred during file processing
+ * @param filename - The name of the file that caused the error
+ * @param ui - The ConsolaInstance for logging messages
+ */
+export function handleFileProcessingError(error: unknown, filename: string, ui: ConsolaInstance): void {
   if (error instanceof Error && (error.message.includes('ffprobe') || error.message.includes('ffmpeg'))) {
     // Handle ffmpeg error
     ui.warn(
@@ -53,4 +59,4 @@ export const handleFileProcessingError = (error: unknown, filename: string, ui: 
   }
 
   ui.debug(error);
-};
+}
