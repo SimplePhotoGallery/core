@@ -3,10 +3,11 @@ import path from 'node:path';
 
 import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
 
+import { handleFileProcessingError } from '../../utils';
+
 import type { ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
 import type { ConsolaInstance } from 'consola';
-import { handleFileProcessingError } from '../../utils';
 
 async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
   ui.start(`Scanning ${dirPath}`);

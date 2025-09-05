@@ -40,7 +40,7 @@ const withConsolaUI =
     const ui = createConsolaUI(program.opts());
     try {
       await handler(opts, ui);
-    } catch (error: any) {
+    } catch (error) {
       ui.debug(error);
 
       process.exitCode = 1;
