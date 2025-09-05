@@ -44,7 +44,7 @@ export async function createImageThumbnail(
   metadata: Metadata,
   outputPath: string,
   height: number,
-): Promise<{ width: number; height: number }> {
+): Promise<Dimensions> {
   // Create thumbnail using sharp
   const originalWidth = metadata.width || 0;
   const originalHeight = metadata.height || 0;
@@ -90,7 +90,7 @@ export async function createVideoThumbnail(
   outputPath: string,
   height: number,
   verbose: boolean = false,
-): Promise<{ width: number; height: number }> {
+): Promise<Dimensions> {
   // Calculate width maintaining aspect ratio
   const aspectRatio = videoDimensions.width / videoDimensions.height;
   const width = Math.round(height * aspectRatio);
