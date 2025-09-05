@@ -13,6 +13,7 @@ export const MediaFileSchema = z.object({
   width: z.number(),
   height: z.number(),
   thumbnail: ThumbnailSchema.optional(),
+  lastMediaTimestamp: z.string().optional(),
 });
 
 export const GallerySectionSchema = z.object({

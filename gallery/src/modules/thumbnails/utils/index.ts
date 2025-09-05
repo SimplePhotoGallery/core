@@ -9,6 +9,11 @@ import type { Dimensions } from '../types';
 import type { Buffer } from 'node:buffer';
 import type { Metadata, Sharp } from 'sharp';
 
+export async function getFileMtime(filePath: string): Promise<Date> {
+  const stats = await fs.stat(filePath);
+  return stats.mtime;
+}
+
 // Utility function to resize and save thumbnail
 async function resizeAndSaveThumbnail(image: Sharp, outputPath: string, width: number, height: number): Promise<void> {
   await image.resize(width, height, { withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);

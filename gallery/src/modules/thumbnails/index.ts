@@ -4,14 +4,27 @@ import path from 'node:path';
 import { LogLevels, type ConsolaInstance } from 'consola';
 import sharp from 'sharp';
 
-import { createImageThumbnail, createVideoThumbnail, getImageDescription, getVideoDimensions } from './utils';
+import { createImageThumbnail, createVideoThumbnail, getImageDescription, getFileMtime, getVideoDimensions } from './utils';
 
 import { GalleryDataSchema, type MediaFile } from '../../types';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 
 import type { ThumbnailOptions } from './types';
 
-async function processImage(imagePath: string, thumbnailPath: string, thumbnailSize: number): Promise<MediaFile> {
+async function processImage(
+  imagePath: string,
+  thumbnailPath: string,
+  thumbnailSize: number,
+  lastMediaTimestamp?: Date,
+): Promise<MediaFile | undefined> {
+  // Get the last media timestamp
+  const fileMtime = await getFileMtime(imagePath);
+
+  // Check if processing of the file can be skipped
+  if (lastMediaTimestamp && fileMtime <= lastMediaTimestamp && fs.existsSync(thumbnailPath)) {
+    return undefined;
+  }
+
   // Load the image
   const image = sharp(imagePath);
   const metadata = await image.metadata();
@@ -44,6 +57,7 @@ async function processImage(imagePath: string, thumbnailPath: string, thumbnailS
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
     },
+    lastMediaTimestamp: fileMtime.toISOString(),
   };
 }
 
@@ -51,17 +65,22 @@ async function processVideo(
   videoPath: string,
   thumbnailPath: string,
   thumbnailSize: number,
-  ui: ConsolaInstance,
-): Promise<MediaFile> {
+  verbose: boolean,
+  lastMediaTimestamp?: Date,
+): Promise<MediaFile | undefined> {
+  // Get the last media timestamp
+  const fileMtime = await getFileMtime(videoPath);
+
+  // Check if processing of the file can be skipped
+  if (lastMediaTimestamp && fileMtime <= lastMediaTimestamp && fs.existsSync(thumbnailPath)) {
+    return undefined;
+  }
+
+  // Get the video dimensions
   const videoDimensions = await getVideoDimensions(videoPath);
 
-  const thumbnailDimensions = await createVideoThumbnail(
-    videoPath,
-    videoDimensions,
-    thumbnailPath,
-    thumbnailSize,
-    ui.level === LogLevels.debug,
-  );
+  // Create the thumbnail
+  const thumbnailDimensions = await createVideoThumbnail(videoPath, videoDimensions, thumbnailPath, thumbnailSize, verbose);
 
   return {
     type: 'video',
@@ -74,6 +93,7 @@ async function processVideo(
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
     },
+    lastMediaTimestamp: fileMtime.toISOString(),
   };
 }
 
@@ -95,11 +115,18 @@ async function processMediaFile(
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
     const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
 
+    const lastMediaTimestamp = mediaFile.lastMediaTimestamp ? new Date(mediaFile.lastMediaTimestamp) : undefined;
+    const verbose = ui.level === LogLevels.debug;
+
     ui.debug(`  Processing ${mediaFile.type}: ${fileName}`);
 
     const updatedMediaFile = await (mediaFile.type === 'image'
-      ? processImage(filePath, thumbnailPath, thumbnailSize)
-      : processVideo(filePath, thumbnailPath, thumbnailSize, ui));
+      ? processImage(filePath, thumbnailPath, thumbnailSize, lastMediaTimestamp)
+      : processVideo(filePath, thumbnailPath, thumbnailSize, verbose, lastMediaTimestamp));
+
+    if (!updatedMediaFile) {
+      return mediaFile;
+    }
 
     updatedMediaFile.path = mediaFile.path;
     if (updatedMediaFile.thumbnail) {
