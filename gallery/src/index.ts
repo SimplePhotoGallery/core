@@ -60,13 +60,13 @@ program
     'Path to the directory where the gallery will be initialized. Default: same directory as the photos folder',
   )
   .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
+  .option('-d, --default', 'Use default gallery settings instead of asking the user', false)
   .action(withConsolaUI(init));
 
 program
   .command('thumbnails')
   .description('Create thumbnails for all media files in the gallery')
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
-  .option('-s, --size <size>', 'Thumbnail height in pixels', '200')
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .action(withConsolaUI(thumbnails));
 

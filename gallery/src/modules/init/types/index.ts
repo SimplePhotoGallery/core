@@ -4,6 +4,7 @@ export interface ScanOptions {
   photos: string;
   gallery?: string;
   recursive: boolean;
+  default: boolean;
 }
 
 export interface SubGallery {
@@ -21,4 +22,11 @@ export interface ProcessDirectoryResult {
   totalFiles: number;
   totalGalleries: number;
   subGallery?: SubGallery;
+}
+
+export interface GallerySettingsFromUser {
+  title: string;
+  description: string;
+  headerImage: string;
+  thumbnailSize: number;
 }

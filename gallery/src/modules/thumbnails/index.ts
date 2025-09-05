@@ -14,7 +14,7 @@ async function processMediaFile(
   mediaFile: MediaFile,
   galleryDir: string,
   thumbnailsPath: string,
-  size: number,
+  thumbnailSize: number,
   ui: ConsolaInstance,
 ): Promise<MediaFile> {
   try {
@@ -33,9 +33,9 @@ async function processMediaFile(
     let thumbnailDimensions: { width: number; height: number } = { width: 0, height: 0 };
 
     if (mediaFile.type === 'image') {
-      thumbnailDimensions = await createImageThumbnail(filePath, thumbnailPath, size);
+      thumbnailDimensions = await createImageThumbnail(filePath, thumbnailPath, thumbnailSize);
     } else if (mediaFile.type === 'video') {
-      thumbnailDimensions = await createVideoThumbnail(filePath, thumbnailPath, size, ui.level === LogLevels.debug);
+      thumbnailDimensions = await createVideoThumbnail(filePath, thumbnailPath, thumbnailSize, ui.level === LogLevels.debug);
     }
 
     // Update media file with thumbnail information
@@ -56,7 +56,7 @@ async function processMediaFile(
   }
 }
 
-const processGallery = async (galleryDir: string, size: number, ui: ConsolaInstance): Promise<number> => {
+const processGallery = async (galleryDir: string, ui: ConsolaInstance): Promise<number> => {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
 
@@ -74,7 +74,7 @@ const processGallery = async (galleryDir: string, size: number, ui: ConsolaInsta
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, size, ui);
+        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, galleryData.thumbnailSize, ui);
       }
 
       processedCount += section.images.length;
@@ -94,17 +94,6 @@ const processGallery = async (galleryDir: string, size: number, ui: ConsolaInsta
 
 export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance): Promise<void> {
   try {
-    // Parse the thumbnail size
-    const size = Number.parseInt(options.size);
-    if (Number.isNaN(size)) {
-      ui.error('Invalid size provided. Size must be a valid number.');
-      return;
-    }
-    if (size < 10 || size > 2000) {
-      ui.error('Invalid size provided. Size must be between 10 and 2000.');
-      return;
-    }
-
     // Find all gallery directories
     const galleryDirs = findGalleries(options.gallery, options.recursive);
     if (galleryDirs.length === 0) {
@@ -116,7 +105,7 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
     let totalGalleries = 0;
     let totalProcessed = 0;
     for (const galleryDir of galleryDirs) {
-      const processed = await processGallery(galleryDir, size, ui);
+      const processed = await processGallery(galleryDir, ui);
 
       if (processed > 0) {
         ++totalGalleries;
