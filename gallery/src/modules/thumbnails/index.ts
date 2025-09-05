@@ -10,42 +10,6 @@ import { findGalleries, handleFileProcessingError } from '../../utils';
 
 import type { ThumbnailOptions } from './types';
 
-const processGallery = async (galleryDir: string, size: number, ui: ConsolaInstance): Promise<number> => {
-  const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
-
-  ui.start(`Creating thumbnails: ${galleryDir}`);
-
-  try {
-    // Ensure thumbnails directory exists
-    fs.mkdirSync(thumbnailsPath, { recursive: true });
-
-    // Read gallery.json
-    const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
-    const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
-
-    // Process all sections and their images
-    let processedCount = 0;
-    for (const section of galleryData.sections) {
-      for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, size, ui);
-      }
-
-      processedCount += section.images.length;
-    }
-
-    // Write updated gallery.json
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
-
-    ui.success(`Created thumbnails for ${processedCount} media files`);
-
-    return processedCount;
-  } catch (error) {
-    ui.error(`Error creating thumbnails for ${galleryDir}:`, error);
-    return 0;
-  }
-};
-
 async function processMediaFile(
   mediaFile: MediaFile,
   galleryDir: string,
@@ -92,6 +56,42 @@ async function processMediaFile(
   }
 }
 
+const processGallery = async (galleryDir: string, size: number, ui: ConsolaInstance): Promise<number> => {
+  const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
+  const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
+
+  ui.start(`Creating thumbnails: ${galleryDir}`);
+
+  try {
+    // Ensure thumbnails directory exists
+    fs.mkdirSync(thumbnailsPath, { recursive: true });
+
+    // Read gallery.json
+    const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
+    const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+
+    // Process all sections and their images
+    let processedCount = 0;
+    for (const section of galleryData.sections) {
+      for (const [index, mediaFile] of section.images.entries()) {
+        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, size, ui);
+      }
+
+      processedCount += section.images.length;
+    }
+
+    // Write updated gallery.json
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+
+    ui.success(`Created thumbnails for ${processedCount} media files`);
+
+    return processedCount;
+  } catch (error) {
+    ui.error(`Error creating thumbnails for ${galleryDir}`);
+    throw error;
+  }
+};
+
 export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance): Promise<void> {
   try {
     // Parse the thumbnail size
@@ -124,7 +124,6 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
       }
     }
 
-    // Log the number of media files processed
     ui.box(
       `Created thumbnails for ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} with ${totalProcessed} media ${totalProcessed === 1 ? 'file' : 'files'}`,
     );

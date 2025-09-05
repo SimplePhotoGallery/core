@@ -32,6 +32,8 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
 }
 
 async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string) {
+  ui.start(`Building gallery ${galleryDir}`);
+
   // Read the gallery.json file
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
@@ -46,23 +48,26 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
     if (
       shouldCopyPhotos &&
       (await ui.prompt('All photos need to be copied. Are you sure you want to continue?', { type: 'confirm' }))
-    )
+    ) {
+      ui.debug('Copying photos');
       copyPhotos(galleryData, galleryDir, ui);
+    }
   }
 
   // If the baseUrl is provided, update the gallery.json file
   if (baseUrl) {
+    ui.debug('Updating gallery.json with baseUrl');
     galleryData.mediaBaseUrl = baseUrl;
     fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
   }
 
   // Build the template
+  ui.debug('Building gallery form template');
   try {
     // Set the environment variable for the gallery.json path that will be used by the template
     process.env.GALLERY_JSON_PATH = galleryJsonPath;
     process.env.GALLERY_OUTPUT_DIR = path.join(galleryDir, 'gallery');
 
-    ui.debug('Building gallery');
     execSync('npx astro build', { cwd: templateDir, stdio: ui.level === LogLevels.debug ? 'inherit' : 'ignore' });
   } catch (error) {
     ui.error(`Build failed for ${galleryDir}`);
@@ -83,6 +88,8 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   // Clean up the _build directory
   ui.debug('Cleaning up build directory');
   fs.rmSync(buildDir, { recursive: true, force: true });
+
+  ui.success(`Gallery built successfully`);
 }
 
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<void> {
@@ -98,22 +105,23 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
     const themeDir = path.dirname(new URL(themePath).pathname);
 
-    // Process each gallery
+    // Process each gallery directory
     let totalGalleries = 0;
     for (const dir of galleryDirs) {
-      ui.start(`Building gallery ${dir}`);
-
       const baseUrl = options.baseUrl ? `${options.baseUrl}/${path.relative(options.gallery, dir)}` : undefined;
       await buildGallery(path.resolve(dir), themeDir, ui, baseUrl);
-
-      ui.success(`Gallery built successfully`);
 
       ++totalGalleries;
     }
 
     ui.box(`Built ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} successfully`);
   } catch (error) {
-    ui.error('Error building gallery');
+    if (error instanceof Error && error.message.includes('Cannot find package')) {
+      ui.error('Theme package not found: @simple-photo-gallery/theme-modern/package.json');
+    } else {
+      ui.error('Error building gallery');
+    }
+
     throw error;
   }
 }

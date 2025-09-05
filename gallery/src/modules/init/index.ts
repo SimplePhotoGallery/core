@@ -10,8 +10,6 @@ import type { MediaFile } from '../../types';
 import type { ConsolaInstance } from 'consola';
 
 async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
-  ui.start(`Scanning ${dirPath}`);
-
   const mediaFiles: MediaFile[] = [];
   const subGalleryDirectories: string[] = [];
 
@@ -80,7 +78,6 @@ async function createGalleryJson(
   mediaFiles: MediaFile[],
   galleryJsonPath: string,
   subGalleries: SubGallery[] = [],
-  ui: ConsolaInstance,
 ): Promise<void> {
   const galleryDir = path.dirname(galleryJsonPath);
 
@@ -112,12 +109,7 @@ async function createGalleryJson(
     },
   };
 
-  try {
-    await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
-  } catch (error) {
-    ui.error(`Error writing gallery.json at ${galleryJsonPath}`);
-    throw error;
-  }
+  await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 }
 
 async function processDirectory(
@@ -126,6 +118,8 @@ async function processDirectory(
   recursive: boolean,
   ui: ConsolaInstance,
 ): Promise<ProcessDirectoryResult> {
+  ui.start(`Scanning ${scanPath}`);
+
   let totalFiles = 0;
   let totalGalleries = 1;
   const subGalleries: SubGallery[] = [];
@@ -136,25 +130,21 @@ async function processDirectory(
 
   // Process subdirectories only if recursive mode is enabled
   if (recursive) {
-    try {
-      for (const subGalleryDir of subGalleryDirectories) {
-        const result = await processDirectory(
-          subGalleryDir,
-          path.join(outputPath, path.basename(subGalleryDir)),
-          recursive,
-          ui,
-        );
+    for (const subGalleryDir of subGalleryDirectories) {
+      const result = await processDirectory(
+        subGalleryDir,
+        path.join(outputPath, path.basename(subGalleryDir)),
+        recursive,
+        ui,
+      );
 
-        totalFiles += result.totalFiles;
-        totalGalleries += result.totalGalleries;
+      totalFiles += result.totalFiles;
+      totalGalleries += result.totalGalleries;
 
-        // If the result contains a valid subGallery, add it to the list
-        if (result.subGallery) {
-          subGalleries.push(result.subGallery);
-        }
+      // If the result contains a valid subGallery, add it to the list
+      if (result.subGallery) {
+        subGalleries.push(result.subGallery);
       }
-    } catch (error) {
-      console.error(`Error reading directory ${scanPath}:`, error);
     }
   }
 
@@ -163,15 +153,20 @@ async function processDirectory(
     const galleryPath = path.join(outputPath, 'gallery');
     const galleryJsonPath = path.join(galleryPath, 'gallery.json');
 
-    // Create output directory
-    await fs.mkdir(galleryPath, { recursive: true });
+    try {
+      // Create output directory
+      await fs.mkdir(galleryPath, { recursive: true });
 
-    // Create gallery.json for this directory
-    await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries, ui);
+      // Create gallery.json for this directory
+      await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries);
 
-    ui.success(
-      `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
-    );
+      ui.success(
+        `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
+      );
+    } catch (error) {
+      ui.error(`Error creating gallery.json at ${galleryJsonPath}`);
+      throw error;
+    }
   }
 
   // Return result with suGgallery info if this directory has media files
@@ -198,7 +193,6 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<v
     // Process the directory tree with the specified recursion setting
     const result = await processDirectory(scanPath, outputPath, options.recursive, ui);
 
-    // Log the number of media files found
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,
     );
