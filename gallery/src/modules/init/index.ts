@@ -74,7 +74,13 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
   return { mediaFiles, subGalleryDirectories };
 }
 
-async function getGallerySettingsFromUser(defaultImage: string, ui: ConsolaInstance): Promise<GallerySettingsFromUser> {
+async function getGallerySettingsFromUser(
+  galleryName: string,
+  defaultImage: string,
+  ui: ConsolaInstance,
+): Promise<GallerySettingsFromUser> {
+  ui.info(`Enter gallery settings for the gallery in folder "${galleryName}"`);
+
   const title = await ui.prompt('Enter gallery title', { type: 'text', default: 'My Gallery', placeholder: 'My Gallery' });
   const description = await ui.prompt('Enter gallery description', {
     type: 'text',
@@ -135,6 +141,7 @@ async function createGalleryJson(
     title: 'My Gallery',
     description: 'My gallery with fantastic photos.',
     headerImage: relativeMediaFiles[0]?.path,
+    thumbnailSize: 200,
     metadata: { ogUrl: '' },
     sections: [
       {
@@ -148,7 +155,14 @@ async function createGalleryJson(
   };
 
   if (!useDefaultSettings) {
-    galleryData = { ...galleryData, ...(await getGallerySettingsFromUser(relativeMediaFiles[0]?.path || '', ui)) };
+    galleryData = {
+      ...galleryData,
+      ...(await getGallerySettingsFromUser(
+        path.basename(path.join(galleryDir, '..')),
+        relativeMediaFiles[0]?.path || '',
+        ui,
+      )),
+    };
   }
 
   await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
