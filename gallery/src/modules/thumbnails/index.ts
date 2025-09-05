@@ -125,6 +125,7 @@ async function processMediaFile(
       : processVideo(filePath, thumbnailPath, thumbnailSize, verbose, lastMediaTimestamp));
 
     if (!updatedMediaFile) {
+      ui.debug(`  Skipping ${fileName} because it has already been processed`);
       return mediaFile;
     }
 
@@ -141,7 +142,7 @@ async function processMediaFile(
   }
 }
 
-const processGalleryThumbnails = async (galleryDir: string, ui: ConsolaInstance): Promise<number> => {
+export const processGalleryThumbnails = async (galleryDir: string, ui: ConsolaInstance): Promise<number> => {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
 
