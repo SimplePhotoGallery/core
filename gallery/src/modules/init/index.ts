@@ -140,7 +140,7 @@ async function createGalleryJson(
   let galleryData = {
     title: 'My Gallery',
     description: 'My gallery with fantastic photos.',
-    headerImage: relativeMediaFiles[0]?.path,
+    headerImage: relativeMediaFiles[0]?.path || '',
     thumbnailSize: 200,
     metadata: { ogUrl: '' },
     sections: [
