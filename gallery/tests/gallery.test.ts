@@ -4,10 +4,11 @@ import path from 'node:path';
 import process from 'node:process';
 
 import { copySync } from 'fs-extra';
-import { init } from '../src/modules/init';
-import type { ConsolaInstance } from 'consola';
 
+import { init } from '../src/modules/init';
 import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '../src/types';
+
+import type { ConsolaInstance } from 'consola';
 
 const testDir = process.cwd();
 
