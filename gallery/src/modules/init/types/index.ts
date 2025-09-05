@@ -1,5 +1,7 @@
 import type { MediaFile } from '../../../types';
 
+export type MediaFileType = 'image' | 'video';
+
 export interface ScanOptions {
   photos: string;
   gallery?: string;
