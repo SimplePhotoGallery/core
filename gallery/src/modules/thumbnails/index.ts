@@ -2,13 +2,80 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { LogLevels, type ConsolaInstance } from 'consola';
+import sharp from 'sharp';
 
-import { createImageThumbnail, createVideoThumbnail } from './utils';
+import { createImageThumbnail, createVideoThumbnail, getImageDescription, getVideoDimensions } from './utils';
 
 import { GalleryDataSchema, type MediaFile } from '../../types';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 
 import type { ThumbnailOptions } from './types';
+
+async function processImage(imagePath: string, thumbnailPath: string, thumbnailSize: number): Promise<MediaFile> {
+  // Load the image
+  const image = sharp(imagePath);
+  const metadata = await image.metadata();
+
+  // Get the image dimensions
+  const imageDimensions = {
+    width: metadata.width || 0,
+    height: metadata.height || 0,
+  };
+
+  if (imageDimensions.width === 0 || imageDimensions.height === 0) {
+    throw new Error('Invalid image dimensions');
+  }
+
+  // Get the image description
+  const description = await getImageDescription(metadata);
+
+  // Create the thumbnail
+  const thumbnailDimensions = await createImageThumbnail(image, metadata, thumbnailPath, thumbnailSize);
+
+  // Return the updated media file
+  return {
+    type: 'image',
+    path: imagePath,
+    alt: description,
+    width: imageDimensions.width,
+    height: imageDimensions.height,
+    thumbnail: {
+      path: thumbnailPath,
+      width: thumbnailDimensions.width,
+      height: thumbnailDimensions.height,
+    },
+  };
+}
+
+async function processVideo(
+  videoPath: string,
+  thumbnailPath: string,
+  thumbnailSize: number,
+  ui: ConsolaInstance,
+): Promise<MediaFile> {
+  const videoDimensions = await getVideoDimensions(videoPath);
+
+  const thumbnailDimensions = await createVideoThumbnail(
+    videoPath,
+    videoDimensions,
+    thumbnailPath,
+    thumbnailSize,
+    ui.level === LogLevels.debug,
+  );
+
+  return {
+    type: 'video',
+    path: videoPath,
+    alt: undefined,
+    width: videoDimensions.width,
+    height: videoDimensions.height,
+    thumbnail: {
+      path: thumbnailPath,
+      width: thumbnailDimensions.width,
+      height: thumbnailDimensions.height,
+    },
+  };
+}
 
 async function processMediaFile(
   mediaFile: MediaFile,
@@ -28,25 +95,16 @@ async function processMediaFile(
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
     const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
 
-    ui.debug(`Processing ${mediaFile.type}: ${fileName}`);
+    ui.debug(`  Processing ${mediaFile.type}: ${fileName}`);
 
-    let thumbnailDimensions: { width: number; height: number } = { width: 0, height: 0 };
+    const updatedMediaFile = await (mediaFile.type === 'image'
+      ? processImage(filePath, thumbnailPath, thumbnailSize)
+      : processVideo(filePath, thumbnailPath, thumbnailSize, ui));
 
-    if (mediaFile.type === 'image') {
-      thumbnailDimensions = await createImageThumbnail(filePath, thumbnailPath, thumbnailSize);
-    } else if (mediaFile.type === 'video') {
-      thumbnailDimensions = await createVideoThumbnail(filePath, thumbnailPath, thumbnailSize, ui.level === LogLevels.debug);
+    updatedMediaFile.path = mediaFile.path;
+    if (updatedMediaFile.thumbnail) {
+      updatedMediaFile.thumbnail.path = relativeThumbnailPath;
     }
-
-    // Update media file with thumbnail information
-    const updatedMediaFile: MediaFile = {
-      ...mediaFile,
-      thumbnail: {
-        path: relativeThumbnailPath,
-        width: thumbnailDimensions.width,
-        height: thumbnailDimensions.height,
-      },
-    };
 
     return updatedMediaFile;
   } catch (error) {
@@ -56,7 +114,7 @@ async function processMediaFile(
   }
 }
 
-const processGallery = async (galleryDir: string, ui: ConsolaInstance): Promise<number> => {
+const processGalleryThumbnails = async (galleryDir: string, ui: ConsolaInstance): Promise<number> => {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
 
@@ -105,7 +163,7 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
     let totalGalleries = 0;
     let totalProcessed = 0;
     for (const galleryDir of galleryDirs) {
-      const processed = await processGallery(galleryDir, ui);
+      const processed = await processGalleryThumbnails(galleryDir, ui);
 
       if (processed > 0) {
         ++totalGalleries;
