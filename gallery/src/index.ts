@@ -6,6 +6,7 @@ import { Command } from 'commander';
 import { createConsola, LogLevels, type ConsolaInstance } from 'consola';
 
 import { build } from './modules/build';
+import { clean } from './modules/clean';
 import { init } from './modules/init';
 import { thumbnails } from './modules/thumbnails';
 
@@ -77,5 +78,12 @@ program
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .option('-b, --base-url <url>', 'Base URL where the photos are hosted')
   .action(withConsolaUI(build));
+
+program
+  .command('clean')
+  .description('Remove all gallery files and folders (index.html, gallery/)')
+  .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
+  .option('-r, --recursive', 'Clean subdirectories recursively', false)
+  .action(withConsolaUI(clean));
 
 program.parse();
