@@ -6,6 +6,8 @@ import sharp from 'sharp';
 
 import { IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from '../const';
 
+import type { MediaFileType } from '../types';
+
 export async function getImageMetadata(filePath: string): Promise<{ width: number; height: number; description?: string }> {
   const metadata = await sharp(filePath).metadata();
   let description: string | undefined;
@@ -43,7 +45,7 @@ export async function getVideoDimensions(filePath: string): Promise<{ width: num
   return { width: 0, height: 0 };
 }
 
-export function isMediaFile(fileName: string): 'image' | 'video' | null {
+export function getMediaFileType(fileName: string): MediaFileType | null {
   const ext = path.extname(fileName).toLowerCase();
   if (IMAGE_EXTENSIONS.has(ext)) return 'image';
   if (VIDEO_EXTENSIONS.has(ext)) return 'video';

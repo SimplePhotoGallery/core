@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
+import { capitalizeTitle, getImageMetadata, getVideoDimensions, getMediaFileType } from './utils';
 
 import { handleFileProcessingError } from '../../utils';
 
@@ -19,7 +19,7 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
     for (const entry of entries) {
       if (entry.isFile()) {
         const fullPath = path.join(dirPath, entry.name);
-        const mediaType = isMediaFile(entry.name);
+        const mediaType = getMediaFileType(entry.name);
 
         if (mediaType) {
           ui.debug(`  Processing ${mediaType}: ${entry.name}`);
