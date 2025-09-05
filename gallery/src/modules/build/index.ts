@@ -3,8 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+import { LogLevels, type ConsolaInstance } from 'consola';
+
 import { type GalleryData, GalleryDataSchema } from '../../types';
-import { askUserForConfirmation, findGalleries } from '../../utils';
+import { findGalleries } from '../../utils';
 
 import type { BuildOptions } from './types';
 
@@ -14,7 +16,7 @@ function checkFileIsOneFolderUp(filePath: string) {
   return pathParts.length === 2 && pathParts[0] === '..';
 }
 
-function copyPhotos(galleryData: GalleryData, galleryDir: string) {
+function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaInstance) {
   for (const section of galleryData.sections) {
     for (const image of section.images) {
       if (!checkFileIsOneFolderUp(image.path)) {
@@ -22,21 +24,16 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string) {
         const fileName = path.basename(image.path);
         const destPath = path.join(galleryDir, fileName);
 
+        ui.debug(`Copying photo to ${destPath}`);
         fs.copyFileSync(sourcePath, destPath);
       }
     }
   }
 }
 
-async function buildGallery(galleryDir: string, templateDir: string, baseUrl?: string) {
-  // Make sure the gallery.json file exists
-  const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  if (!fs.existsSync(galleryJsonPath)) {
-    console.log(`No gallery/gallery.json found in ${galleryDir}`);
-    return;
-  }
-
+async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string) {
   // Read the gallery.json file
+  const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
   const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
 
@@ -48,9 +45,9 @@ async function buildGallery(galleryDir: string, templateDir: string, baseUrl?: s
 
     if (
       shouldCopyPhotos &&
-      (await askUserForConfirmation('All photos need to be copied. Are you sure you want to continue? (y/N): '))
+      (await ui.prompt('All photos need to be copied. Are you sure you want to continue?', { type: 'confirm' }))
     )
-      copyPhotos(galleryData, galleryDir);
+      copyPhotos(galleryData, galleryDir, ui);
   }
 
   // If the baseUrl is provided, update the gallery.json file
@@ -60,53 +57,63 @@ async function buildGallery(galleryDir: string, templateDir: string, baseUrl?: s
   }
 
   // Build the template
-  const originalEnv = { ...process.env };
   try {
     // Set the environment variable for the gallery.json path that will be used by the template
     process.env.GALLERY_JSON_PATH = galleryJsonPath;
     process.env.GALLERY_OUTPUT_DIR = path.join(galleryDir, 'gallery');
 
-    execSync('npx astro build', { cwd: templateDir, stdio: 'inherit' });
+    ui.debug('Building gallery');
+    execSync('npx astro build', { cwd: templateDir, stdio: ui.level === LogLevels.debug ? 'inherit' : 'ignore' });
   } catch (error) {
-    console.error(error);
-    console.error(`Build failed for ${galleryDir}`);
-    return;
-  } finally {
-    // Restore original environment and gallery.json
-    process.env = originalEnv;
+    ui.error(`Build failed for ${galleryDir}`);
+    throw error;
   }
 
   // Copy the build output to the output directory
   const outputDir = path.join(galleryDir, 'gallery');
   const buildDir = path.join(outputDir, '_build');
+  ui.debug(`Copying build output to ${outputDir}`);
   fs.cpSync(buildDir, outputDir, { recursive: true });
 
   // Move the index.html to the gallery directory
+  ui.debug('Moving index.html to gallery directory');
   fs.copyFileSync(path.join(outputDir, 'index.html'), path.join(galleryDir, 'index.html'));
   fs.rmSync(path.join(outputDir, 'index.html'));
 
   // Clean up the _build directory
-  console.log('Cleaning up build directory...');
+  ui.debug('Cleaning up build directory');
   fs.rmSync(buildDir, { recursive: true, force: true });
 }
 
-export async function build(options: BuildOptions): Promise<void> {
-  // Get the astro theme directory from the default one
-  const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
-  const themeDir = path.dirname(new URL(themePath).pathname);
+export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<void> {
+  try {
+    // Find all gallery directories
+    const galleryDirs = findGalleries(options.gallery, options.recursive);
+    if (galleryDirs.length === 0) {
+      ui.error('No galleries found.');
+      return;
+    }
 
-  // Find all gallery directories
-  const galleryDirs = findGalleries(options.gallery, options.recursive);
+    // Get the astro theme directory from the default one
+    const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
+    const themeDir = path.dirname(new URL(themePath).pathname);
 
-  // If no galleries are found, exit
-  if (galleryDirs.length === 0) {
-    console.log('No gallery/gallery.json files found.');
-    return;
-  }
+    // Process each gallery
+    let totalGalleries = 0;
+    for (const dir of galleryDirs) {
+      ui.start(`Building gallery ${dir}`);
 
-  // Process each gallery
-  for (const dir of galleryDirs) {
-    const baseUrl = options.baseUrl ? `${options.baseUrl}/${path.relative(options.gallery, dir)}` : undefined;
-    buildGallery(path.resolve(dir), themeDir, baseUrl);
+      const baseUrl = options.baseUrl ? `${options.baseUrl}/${path.relative(options.gallery, dir)}` : undefined;
+      await buildGallery(path.resolve(dir), themeDir, ui, baseUrl);
+
+      ui.success(`Gallery built successfully`);
+
+      ++totalGalleries;
+    }
+
+    ui.box(`Built ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} successfully`);
+  } catch (error) {
+    ui.error('Error building gallery');
+    throw error;
   }
 }
