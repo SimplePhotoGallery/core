@@ -11,7 +11,7 @@ import type { ConsolaInstance } from 'consola';
  * @param galleryDir - Directory containing a gallery
  * @param ui - Consola instance for logging
  */
-async function cleanSingleGallery(galleryDir: string, ui: ConsolaInstance): Promise<void> {
+async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<void> {
   let filesRemoved = 0;
 
   // Remove index.html file from the gallery directory
@@ -67,11 +67,9 @@ export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise
       return;
     }
 
-    ui.start(`Cleaning ${galleryDirs.length} ${galleryDirs.length === 1 ? 'gallery' : 'galleries'}...`);
-
     // Clean each gallery directory
     for (const dir of galleryDirs) {
-      await cleanSingleGallery(dir, ui);
+      await cleanGallery(dir, ui);
     }
 
     ui.box(`Successfully cleaned ${galleryDirs.length} ${galleryDirs.length === 1 ? 'gallery' : 'galleries'}`);
