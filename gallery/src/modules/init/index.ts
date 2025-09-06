@@ -1,11 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { capitalizeTitle, getImageMetadata, getVideoDimensions, isMediaFile } from './utils';
+import { capitalizeTitle, getMediaFileType } from './utils';
 
-import { handleFileProcessingError } from '../../utils';
-
-import type { ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
+import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '../../types';
 import type { ConsolaInstance } from 'consola';
 
@@ -19,39 +17,15 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
     for (const entry of entries) {
       if (entry.isFile()) {
         const fullPath = path.join(dirPath, entry.name);
-        const mediaType = isMediaFile(entry.name);
+        const mediaType = getMediaFileType(entry.name);
 
         if (mediaType) {
-          ui.debug(`  Processing ${mediaType}: ${entry.name}`);
-
-          let metadata: { width: number; height: number; description?: string } = { width: 0, height: 0 };
-
-          // Process the media file to get the metadata
-          try {
-            if (mediaType === 'image') {
-              metadata = await getImageMetadata(fullPath);
-            } else if (mediaType === 'video') {
-              const videoDimensions = await getVideoDimensions(fullPath);
-              metadata = { ...videoDimensions };
-            }
-          } catch (error) {
-            // Handle the file processing error
-            handleFileProcessingError(error, path.basename(entry.name), ui);
-
-            // Skip the file
-            continue;
-          }
-
           const mediaFile: MediaFile = {
             type: mediaType,
             path: fullPath,
-            width: metadata.width,
-            height: metadata.height,
+            width: 0,
+            height: 0,
           };
-
-          if (metadata.description) {
-            mediaFile.alt = metadata.description;
-          }
 
           mediaFiles.push(mediaFile);
         }
@@ -74,10 +48,54 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
   return { mediaFiles, subGalleryDirectories };
 }
 
+async function getGallerySettingsFromUser(
+  galleryName: string,
+  defaultImage: string,
+  ui: ConsolaInstance,
+): Promise<GallerySettingsFromUser> {
+  ui.info(`Enter gallery settings for the gallery in folder "${galleryName}"`);
+
+  const title = await ui.prompt('Enter gallery title', { type: 'text', default: 'My Gallery', placeholder: 'My Gallery' });
+  const description = await ui.prompt('Enter gallery description', {
+    type: 'text',
+    default: 'My gallery with fantastic photos.',
+    placeholder: 'My gallery with fantastic photos.',
+  });
+  const headerImage = await ui.prompt('Enter header image', {
+    type: 'text',
+    default: defaultImage,
+    placeholder: defaultImage,
+  });
+
+  let thumbnailSize = 200;
+  while (true) {
+    const thumbnailSizeString = await ui.prompt('Enter thumbnail size', {
+      type: 'text',
+      default: '200',
+      placeholder: '200',
+    });
+    thumbnailSize = Number.parseInt(thumbnailSizeString);
+
+    if (Number.isNaN(thumbnailSize)) {
+      ui.error('Invalid thumbnail size');
+      continue;
+    } else if (thumbnailSize < 10 || thumbnailSize > 2000) {
+      ui.error('Thumbnail size must be between 10 and 2000');
+      continue;
+    }
+
+    break;
+  }
+
+  return { title, description, headerImage, thumbnailSize };
+}
+
 async function createGalleryJson(
   mediaFiles: MediaFile[],
   galleryJsonPath: string,
   subGalleries: SubGallery[] = [],
+  useDefaultSettings: boolean,
+  ui: ConsolaInstance,
 ): Promise<void> {
   const galleryDir = path.dirname(galleryJsonPath);
 
@@ -93,10 +111,11 @@ async function createGalleryJson(
     headerImage: subGallery.headerImage ? path.relative(galleryDir, subGallery.headerImage) : '',
   }));
 
-  const galleryData = {
+  let galleryData = {
     title: 'My Gallery',
     description: 'My gallery with fantastic photos.',
     headerImage: relativeMediaFiles[0]?.path || '',
+    thumbnailSize: 200,
     metadata: { ogUrl: '' },
     sections: [
       {
@@ -109,6 +128,17 @@ async function createGalleryJson(
     },
   };
 
+  if (!useDefaultSettings) {
+    galleryData = {
+      ...galleryData,
+      ...(await getGallerySettingsFromUser(
+        path.basename(path.join(galleryDir, '..')),
+        relativeMediaFiles[0]?.path || '',
+        ui,
+      )),
+    };
+  }
+
   await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 }
 
@@ -116,6 +146,7 @@ async function processDirectory(
   scanPath: string,
   outputPath: string,
   recursive: boolean,
+  useDefaultSettings: boolean,
   ui: ConsolaInstance,
 ): Promise<ProcessDirectoryResult> {
   ui.start(`Scanning ${scanPath}`);
@@ -135,6 +166,7 @@ async function processDirectory(
         subGalleryDir,
         path.join(outputPath, path.basename(subGalleryDir)),
         recursive,
+        useDefaultSettings,
         ui,
       );
 
@@ -158,7 +190,7 @@ async function processDirectory(
       await fs.mkdir(galleryPath, { recursive: true });
 
       // Create gallery.json for this directory
-      await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries);
+      await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries, useDefaultSettings, ui);
 
       ui.success(
         `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
@@ -191,7 +223,7 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<v
     const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
 
     // Process the directory tree with the specified recursion setting
-    const result = await processDirectory(scanPath, outputPath, options.recursive, ui);
+    const result = await processDirectory(scanPath, outputPath, options.recursive, options.default, ui);
 
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,

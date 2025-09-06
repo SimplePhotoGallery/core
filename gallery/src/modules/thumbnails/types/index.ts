@@ -1,5 +1,9 @@
 export interface ThumbnailOptions {
   gallery: string;
-  size: string;
   recursive: boolean;
+}
+
+export interface Dimensions {
+  width: number;
+  height: number;
 }
