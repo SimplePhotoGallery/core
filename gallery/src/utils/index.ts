@@ -4,13 +4,13 @@ import path from 'node:path';
 import type { ConsolaInstance } from 'consola';
 
 /**
- * Finds all gallery directories that contain a gallery/gallery.json file.
+ * Find all gallery directories that contain a `gallery/gallery.json` file.
  *
- * @param basePath - The base directory to search from
- * @param recursive - Whether to search subdirectories recursively
- * @returns Array of paths to directories containing gallery/gallery.json files
+ * @param basePath - Base directory to search from.
+ * @param recursive - Whether to search subdirectories recursively.
+ * @returns Array of paths to directories containing gallery JSON files.
  */
-export const findGalleries = (basePath: string, recursive: boolean): string[] => {
+export function findGalleries(basePath: string, recursive: boolean): string[] {
   const galleryDirs: string[] = [];
 
   // Check basePath itself
@@ -36,9 +36,16 @@ export const findGalleries = (basePath: string, recursive: boolean): string[] =>
   }
 
   return galleryDirs;
-};
+}
 
-export const handleFileProcessingError = (error: unknown, filename: string, ui: ConsolaInstance) => {
+/**
+ * Handle errors that occur when processing media files.
+ *
+ * @param error - The error thrown during processing.
+ * @param filename - Name of the file being processed.
+ * @param ui - Consola instance used for logging.
+ */
+export function handleFileProcessingError(error: unknown, filename: string, ui: ConsolaInstance): void {
   if (error instanceof Error && (error.message.includes('ffprobe') || error.message.includes('ffmpeg'))) {
     // Handle ffmpeg error
     ui.warn(
@@ -53,4 +60,4 @@ export const handleFileProcessingError = (error: unknown, filename: string, ui: 
   }
 
   ui.debug(error);
-};
+}

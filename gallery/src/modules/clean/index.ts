@@ -7,9 +7,10 @@ import type { CleanOptions } from './types';
 import type { ConsolaInstance } from 'consola';
 
 /**
- * Clean gallery files from a single directory
- * @param galleryDir - Directory containing a gallery
- * @param ui - Consola instance for logging
+ * Clean gallery files from a single directory.
+ *
+ * @param galleryDir - Directory containing a gallery.
+ * @param ui - Consola instance for logging.
  */
 async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<void> {
   let filesRemoved = 0;
@@ -46,8 +47,11 @@ async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<vo
 }
 
 /**
- * Clean command implementation
- * Removes all gallery-related files and directories
+ * Clean command implementation.
+ * Removes all gallery-related files and directories.
+ *
+ * @param options - Command options.
+ * @param ui - Consola instance for logging.
  */
 export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise<void> {
   try {

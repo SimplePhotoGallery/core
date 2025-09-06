@@ -11,6 +11,15 @@ import { findGalleries, handleFileProcessingError } from '../../utils';
 
 import type { ThumbnailOptions } from './types';
 
+/**
+ * Process an image file and create its thumbnail if needed.
+ *
+ * @param imagePath - Path to the original image.
+ * @param thumbnailPath - Path where the thumbnail will be stored.
+ * @param thumbnailSize - Desired thumbnail height in pixels.
+ * @param lastMediaTimestamp - Timestamp of the last processed media file.
+ * @returns Updated media file or `undefined` if processing was skipped.
+ */
 async function processImage(
   imagePath: string,
   thumbnailPath: string,
@@ -61,6 +70,16 @@ async function processImage(
   };
 }
 
+/**
+ * Process a video file and generate its thumbnail if necessary.
+ *
+ * @param videoPath - Path to the video file.
+ * @param thumbnailPath - Path where the thumbnail will be stored.
+ * @param thumbnailSize - Desired thumbnail height in pixels.
+ * @param verbose - Whether to enable verbose ffmpeg output.
+ * @param lastMediaTimestamp - Timestamp of the last processed media file.
+ * @returns Updated media file or `undefined` if processing was skipped.
+ */
 async function processVideo(
   videoPath: string,
   thumbnailPath: string,
@@ -97,6 +116,16 @@ async function processVideo(
   };
 }
 
+/**
+ * Process a single media file (image or video) and update its metadata.
+ *
+ * @param mediaFile - Media file to process.
+ * @param galleryDir - Directory containing the gallery.
+ * @param thumbnailsPath - Directory where thumbnails are stored.
+ * @param thumbnailSize - Desired thumbnail height in pixels.
+ * @param ui - Consola instance for logging.
+ * @returns The updated media file.
+ */
 async function processMediaFile(
   mediaFile: MediaFile,
   galleryDir: string,
@@ -142,7 +171,14 @@ async function processMediaFile(
   }
 }
 
-export const processGalleryThumbnails = async (galleryDir: string, ui: ConsolaInstance): Promise<number> => {
+/**
+ * Create thumbnails for all media files in a single gallery directory.
+ *
+ * @param galleryDir - Directory containing the gallery.
+ * @param ui - Consola instance for logging.
+ * @returns Number of processed media files.
+ */
+export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaInstance): Promise<number> {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
 
@@ -160,7 +196,13 @@ export const processGalleryThumbnails = async (galleryDir: string, ui: ConsolaIn
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, galleryData.thumbnailSize, ui);
+        section.images[index] = await processMediaFile(
+          mediaFile,
+          galleryDir,
+          thumbnailsPath,
+          galleryData.thumbnailSize,
+          ui,
+        );
       }
 
       processedCount += section.images.length;
@@ -176,8 +218,14 @@ export const processGalleryThumbnails = async (galleryDir: string, ui: ConsolaIn
     ui.error(`Error creating thumbnails for ${galleryDir}`);
     throw error;
   }
-};
+}
 
+/**
+ * Thumbnail command implementation.
+ *
+ * @param options - Command line options.
+ * @param ui - Consola instance for logging.
+ */
 export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance): Promise<void> {
   try {
     // Find all gallery directories

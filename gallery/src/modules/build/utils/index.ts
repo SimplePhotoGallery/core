@@ -1,9 +1,16 @@
 import path from 'node:path';
 
-// __dirname workaround for ESM modules
+/**
+ * Directory name of the current module (ESM workaround).
+ */
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-// Helper function to resolve paths relative to current file
-export const resolveFromCurrentDir = (...segments: string[]): string => {
+/**
+ * Resolve a path relative to the current directory.
+ *
+ * @param segments - Path segments to resolve.
+ * @returns Resolved absolute path.
+ */
+export function resolveFromCurrentDir(...segments: string[]): string {
   return path.resolve(__dirname, ...segments);
-};
+}

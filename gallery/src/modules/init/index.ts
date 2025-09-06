@@ -7,6 +7,13 @@ import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResu
 import type { MediaFile } from '../../types';
 import type { ConsolaInstance } from 'consola';
 
+/**
+ * Scan a directory for media files and sub-galleries.
+ *
+ * @param dirPath - Path to scan.
+ * @param ui - Consola instance for logging.
+ * @returns Media files and sub-gallery directories found in the path.
+ */
 async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
   const mediaFiles: MediaFile[] = [];
   const subGalleryDirectories: string[] = [];
@@ -48,6 +55,14 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
   return { mediaFiles, subGalleryDirectories };
 }
 
+/**
+ * Prompt the user for gallery settings.
+ *
+ * @param galleryName - Name of the gallery folder.
+ * @param defaultImage - Default header image.
+ * @param ui - Consola instance for interaction.
+ * @returns Settings provided by the user.
+ */
 async function getGallerySettingsFromUser(
   galleryName: string,
   defaultImage: string,
@@ -90,6 +105,15 @@ async function getGallerySettingsFromUser(
   return { title, description, headerImage, thumbnailSize };
 }
 
+/**
+ * Create the `gallery.json` file with provided media and sub-galleries.
+ *
+ * @param mediaFiles - Media files discovered in the directory.
+ * @param galleryJsonPath - Path where `gallery.json` will be written.
+ * @param subGalleries - Optional sub-galleries.
+ * @param useDefaultSettings - Whether to use default settings without user prompts.
+ * @param ui - Consola instance for logging.
+ */
 async function createGalleryJson(
   mediaFiles: MediaFile[],
   galleryJsonPath: string,
@@ -142,6 +166,16 @@ async function createGalleryJson(
   await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 }
 
+/**
+ * Recursively process a directory tree and generate `gallery.json` files.
+ *
+ * @param scanPath - Path to scan for media files.
+ * @param outputPath - Output directory where galleries will be created.
+ * @param recursive - Whether to process subdirectories recursively.
+ * @param useDefaultSettings - Use default gallery settings without prompts.
+ * @param ui - Consola instance for logging.
+ * @returns Aggregated processing result.
+ */
 async function processDirectory(
   scanPath: string,
   outputPath: string,
@@ -217,6 +251,12 @@ async function processDirectory(
   return result;
 }
 
+/**
+ * Init command implementation.
+ *
+ * @param options - Command options.
+ * @param ui - Consola instance for logging.
+ */
 export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<void> {
   try {
     const scanPath = path.resolve(options.photos);
