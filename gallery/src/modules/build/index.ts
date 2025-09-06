@@ -11,13 +11,24 @@ import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 
-function checkFileIsOneFolderUp(filePath: string) {
+/**
+ * Checks if a file path refers to a file one folder up from the current directory
+ * @param filePath - The file path to check
+ * @returns True if the file is exactly one folder up (../filename)
+ */
+function checkFileIsOneFolderUp(filePath: string): boolean {
   const normalizedPath = path.normalize(filePath);
   const pathParts = normalizedPath.split(path.sep);
   return pathParts.length === 2 && pathParts[0] === '..';
 }
 
-function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaInstance) {
+/**
+ * Copies photos from gallery subdirectory to main directory when needed
+ * @param galleryData - Gallery data containing image paths
+ * @param galleryDir - Base gallery directory
+ * @param ui - ConsolaInstance for logging
+ */
+function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaInstance): void {
   for (const section of galleryData.sections) {
     for (const image of section.images) {
       if (!checkFileIsOneFolderUp(image.path)) {
@@ -32,7 +43,14 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
   }
 }
 
-async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string) {
+/**
+ * Builds a single gallery by generating thumbnails and creating HTML output
+ * @param galleryDir - Directory containing the gallery
+ * @param templateDir - Directory containing the Astro template
+ * @param ui - ConsolaInstance for logging
+ * @param baseUrl - Optional base URL for hosting photos
+ */
+async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string): Promise<void> {
   ui.start(`Building gallery ${galleryDir}`);
 
   // Generate the thumbnails if needed
@@ -96,6 +114,11 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   ui.success(`Gallery built successfully`);
 }
 
+/**
+ * Main build command implementation - builds HTML galleries from gallery.json files
+ * @param options - Options specifying gallery path, recursion, and base URL
+ * @param ui - ConsolaInstance for logging
+ */
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<void> {
   try {
     // Find all gallery directories

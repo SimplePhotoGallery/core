@@ -10,6 +10,7 @@ import { clean } from './modules/clean';
 import { init } from './modules/init';
 import { thumbnails } from './modules/thumbnails';
 
+/** Command line interface program instance */
 const program = new Command();
 
 program
@@ -20,7 +21,12 @@ program
   .option('-q, --quiet', 'Minimal output (only warnings/errors)', false)
   .showHelpAfterError(true);
 
-const createConsolaUI = (globalOpts: ReturnType<typeof program.opts>): ConsolaInstance => {
+/**
+ * Creates a Consola UI instance with appropriate log level based on global options
+ * @param globalOpts - Global command options containing verbose/quiet flags
+ * @returns ConsolaInstance configured with appropriate log level and tag
+ */
+function createConsolaUI(globalOpts: ReturnType<typeof program.opts>): ConsolaInstance {
   let level = LogLevels.info;
 
   if (globalOpts.quiet) {
@@ -32,12 +38,15 @@ const createConsolaUI = (globalOpts: ReturnType<typeof program.opts>): ConsolaIn
   return createConsola({
     level,
   }).withTag('simple-photo-gallery');
-};
+}
 
-// Wrap handlers so they receive (opts, ui)
-const withConsolaUI =
-  <O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) =>
-  async (opts: O) => {
+/**
+ * Higher-order function that wraps command handlers to provide ConsolaUI instance
+ * @param handler - Command handler function that receives options and UI instance
+ * @returns Wrapped handler function that creates UI and handles errors
+ */
+function withConsolaUI<O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) {
+  return async (opts: O) => {
     const ui = createConsolaUI(program.opts());
     try {
       await handler(opts, ui);
@@ -47,6 +56,7 @@ const withConsolaUI =
       process.exitCode = 1;
     }
   };
+}
 
 program
   .command('init')

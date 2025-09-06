@@ -10,7 +10,7 @@ import type { ConsolaInstance } from 'consola';
  * @param recursive - Whether to search subdirectories recursively
  * @returns Array of paths to directories containing gallery/gallery.json files
  */
-export const findGalleries = (basePath: string, recursive: boolean): string[] => {
+export function findGalleries(basePath: string, recursive: boolean): string[] {
   const galleryDirs: string[] = [];
 
   // Check basePath itself
@@ -36,9 +36,15 @@ export const findGalleries = (basePath: string, recursive: boolean): string[] =>
   }
 
   return galleryDirs;
-};
+}
 
-export const handleFileProcessingError = (error: unknown, filename: string, ui: ConsolaInstance) => {
+/**
+ * Handles file processing errors with appropriate user-friendly messages
+ * @param error - The error that occurred during file processing
+ * @param filename - Name of the file that caused the error
+ * @param ui - ConsolaInstance for logging messages
+ */
+export function handleFileProcessingError(error: unknown, filename: string, ui: ConsolaInstance): void {
   if (error instanceof Error && (error.message.includes('ffprobe') || error.message.includes('ffmpeg'))) {
     // Handle ffmpeg error
     ui.warn(
@@ -53,4 +59,4 @@ export const handleFileProcessingError = (error: unknown, filename: string, ui: 
   }
 
   ui.debug(error);
-};
+}
