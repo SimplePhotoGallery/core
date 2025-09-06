@@ -3,6 +3,7 @@ import { z } from 'zod';
 /** Zod schema for thumbnail metadata including path and dimensions */
 export const ThumbnailSchema = z.object({
   path: z.string(),
+  pathRetina: z.string(),
   width: z.number(),
   height: z.number(),
 });

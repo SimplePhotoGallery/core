@@ -56,17 +56,19 @@ export async function getImageDescription(metadata: Metadata): Promise<string | 
 }
 
 /**
- * Creates a thumbnail for an image while maintaining aspect ratio
+ * Creates regular and retina thumbnails for an image while maintaining aspect ratio
  * @param image - Sharp image instance
  * @param metadata - Image metadata containing dimensions
  * @param outputPath - Path where thumbnail should be saved
+ * @param outputPathRetina - Path where retina thumbnail should be saved
  * @param height - Target height for thumbnail
  * @returns Promise resolving to thumbnail dimensions
  */
-export async function createImageThumbnail(
+export async function createImageThumbnails(
   image: Sharp,
   metadata: Metadata,
   outputPath: string,
+  outputPathRetina: string,
   height: number,
 ): Promise<Dimensions> {
   // Create thumbnail using sharp
@@ -81,8 +83,9 @@ export async function createImageThumbnail(
   const aspectRatio = originalWidth / originalHeight;
   const width = Math.round(height * aspectRatio);
 
-  // Resize the image
+  // Resize the image and create the thumbnails
   await resizeAndSaveThumbnail(image, outputPath, width, height);
+  await resizeAndSaveThumbnail(image, outputPathRetina, width * 2, height * 2);
 
   // Return the dimensions of the thumbnail
   return { width, height };
@@ -115,18 +118,20 @@ export async function getVideoDimensions(filePath: string): Promise<Dimensions> 
 }
 
 /**
- * Creates a thumbnail for a video by extracting the first frame
+ * Creates regular and retina thumbnails for a video by extracting the first frame
  * @param inputPath - Path to the video file
  * @param videoDimensions - Original video dimensions
  * @param outputPath - Path where thumbnail should be saved
+ * @param outputPathRetina - Path where retina thumbnail should be saved
  * @param height - Target height for thumbnail
  * @param verbose - Whether to enable verbose ffmpeg output
  * @returns Promise resolving to thumbnail dimensions
  */
-export async function createVideoThumbnail(
+export async function createVideoThumbnails(
   inputPath: string,
   videoDimensions: Dimensions,
   outputPath: string,
+  outputPathRetina: string,
   height: number,
   verbose: boolean = false,
 ): Promise<Dimensions> {
@@ -161,6 +166,7 @@ export async function createVideoThumbnail(
           // Process the extracted frame with sharp
           const frameImage = sharp(tempFramePath);
           await resizeAndSaveThumbnail(frameImage, outputPath, width, height);
+          await resizeAndSaveThumbnail(frameImage, outputPathRetina, width * 2, height * 2);
 
           // Clean up temporary file
           try {

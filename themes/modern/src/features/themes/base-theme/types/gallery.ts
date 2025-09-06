@@ -7,6 +7,7 @@ export interface GalleryImage {
   type: 'image' | 'video';
   thumbnail: {
     path: string;
+    pathRetina: string;
     width: number;
     height: number;
   };
