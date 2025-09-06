@@ -246,8 +246,8 @@ describe('Single-folder gallery', () => {
       // Run thumbnails command (init should have been run by previous test)
       execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${singleTestPath}`);
 
-      // Validate thumbnails using helper
-      validateThumbnails(galleryPath, 3);
+      // Validate thumbnails using helper (expecting 6: 3 regular + 3 retina @2x)
+      validateThumbnails(galleryPath, 6);
     });
   });
 
@@ -377,17 +377,17 @@ describe('Multi-folder gallery', () => {
       // Run thumbnails command with recursive option
       execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${multiTestPath} -r`);
 
-      // Validate thumbnails for main gallery
+      // Validate thumbnails for main gallery (expecting 6: 3 regular + 3 retina @2x)
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
-      validateThumbnails(mainGalleryPath, 3);
+      validateThumbnails(mainGalleryPath, 6);
 
-      // Validate thumbnails for first subgallery
+      // Validate thumbnails for first subgallery (expecting 4: 2 regular + 2 retina @2x)
       const firstGalleryPath = path.resolve(multiTestPath, 'first', 'gallery');
-      validateThumbnails(firstGalleryPath, 2);
+      validateThumbnails(firstGalleryPath, 4);
 
-      // Validate thumbnails for second subgallery
+      // Validate thumbnails for second subgallery (expecting 4: 2 regular + 2 retina @2x)
       const secondGalleryPath = path.resolve(multiTestPath, 'second', 'gallery');
-      validateThumbnails(secondGalleryPath, 2);
+      validateThumbnails(secondGalleryPath, 4);
     });
   });
 
@@ -515,9 +515,9 @@ describe('Separate gallery directory', () => {
       // Run thumbnails command (init should have been run by previous test)
       execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
 
-      // Validate thumbnails using helper
+      // Validate thumbnails using helper (expecting 6: 3 regular + 3 retina @2x)
       const galleryPath = path.resolve(separateGalleryPath, 'gallery');
-      validateThumbnails(galleryPath, 3);
+      validateThumbnails(galleryPath, 6);
     });
   });
 
@@ -586,9 +586,9 @@ describe('Gallery with base URL (no photo copying)', () => {
       // Run thumbnails command (init should have been run by previous test)
       execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${baseUrlGalleryPath}`);
 
-      // Validate thumbnails using helper
+      // Validate thumbnails using helper (expecting 6: 3 regular + 3 retina @2x)
       const galleryPath = path.resolve(baseUrlGalleryPath, 'gallery');
-      validateThumbnails(galleryPath, 3);
+      validateThumbnails(galleryPath, 6);
     });
   });
 
