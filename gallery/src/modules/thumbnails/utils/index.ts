@@ -9,16 +9,32 @@ import type { Dimensions } from '../types';
 import type { Buffer } from 'node:buffer';
 import type { Metadata, Sharp } from 'sharp';
 
+/**
+ * Gets the last modification time of a file
+ * @param filePath - Path to the file
+ * @returns Promise resolving to the file's modification date
+ */
 export async function getFileMtime(filePath: string): Promise<Date> {
   const stats = await fs.stat(filePath);
   return stats.mtime;
 }
 
-// Utility function to resize and save thumbnail
+/**
+ * Utility function to resize and save thumbnail using Sharp
+ * @param image - Sharp image instance
+ * @param outputPath - Path where thumbnail should be saved
+ * @param width - Target width for thumbnail
+ * @param height - Target height for thumbnail
+ */
 async function resizeAndSaveThumbnail(image: Sharp, outputPath: string, width: number, height: number): Promise<void> {
   await image.resize(width, height, { withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
 }
 
+/**
+ * Extracts description from image EXIF data
+ * @param metadata - Sharp metadata object containing EXIF data
+ * @returns Promise resolving to image description or undefined if not found
+ */
 export async function getImageDescription(metadata: Metadata): Promise<string | undefined> {
   let description: string | undefined;
 
@@ -39,6 +55,14 @@ export async function getImageDescription(metadata: Metadata): Promise<string | 
   return description;
 }
 
+/**
+ * Creates a thumbnail for an image while maintaining aspect ratio
+ * @param image - Sharp image instance
+ * @param metadata - Image metadata containing dimensions
+ * @param outputPath - Path where thumbnail should be saved
+ * @param height - Target height for thumbnail
+ * @returns Promise resolving to thumbnail dimensions
+ */
 export async function createImageThumbnail(
   image: Sharp,
   metadata: Metadata,
@@ -64,6 +88,12 @@ export async function createImageThumbnail(
   return { width, height };
 }
 
+/**
+ * Gets video dimensions using ffprobe
+ * @param filePath - Path to the video file
+ * @returns Promise resolving to video dimensions
+ * @throws Error if no video stream found or invalid dimensions
+ */
 export async function getVideoDimensions(filePath: string): Promise<Dimensions> {
   const data = await ffprobe(filePath);
   const videoStream = data.streams.find((stream) => stream.codec_type === 'video');
@@ -84,6 +114,15 @@ export async function getVideoDimensions(filePath: string): Promise<Dimensions> 
   return dimensions;
 }
 
+/**
+ * Creates a thumbnail for a video by extracting the first frame
+ * @param inputPath - Path to the video file
+ * @param videoDimensions - Original video dimensions
+ * @param outputPath - Path where thumbnail should be saved
+ * @param height - Target height for thumbnail
+ * @param verbose - Whether to enable verbose ffmpeg output
+ * @returns Promise resolving to thumbnail dimensions
+ */
 export async function createVideoThumbnail(
   inputPath: string,
   videoDimensions: Dimensions,

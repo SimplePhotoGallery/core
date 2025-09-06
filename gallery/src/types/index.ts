@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
+/** Zod schema for thumbnail metadata including path and dimensions */
 export const ThumbnailSchema = z.object({
   path: z.string(),
   width: z.number(),
   height: z.number(),
 });
 
+/** Zod schema for media file metadata including type, dimensions, and thumbnail info */
 export const MediaFileSchema = z.object({
   type: z.enum(['image', 'video']),
   path: z.string(),
@@ -16,18 +18,21 @@ export const MediaFileSchema = z.object({
   lastMediaTimestamp: z.string().optional(),
 });
 
+/** Zod schema for a gallery section containing title, description, and media files */
 export const GallerySectionSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   images: z.array(MediaFileSchema),
 });
 
+/** Zod schema for sub-gallery metadata including title, header image, and path */
 export const SubGallerySchema = z.object({
   title: z.string(),
   headerImage: z.string(),
   path: z.string(),
 });
 
+/** Zod schema for complete gallery data including metadata, sections, and sub-galleries */
 export const GalleryDataSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -42,8 +47,17 @@ export const GalleryDataSchema = z.object({
   subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });
 
+/** TypeScript type for thumbnail metadata */
 export type Thumbnail = z.infer<typeof ThumbnailSchema>;
+
+/** TypeScript type for media file metadata */
 export type MediaFile = z.infer<typeof MediaFileSchema>;
+
+/** TypeScript type for gallery section data */
 export type GallerySection = z.infer<typeof GallerySectionSchema>;
+
+/** TypeScript type for sub-gallery metadata */
 export type SubGallery = z.infer<typeof SubGallerySchema>;
+
+/** TypeScript type for complete gallery data structure */
 export type GalleryData = z.infer<typeof GalleryDataSchema>;
