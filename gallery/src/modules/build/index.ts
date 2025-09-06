@@ -7,6 +7,7 @@ import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { type GalleryData, GalleryDataSchema } from '../../types';
 import { findGalleries } from '../../utils';
+import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 
@@ -33,6 +34,9 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
 
 async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string) {
   ui.start(`Building gallery ${galleryDir}`);
+
+  // Generate the thumbnails if needed
+  await processGalleryThumbnails(galleryDir, ui);
 
   // Read the gallery.json file
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
