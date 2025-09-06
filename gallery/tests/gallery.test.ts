@@ -635,7 +635,7 @@ describe('Clean command', () => {
     test('should remove index.html and gallery directory while preserving photos', () => {
       // Copy fixture and initialize gallery
       copySync(singleFixturePath, cleanTestPath);
-      execSync(`${tsxPath} ${cliPath} init --photos ${cleanTestPath}`);
+      execSync(`${tsxPath} ${cliPath} init --photos ${cleanTestPath} -d`);
 
       // Create an index.html file to simulate build output
       const indexPath = path.resolve(cleanTestPath, 'index.html');
@@ -681,7 +681,7 @@ describe('Clean command', () => {
     test('should clean all galleries recursively when -r flag is used', () => {
       // Copy fixture and initialize galleries
       copySync(multiFixturePath, cleanMultiTestPath);
-      execSync(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r`);
+      execSync(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r -d`);
 
       // Create index.html files in all directories
       writeFileSync(path.resolve(cleanMultiTestPath, 'index.html'), '<html>Main</html>');
@@ -720,7 +720,7 @@ describe('Clean command', () => {
         rmSync(cleanMultiTestPath, { recursive: true, force: true });
       }
       copySync(multiFixturePath, cleanMultiTestPath);
-      execSync(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r`);
+      execSync(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r -d`);
 
       // Create index.html files in all directories
       writeFileSync(path.resolve(cleanMultiTestPath, 'index.html'), '<html>Main</html>');
