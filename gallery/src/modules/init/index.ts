@@ -80,12 +80,12 @@ async function getGallerySettingsFromUser(
     placeholder: defaultImage,
   });
 
-  let thumbnailSize = 200;
+  let thumbnailSize = 300;
   while (true) {
     const thumbnailSizeString = await ui.prompt('Enter thumbnail size', {
       type: 'text',
-      default: '200',
-      placeholder: '200',
+      default: '300',
+      placeholder: '300',
     });
     thumbnailSize = Number.parseInt(thumbnailSizeString);
 
