@@ -208,7 +208,7 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     ui.error(`Error creating thumbnails for ${galleryDir}`);
     throw error;
   }
-};
+}
 
 /**
  * Main thumbnails command implementation - generates thumbnails for all galleries
