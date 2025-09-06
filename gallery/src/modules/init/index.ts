@@ -3,10 +3,23 @@ import path from 'node:path';
 
 import { capitalizeTitle, getMediaFileType } from './utils';
 
-import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
+import type {
+  GallerySettingsFromUser,
+  ProcessDirectoryResult,
+  ScanDirectoryResult,
+  ScanOptions,
+  SubGallery,
+} from './types';
 import type { MediaFile } from '../../types';
 import type { ConsolaInstance } from 'consola';
 
+/**
+ * Scans a directory for media files and sub-galleries.
+ *
+ * @param dirPath - Directory to scan
+ * @param ui - Consola instance for logging
+ * @returns Media files and sub-gallery directories found in the path
+ */
 async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
   const mediaFiles: MediaFile[] = [];
   const subGalleryDirectories: string[] = [];
@@ -48,6 +61,14 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
   return { mediaFiles, subGalleryDirectories };
 }
 
+/**
+ * Prompts the user for gallery settings.
+ *
+ * @param galleryName - Name of the gallery
+ * @param defaultImage - Default header image path
+ * @param ui - Consola instance for logging and prompting
+ * @returns User-provided gallery settings
+ */
 async function getGallerySettingsFromUser(
   galleryName: string,
   defaultImage: string,
@@ -90,6 +111,15 @@ async function getGallerySettingsFromUser(
   return { title, description, headerImage, thumbnailSize };
 }
 
+/**
+ * Creates a gallery.json file with metadata about media files and sub-galleries.
+ *
+ * @param mediaFiles - List of media files in the gallery
+ * @param galleryJsonPath - Output path for gallery.json
+ * @param subGalleries - Sub-galleries to include
+ * @param useDefaultSettings - Whether to use default settings without prompting the user
+ * @param ui - Consola instance for logging
+ */
 async function createGalleryJson(
   mediaFiles: MediaFile[],
   galleryJsonPath: string,
@@ -142,6 +172,16 @@ async function createGalleryJson(
   await fs.writeFile(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 }
 
+/**
+ * Processes a directory by scanning for media files and generating gallery data.
+ *
+ * @param scanPath - Path to scan for media
+ * @param outputPath - Output directory for gallery files
+ * @param recursive - Whether to process subdirectories recursively
+ * @param useDefaultSettings - Whether to use default settings instead of prompting
+ * @param ui - Consola instance for logging
+ * @returns Information about processed files and sub-galleries
+ */
 async function processDirectory(
   scanPath: string,
   outputPath: string,
@@ -217,6 +257,12 @@ async function processDirectory(
   return result;
 }
 
+/**
+ * Initializes galleries by scanning directories and creating gallery.json files.
+ *
+ * @param options - Scan options provided by the CLI
+ * @param ui - Consola instance for logging
+ */
 export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<void> {
   try {
     const scanPath = path.resolve(options.photos);
