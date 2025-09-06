@@ -11,29 +11,35 @@ interface Props {
 const { image, mediaBaseUrl } = Astro.props;
 ---
 
-<div class="gallery-section__item">
-  <a
-    href={getPhotoPath(image.path, mediaBaseUrl)}
-    data-pswp-src={getPhotoPath(image.path, mediaBaseUrl)}
-    data-pswp-width={image.width}
-    data-pswp-height={image.height}
-    data-pswp-type={image.type}
-    data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}>
-    <img
-      src={getRelativePath(image.thumbnail?.path)}
-      srcset={`${getRelativePath(image.thumbnail?.path)} 1x, ${getRelativePath(image.thumbnail?.pathRetina)} 2x`}
-      alt={image.alt}
-      loading="lazy"
-      width={image.thumbnail?.width}
-      height={image.thumbnail?.height}
-    />
-  </a>
-</div>
+<a
+  class="gallery-section__item"
+  href={getPhotoPath(image.path, mediaBaseUrl)}
+  data-pswp-src={getPhotoPath(image.path, mediaBaseUrl)}
+  data-pswp-width={image.width}
+  data-pswp-height={image.height}
+  data-pswp-type={image.type}
+  data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}
+  style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
+  <img
+    src={getRelativePath(image.thumbnail?.path)}
+    srcset={`${getRelativePath(image.thumbnail?.path)} 1x, ${getRelativePath(image.thumbnail?.pathRetina)} 2x`}
+    alt={image.alt}
+    loading="lazy"
+    width={image.thumbnail?.width}
+    height={image.thumbnail?.height}
+  />
+</a>
 
 <style>
+  :root {
+    --row-height: 6rem;
+  }
+
   .gallery-section__item {
-    break-inside: avoid;
-    margin-bottom: 1rem;
+    --ratio: calc(var(--w) / var(--h));
+    flex-basis: calc(var(--ratio) * var(--row-height));
+    flex-grow: calc(var(--ratio) * 100);
+    margin: 0.25rem;
     border-radius: 0.75rem;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -53,7 +59,25 @@ const { image, mediaBaseUrl } = Astro.props;
     transition: transform 0.5s ease;
   }
 
-  .gallery-item:hover img {
+  .gallery-section__item:hover img {
     transform: scale(1.05);
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --row-height: 8rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --row-height: 9rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --row-height: 10rem;
+    }
   }
 </style>
