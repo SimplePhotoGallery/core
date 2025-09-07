@@ -21,6 +21,7 @@ const { image, mediaBaseUrl } = Astro.props;
     data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}>
     <img
       src={getRelativePath(image.thumbnail?.path)}
+      srcset={`${getRelativePath(image.thumbnail?.path)} 1x, ${getRelativePath(image.thumbnail?.pathRetina)} 2x`}
       alt={image.alt}
       loading="lazy"
       width={image.thumbnail?.width}

@@ -27,7 +27,7 @@ const validImages = section.images.filter((image) => image.width > 0 && image.he
 
 <style>
   .gallery-section {
-    padding: 5rem 1rem;
+    padding: 1rem 1rem;
   }
 
   .gallery-section:nth-child(even) {
@@ -41,36 +41,30 @@ const validImages = section.images.filter((image) => image.width > 0 && image.he
   }
 
   .gallery-section__gallery {
-    columns: 1;
+    columns: 2;
     column-gap: 1rem;
     margin-bottom: 1rem;
   }
 
   @media (min-width: 640px) {
     .gallery-section__gallery {
-      columns: 2;
+      columns: 3;
     }
   }
 
   @media (min-width: 768px) {
     .gallery-section__gallery {
-      columns: 3;
+      columns: 4;
     }
   }
 
   @media (min-width: 1024px) {
     .gallery-section__gallery {
-      columns: 4;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .gallery-section__gallery {
       columns: 5;
     }
   }
 
-  @media (min-width: 1536px) {
+  @media (min-width: 1280px) {
     .gallery-section__gallery {
       columns: 6;
     }

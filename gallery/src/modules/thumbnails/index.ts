@@ -4,7 +4,13 @@ import path from 'node:path';
 import { LogLevels, type ConsolaInstance } from 'consola';
 import sharp from 'sharp';
 
-import { createImageThumbnail, createVideoThumbnail, getImageDescription, getFileMtime, getVideoDimensions } from './utils';
+import {
+  createImageThumbnails,
+  createVideoThumbnails,
+  getImageDescription,
+  getFileMtime,
+  getVideoDimensions,
+} from './utils';
 
 import { GalleryDataSchema, type MediaFile } from '../../types';
 import { findGalleries, handleFileProcessingError } from '../../utils';
@@ -15,6 +21,7 @@ import type { ThumbnailOptions } from './types';
  * Processes an image file to create thumbnail and extract metadata
  * @param imagePath - Path to the image file
  * @param thumbnailPath - Path where thumbnail should be saved
+ * @param thumbnailPathRetina - Path where retina thumbnail should be saved
  * @param thumbnailSize - Target size for thumbnail
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
  * @returns Promise resolving to updated MediaFile or undefined if skipped
@@ -22,6 +29,7 @@ import type { ThumbnailOptions } from './types';
 async function processImage(
   imagePath: string,
   thumbnailPath: string,
+  thumbnailPathRetina: string,
   thumbnailSize: number,
   lastMediaTimestamp?: Date,
 ): Promise<MediaFile | undefined> {
@@ -50,8 +58,14 @@ async function processImage(
   // Get the image description
   const description = await getImageDescription(metadata);
 
-  // Create the thumbnail
-  const thumbnailDimensions = await createImageThumbnail(image, metadata, thumbnailPath, thumbnailSize);
+  // Create the thumbnails
+  const thumbnailDimensions = await createImageThumbnails(
+    image,
+    metadata,
+    thumbnailPath,
+    thumbnailPathRetina,
+    thumbnailSize,
+  );
 
   // Return the updated media file
   return {
@@ -62,6 +76,7 @@ async function processImage(
     height: imageDimensions.height,
     thumbnail: {
       path: thumbnailPath,
+      pathRetina: thumbnailPathRetina,
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
     },
@@ -73,6 +88,7 @@ async function processImage(
  * Processes a video file to create thumbnail and extract metadata
  * @param videoPath - Path to the video file
  * @param thumbnailPath - Path where thumbnail should be saved
+ * @param thumbnailPathRetina - Path where retina thumbnail should be saved
  * @param thumbnailSize - Target size for thumbnail
  * @param verbose - Whether to enable verbose output
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
@@ -81,6 +97,7 @@ async function processImage(
 async function processVideo(
   videoPath: string,
   thumbnailPath: string,
+  thumbnailPathRetina: string,
   thumbnailSize: number,
   verbose: boolean,
   lastMediaTimestamp?: Date,
@@ -97,7 +114,14 @@ async function processVideo(
   const videoDimensions = await getVideoDimensions(videoPath);
 
   // Create the thumbnail
-  const thumbnailDimensions = await createVideoThumbnail(videoPath, videoDimensions, thumbnailPath, thumbnailSize, verbose);
+  const thumbnailDimensions = await createVideoThumbnails(
+    videoPath,
+    videoDimensions,
+    thumbnailPath,
+    thumbnailPathRetina,
+    thumbnailSize,
+    verbose,
+  );
 
   return {
     type: 'video',
@@ -107,6 +131,7 @@ async function processVideo(
     height: videoDimensions.height,
     thumbnail: {
       path: thumbnailPath,
+      pathRetina: thumbnailPathRetina,
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
     },
@@ -139,7 +164,9 @@ async function processMediaFile(
     const fileNameWithoutExt = path.parse(fileName).name;
     const thumbnailFileName = `${fileNameWithoutExt}.jpg`;
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
+    const thumbnailPathRetina = thumbnailPath.replace('.jpg', '@2x.jpg');
     const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
+    const relativeThumbnailRetinaPath = path.relative(galleryJsonDir, thumbnailPathRetina);
 
     const lastMediaTimestamp = mediaFile.lastMediaTimestamp ? new Date(mediaFile.lastMediaTimestamp) : undefined;
     const verbose = ui.level === LogLevels.debug;
@@ -147,8 +174,8 @@ async function processMediaFile(
     ui.debug(`  Processing ${mediaFile.type}: ${fileName}`);
 
     const updatedMediaFile = await (mediaFile.type === 'image'
-      ? processImage(filePath, thumbnailPath, thumbnailSize, lastMediaTimestamp)
-      : processVideo(filePath, thumbnailPath, thumbnailSize, verbose, lastMediaTimestamp));
+      ? processImage(filePath, thumbnailPath, thumbnailPathRetina, thumbnailSize, lastMediaTimestamp)
+      : processVideo(filePath, thumbnailPath, thumbnailPathRetina, thumbnailSize, verbose, lastMediaTimestamp));
 
     if (!updatedMediaFile) {
       ui.debug(`  Skipping ${fileName} because it has already been processed`);
@@ -158,6 +185,7 @@ async function processMediaFile(
     updatedMediaFile.path = mediaFile.path;
     if (updatedMediaFile.thumbnail) {
       updatedMediaFile.thumbnail.path = relativeThumbnailPath;
+      updatedMediaFile.thumbnail.pathRetina = relativeThumbnailRetinaPath;
     }
 
     return updatedMediaFile;
