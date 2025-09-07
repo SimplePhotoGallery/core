@@ -30,7 +30,11 @@ const { title, description, headerImage, metadata, sections, subGalleries, media
       />
     )
   }
-  {sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} mediaBaseUrl={mediaBaseUrl} />)}
+  {
+    sections.map((section, sectionIndex) => (
+      <GallerySection section={section} sectionIndex={sectionIndex} mediaBaseUrl={mediaBaseUrl} />
+    ))
+  }
 
   <PhotoSwipe />
 </MainLayout>

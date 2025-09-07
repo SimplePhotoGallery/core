@@ -34,7 +34,10 @@ const { title, description, subGalleries } = Astro.props;
           <a href={getRelativePath(subgallery.path)} class="sub-galleries__item">
             <div class="sub-galleries__item-image">
               <img
-                src={getSubgalleryThumbnailPath(subgallery.headerImage) || `${DEFAULT_STATIC_ASSETS_PATH}/images/gallery-placeholder.png`}
+                src={
+                  getSubgalleryThumbnailPath(subgallery.headerImage) ||
+                  `${DEFAULT_STATIC_ASSETS_PATH}/images/gallery-placeholder.png`
+                }
                 alt={subgallery.title}
                 loading="lazy"
               />
