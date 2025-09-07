@@ -41,32 +41,17 @@ const validImages = section.images.filter((image) => image.width > 0 && image.he
   }
 
   .gallery-section__gallery {
-    columns: 2;
-    column-gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
     margin-bottom: 1rem;
   }
 
-  @media (min-width: 640px) {
-    .gallery-section__gallery {
-      columns: 3;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .gallery-section__gallery {
-      columns: 4;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .gallery-section__gallery {
-      columns: 5;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .gallery-section__gallery {
-      columns: 6;
-    }
+  .gallery-section__gallery::after {
+    --w: 2;
+    --h: 1;
+    --ratio: calc(var(--w) / var(--h));
+    content: '';
+    flex-basis: calc(var(--ratio) * var(--row-height));
+    flex-grow: 1000000;
   }
 </style>
