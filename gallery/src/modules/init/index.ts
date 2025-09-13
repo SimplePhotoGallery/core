@@ -79,11 +79,13 @@ async function getGallerySettingsFromUser(
     default: '',
     placeholder: '',
   });
-  const headerImage = await ui.prompt('Enter header image', {
+  const headerImageName = await ui.prompt('Enter the name of the header image', {
     type: 'text',
     default: defaultImage,
     placeholder: defaultImage,
   });
+
+  const headerImage = path.join('..', headerImageName);
 
   return { title, description, url, headerImage };
 }
@@ -138,7 +140,7 @@ async function createGalleryJson(
       ...galleryData,
       ...(await getGallerySettingsFromUser(
         path.basename(path.join(galleryDir, '..')),
-        relativeMediaFiles[0]?.path || '',
+        path.basename(mediaFiles[0]?.path || ''),
         ui,
       )),
     };
