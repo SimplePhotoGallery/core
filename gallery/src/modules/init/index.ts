@@ -137,7 +137,7 @@ async function createGalleryJson(
     description: 'My gallery with fantastic photos.',
     headerImage: relativeMediaFiles[0]?.path || '',
     thumbnailSize: 200,
-    metadata: { ogUrl: '' },
+    metadata: {},
     sections: [
       {
         images: relativeMediaFiles,

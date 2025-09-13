@@ -14,8 +14,8 @@ export interface GalleryImage {
 }
 
 export interface GallerySection {
-  title?: string;
-  description?: string;
+  title: string;
+  description: string;
   images: GalleryImage[];
 }
 
@@ -26,14 +26,10 @@ export interface SubGallery {
 }
 
 export interface GalleryMetadata {
-  description?: string;
+  image?: string;
   ogUrl?: string;
-  ogImage?: string;
-  ogImageWidth?: number;
-  ogImageHeight?: number;
   ogType?: string;
   ogSiteName?: string;
-  twitterCard?: string;
   twitterSite?: string;
   twitterCreator?: string;
   author?: string;
