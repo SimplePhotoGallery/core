@@ -14,8 +14,8 @@ export interface GalleryImage {
 }
 
 export interface GallerySection {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   images: GalleryImage[];
 }
 
@@ -27,6 +27,8 @@ export interface SubGallery {
 
 export interface GalleryMetadata {
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   ogUrl?: string;
   ogType?: string;
   ogSiteName?: string;
@@ -41,8 +43,8 @@ export interface GalleryMetadata {
 
 export interface GalleryData {
   title: string;
-  description?: string;
-  outputDir?: string;
+  description: string;
+  url?: string;
   headerImage: string;
   metadata?: GalleryMetadata;
   mediaBaseUrl?: string;

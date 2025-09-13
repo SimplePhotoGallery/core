@@ -37,10 +37,13 @@ export const SubGallerySchema = z.object({
 export const GalleryDataSchema = z.object({
   title: z.string(),
   description: z.string(),
+  url: z.string().optional(),
   headerImage: z.string(),
   thumbnailSize: z.number(),
   metadata: z.object({
     image: z.string().optional(),
+    imageWidth: z.number().optional(),
+    imageHeight: z.number().optional(),
     ogUrl: z.string().optional(),
     ogType: z.string().optional(),
     ogSiteName: z.string().optional(),

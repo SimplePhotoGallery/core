@@ -5,6 +5,8 @@ import process from 'node:process';
 
 import { LogLevels, type ConsolaInstance } from 'consola';
 
+import { createGallerySocialMediaCardImage } from './utils';
+
 import { type GalleryData, GalleryDataSchema } from '../../types';
 import { findGalleries } from '../../utils';
 import { processGalleryThumbnails } from '../thumbnails';
@@ -60,6 +62,18 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
   const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+  const socialMediaCardImagePath = path.join(galleryDir, 'gallery', 'thumbnails', 'social-media-card.jpg');
+
+  // Create the gallery social media card image
+  await createGallerySocialMediaCardImage(
+    path.resolve(path.join(galleryDir, 'gallery'), galleryData.headerImage),
+    galleryData.title,
+    socialMediaCardImagePath,
+    ui,
+  );
+  galleryData.metadata.image =
+    galleryData.metadata.image || `${galleryData.url || ''}/${path.relative(galleryDir, socialMediaCardImagePath)}`;
+  fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 
   // Check if the photos need to be copied. Not needed if the baseUrl is provided.
   if (!baseUrl) {

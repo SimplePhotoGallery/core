@@ -6,10 +6,12 @@ import type { GalleryMetadata } from '@/features/themes/base-theme/types/gallery
 interface Props {
   title: string;
   description?: string;
+  url?: string;
   metadata?: GalleryMetadata;
 }
 
-const { title, description, metadata } = Astro.props;
+const { title, description, url, metadata } = Astro.props;
+
 ---
 
 <head>
@@ -23,7 +25,7 @@ const { title, description, metadata } = Astro.props;
   <meta name="description" content={description} />
   {metadata?.keywords && <meta name="keywords" content={metadata.keywords} />}
   {metadata?.author && <meta name="author" content={metadata.author} />}
-  {metadata?.canonicalUrl && <link rel="canonical" href={metadata.canonicalUrl} />}
+  {metadata?.canonicalUrl || url && <link rel="canonical" href={metadata?.canonicalUrl || url} />}
   {metadata?.robots && <meta name="robots" content={metadata.robots} />}
   {metadata?.language && <meta name="language" content={metadata.language} />}
 
@@ -34,6 +36,8 @@ const { title, description, metadata } = Astro.props;
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   {metadata?.image && <meta property="og:image" content={metadata.image} />}
+  <meta property="og:image:width" content={String(metadata?.imageWidth) || "1200"}/>
+  <meta property="og:image:height" content={String(metadata?.imageHeight) || "631"}/>
   {metadata?.ogType && <meta property="og:type" content={metadata.ogType} />}
   {metadata?.ogUrl && <meta property="og:url" content={metadata.ogUrl} />}
   {metadata?.ogSiteName && <meta property="og:site_name" content={metadata.ogSiteName} />}
@@ -43,6 +47,8 @@ const { title, description, metadata } = Astro.props;
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   {metadata?.image && <meta name="twitter:image" content={metadata.image} />}
+  <meta name="twitter:image:width" content={String(metadata?.imageWidth) || "1200"}/>
+  <meta name="twitter:image:height" content={String(metadata?.imageHeight) || "631"}/>
   {metadata?.twitterSite && <meta name="twitter:site" content={metadata.twitterSite} />}
   {metadata?.twitterCreator && <meta name="twitter:creator" content={metadata.twitterCreator} />}
   
