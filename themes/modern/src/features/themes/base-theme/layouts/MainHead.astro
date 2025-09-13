@@ -1,6 +1,4 @@
 ---
-import { DEFAULT_STATIC_ASSETS_PATH } from '@/config';
-
 import type { GalleryMetadata } from '@/features/themes/base-theme/types/gallery';
 
 interface Props {
@@ -28,9 +26,6 @@ const { title, description, url, metadata } = Astro.props;
   {metadata?.canonicalUrl || url && <link rel="canonical" href={metadata?.canonicalUrl || url} />}
   {metadata?.robots && <meta name="robots" content={metadata.robots} />}
   {metadata?.language && <meta name="language" content={metadata.language} />}
-
-  {/* Favicon */}
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
   {/* Open Graph / Facebook */}
   <meta property="og:title" content={title} />
@@ -69,7 +64,6 @@ const { title, description, url, metadata } = Astro.props;
     })();
   </script>
 
-  <link rel="icon" href={`${DEFAULT_STATIC_ASSETS_PATH}/images/favicon.ico`} sizes="32x32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
