@@ -215,8 +215,8 @@ describe('Single-folder gallery', () => {
           .fn()
           .mockResolvedValueOnce('My Custom Gallery') // title
           .mockResolvedValueOnce('Custom gallery description') // description
-          .mockResolvedValueOnce('img_1.jpg') // headerImage
-          .mockResolvedValueOnce('300'), // thumbnailSize
+          .mockResolvedValueOnce('https://www.mygallery.com') // url
+          .mockResolvedValueOnce('img_1.jpg'), // headerImage
       };
 
       // Run init function directly with mock UI
@@ -235,7 +235,7 @@ describe('Single-folder gallery', () => {
       // Verify custom settings were applied
       expect(validatedData.title).toBe('My Custom Gallery');
       expect(validatedData.description).toBe('Custom gallery description');
-      expect(validatedData.headerImage).toBe('img_1.jpg');
+      expect(validatedData.headerImage).toBe('../img_1.jpg');
     });
   });
 
@@ -328,18 +328,18 @@ describe('Multi-folder gallery', () => {
           // First subgallery prompts (processed first)
           .mockResolvedValueOnce('First Sub Gallery') // title
           .mockResolvedValueOnce('First sub description') // description
+          .mockResolvedValueOnce('') // url
           .mockResolvedValueOnce('img_4.jpg') // headerImage
-          .mockResolvedValueOnce('250') // thumbnailSize
           // Second subgallery prompts (processed second)
           .mockResolvedValueOnce('Second Sub Gallery') // title
           .mockResolvedValueOnce('Second sub description') // description
+          .mockResolvedValueOnce('') // url
           .mockResolvedValueOnce('img_6.jpg') // headerImage
-          .mockResolvedValueOnce('250') // thumbnailSize
           // Main gallery prompts (processed last)
           .mockResolvedValueOnce('Multi Gallery Main') // title
           .mockResolvedValueOnce('Main gallery description') // description
-          .mockResolvedValueOnce('img_1.jpg') // headerImage
-          .mockResolvedValueOnce('250'), // thumbnailSize
+          .mockResolvedValueOnce('') // url
+          .mockResolvedValueOnce('img_1.jpg'), // headerImage
       };
 
       // Run init function directly with mock UI and recursive option
@@ -356,19 +356,19 @@ describe('Multi-folder gallery', () => {
       const mainValidatedData = validateGalleryStructure(mainGalleryPath, 3, 2);
       expect(mainValidatedData.title).toBe('Multi Gallery Main');
       expect(mainValidatedData.description).toBe('Main gallery description');
-      expect(mainValidatedData.headerImage).toBe('img_1.jpg');
+      expect(mainValidatedData.headerImage).toBe('../img_1.jpg');
 
       // Validate first subgallery with custom settings
       const firstValidatedData = validateGalleryStructure(firstGalleryPath, 2, 0);
       expect(firstValidatedData.title).toBe('First Sub Gallery');
       expect(firstValidatedData.description).toBe('First sub description');
-      expect(firstValidatedData.headerImage).toBe('img_4.jpg');
+      expect(firstValidatedData.headerImage).toBe('../img_4.jpg');
 
       // Validate second subgallery with custom settings
       const secondValidatedData = validateGalleryStructure(secondGalleryPath, 2, 0);
       expect(secondValidatedData.title).toBe('Second Sub Gallery');
       expect(secondValidatedData.description).toBe('Second sub description');
-      expect(secondValidatedData.headerImage).toBe('img_6.jpg');
+      expect(secondValidatedData.headerImage).toBe('../img_6.jpg');
     });
   });
 
@@ -474,8 +474,8 @@ describe('Separate gallery directory', () => {
           .fn()
           .mockResolvedValueOnce('Separate Gallery Custom') // title
           .mockResolvedValueOnce('Custom separate gallery description') // description
-          .mockResolvedValueOnce('img_2.jpg') // headerImage
-          .mockResolvedValueOnce('180'), // thumbnailSize
+          .mockResolvedValueOnce('') // url
+          .mockResolvedValueOnce('img_2.jpg'), // headerImage
       };
 
       // Run init function directly with mock UI and separate gallery directory
@@ -499,7 +499,7 @@ describe('Separate gallery directory', () => {
 
       expect(galleryData.title).toBe('Separate Gallery Custom');
       expect(galleryData.description).toBe('Custom separate gallery description');
-      expect(galleryData.headerImage).toBe('img_2.jpg');
+      expect(galleryData.headerImage).toBe('../img_2.jpg');
 
       // Clean up temporary directories
       for (const tempPath of [tempSeparatePhotosPath, tempSeparateGalleryPath]) {
