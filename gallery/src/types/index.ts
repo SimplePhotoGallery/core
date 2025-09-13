@@ -39,7 +39,7 @@ export const GalleryDataSchema = z.object({
   description: z.string(),
   url: z.string().optional(),
   headerImage: z.string(),
-  thumbnailSize: z.number(),
+  thumbnailSize: z.number().optional(),
   metadata: z.object({
     image: z.string().optional(),
     imageWidth: z.number().optional(),
