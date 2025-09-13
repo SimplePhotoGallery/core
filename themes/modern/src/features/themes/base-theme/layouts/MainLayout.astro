@@ -5,15 +5,16 @@ import type { GalleryMetadata } from '@/features/themes/base-theme/types/gallery
 
 interface Props {
   title: string;
+  description?: string;
   metadata?: GalleryMetadata;
 }
 
-const { title, metadata } = Astro.props;
+const { title, description, metadata } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead title={title} metadata={metadata} />
+  <MainHead title={title} description={description} metadata={metadata} />
   <body>
     <slot />
   </body>

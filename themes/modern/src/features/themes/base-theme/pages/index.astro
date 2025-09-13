@@ -19,7 +19,7 @@ const gallery = galleryData as GalleryData;
 const { title, description, headerImage, metadata, sections, subGalleries, mediaBaseUrl } = gallery;
 ---
 
-<MainLayout title={title} metadata={metadata}>
+<MainLayout title={title} description={description} metadata={metadata}>
   <Hero title={title} description={description} backgroundImage={headerImage} mediaBaseUrl={mediaBaseUrl} />
 
   {
