@@ -12,6 +12,7 @@ import {
   getVideoDimensions,
 } from './utils';
 
+import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { GalleryDataSchema, type MediaFile } from '../../types';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 
@@ -216,11 +217,13 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
     const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
 
+    const thumbnailSize = galleryData.thumbnailSize || DEFAULT_THUMBNAIL_SIZE;
+
     // Process all sections and their images
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, galleryData.thumbnailSize, ui);
+        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, thumbnailSize, ui);
       }
 
       processedCount += section.images.length;

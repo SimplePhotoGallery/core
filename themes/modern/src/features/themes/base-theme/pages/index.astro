@@ -16,10 +16,10 @@ const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 
 const gallery = galleryData as GalleryData;
 
-const { title, description, headerImage, metadata, sections, subGalleries, mediaBaseUrl } = gallery;
+const { title, description, headerImage, metadata, sections, subGalleries, mediaBaseUrl, url } = gallery;
 ---
 
-<MainLayout title={title} metadata={metadata}>
+<MainLayout title={title} description={description} metadata={metadata} url={url}>
   <Hero title={title} description={description} backgroundImage={headerImage} mediaBaseUrl={mediaBaseUrl} />
 
   {

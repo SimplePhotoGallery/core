@@ -49,8 +49,8 @@ export interface GallerySettingsFromUser {
   title: string;
   /** Description of the gallery */
   description: string;
+  /** URL of the gallery */
+  url: string;
   /** Path to the header image */
   headerImage: string;
-  /** Size of thumbnails in pixels */
-  thumbnailSize: number;
 }

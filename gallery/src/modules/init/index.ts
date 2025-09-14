@@ -74,33 +74,20 @@ async function getGallerySettingsFromUser(
     default: 'My gallery with fantastic photos.',
     placeholder: 'My gallery with fantastic photos.',
   });
-  const headerImage = await ui.prompt('Enter header image', {
+  const url = await ui.prompt('Enter the URL where the gallery will be hosted (important for social media image)', {
+    type: 'text',
+    default: '',
+    placeholder: '',
+  });
+  const headerImageName = await ui.prompt('Enter the name of the header image', {
     type: 'text',
     default: defaultImage,
     placeholder: defaultImage,
   });
 
-  let thumbnailSize = 300;
-  while (true) {
-    const thumbnailSizeString = await ui.prompt('Enter thumbnail size', {
-      type: 'text',
-      default: '300',
-      placeholder: '300',
-    });
-    thumbnailSize = Number.parseInt(thumbnailSizeString);
+  const headerImage = path.join('..', headerImageName);
 
-    if (Number.isNaN(thumbnailSize)) {
-      ui.error('Invalid thumbnail size');
-      continue;
-    } else if (thumbnailSize < 10 || thumbnailSize > 2000) {
-      ui.error('Thumbnail size must be between 10 and 2000');
-      continue;
-    }
-
-    break;
-  }
-
-  return { title, description, headerImage, thumbnailSize };
+  return { title, description, url, headerImage };
 }
 
 /**
@@ -136,8 +123,7 @@ async function createGalleryJson(
     title: 'My Gallery',
     description: 'My gallery with fantastic photos.',
     headerImage: relativeMediaFiles[0]?.path || '',
-    thumbnailSize: 200,
-    metadata: { ogUrl: '' },
+    metadata: {},
     sections: [
       {
         images: relativeMediaFiles,
@@ -154,7 +140,7 @@ async function createGalleryJson(
       ...galleryData,
       ...(await getGallerySettingsFromUser(
         path.basename(path.join(galleryDir, '..')),
-        relativeMediaFiles[0]?.path || '',
+        path.basename(mediaFiles[0]?.path || ''),
         ui,
       )),
     };
