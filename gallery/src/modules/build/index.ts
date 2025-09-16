@@ -149,7 +149,7 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     // Process each gallery directory
     let totalGalleries = 0;
     for (const dir of galleryDirs) {
-      const baseUrl = options.baseUrl ? `${options.baseUrl}/${path.relative(options.gallery, dir)}` : undefined;
+      const baseUrl = options.baseUrl ? `${options.baseUrl}${path.relative(options.gallery, dir)}` : undefined;
       await buildGallery(path.resolve(dir), themeDir, ui, baseUrl);
 
       ++totalGalleries;
