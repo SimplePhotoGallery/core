@@ -8,9 +8,9 @@ npx simple-photo-gallery build [options]
 
 ## How it works
 
-The command will generate the static HTML gallery from the `gallery.json` file and the linked photos and videos. It will also generate the thumbnails for the photos and videos and a social media image for the gallery.
+The command will generate the static HTML gallery from the `gallery.json` file and the linked photos and videos. It will also generate thumbnails for the photos and videos, as well as a social media image for the gallery.
 
-If you have created the gallery in a different folder than the photos folder, the command will copy the photos and videos to the gallery folder. If you have set the `-b` or `--base-url` option, the command will link to the photos and videos from the external URL instead of copying them.
+If you have created the gallery in a different folder from the photos folder, the command will copy the photos and videos to the gallery folder. If you have set the `-b` or `--base-url` option, the command will link to the photos and videos from the external URL instead of copying them.
 
 ## Options
 
@@ -35,6 +35,6 @@ npx simple-photo-gallery build -g /path/to/gallery
 # Build all galleries recursively
 npx simple-photo-gallery build -r
 
-# Build with external base URL (no photo copying) - this is useful if you want to host the photos separately from the gallery
+# Build with external base URL (no photo copying) - useful for hosting photos separately from the gallery
 npx simple-photo-gallery build -b https://photos.example.com/
 ```

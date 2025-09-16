@@ -1,6 +1,6 @@
 # Simple Photo Gallery
 
-Create beautiful photo galleries that tell a story in 30 seconds. No configuration needed to get started - just run two commands in your photos folder.
+Create beautiful photo galleries that tell a story in just 30 seconds. No configuration required to get started—simply run two commands in your photos folder.
 
 ## Quick Start
 
@@ -13,10 +13,10 @@ npx simple-photo-gallery build
 
 This will:
 
-1. Ask you about your gallery title, description, and header image
+1. Prompt you for your gallery title, description, and header image
 2. Scan your photos and create a `gallery.json` file
 3. Generate optimized thumbnails
-4. Build a static HTML gallery you can open in your browser and self-host
+4. Build a static HTML gallery that you can open in your browser and self-host
 
 ## Installation Requirements
 
@@ -28,11 +28,15 @@ This will:
 
 ## Detailed Documentation
 
-For advanced usage, customization, and deployment options, see the [docs](./docs/) folder:
+For advanced usage, customization, and deployment options, see the comprehensive [documentation](./docs/README.md):
 
-- **[Commands](./docs/commands)** - Detailed guide for all CLI commands
-- **[Gallery Configuration](./docs/configuration.md)** - Manual editing of the `gallery.json` file and enabling advanced features like sections
-- **[Deployment](./docs/deployment.md)** - Guildelines for hosting your gallery
+- **[Commands Reference](./docs/commands/README.md)** - Detailed guide for all CLI commands
+  - [`init`](./docs/commands/init.md) - Initialize new galleries
+  - [`build`](./docs/commands/build.md) - Generate static HTML galleries
+  - [`thumbnails`](./docs/commands/thumbnails.md) - Generate optimized thumbnails
+  - [`clean`](./docs/commands/clean.md) - Remove gallery files
+- **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
+- **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
 
 ## Supported Formats
 
@@ -41,4 +45,4 @@ For advanced usage, customization, and deployment options, see the [docs](./docs
 
 ## License
 
-MIT - see [LICENSE](./LICENSE) file.
+Simple Photo Gallery is licensed under the MIT License - see [LICENSE](./LICENSE) file for details.

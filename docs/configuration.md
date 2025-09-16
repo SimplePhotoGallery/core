@@ -1,12 +1,14 @@
 # Gallery Configuration
 
-The `gallery.json` file controls your gallery's structure, metadata, and organization. This file is created by the `init` command but can be manually edited for advanced customization.
+The `gallery.json` file controls your gallery's structure, metadata, and organization. This file is created by the [`init` command](./commands/init.md) but can be manually edited for advanced customization.
 
-This page contains explanation on how to use the advanced configuration options.
+This page explains how to use the advanced configuration options.
+
+> **See also:** [Commands Reference](./commands/README.md) | [Deployment Guide](./deployment.md) | [Main Documentation](./README.md)
 
 ## Site metadata
 
-The site metadata is used by search engines and social media platforms to get structured data for your site and display a nice looking card. Simple Photo Gallery already automated part of that by setting the title and decription of the gallery and generating a social media card from the header image.
+The site metadata is used by search engines and social media platforms to get structured data for your site and display a nice-looking card. Simple Photo Gallery has already automated part of this by setting the title and description of the gallery and generating a social media card from the header image.
 
 However, you may want to add some more information using the following parameters:
 
@@ -29,7 +31,7 @@ Additionally, the following parameters are automatically generated, but you can 
 
 ## Sections
 
-The sections can be used to group your photos into groups with their own title and description. This is useful if you have a large gallery and you want to split it into smaller sections.
+Sections can be used to group your photos with their own titles and descriptions. This is useful if you have a large gallery and want to split it into smaller sections.
 
 The `sections` array can be used to define the sections of the gallery. Each section object can have the following properties:
 
@@ -41,14 +43,14 @@ You will usually initialize the gallery with the `init` command to scan all the 
 
 ## Sub-galleries
 
-Sub-galleries are links to other galleries, typically subdirectories of the photos folder. They are used to create a navigation between the galleries and subgallries.
+Sub-galleries are links to other galleries, typically located in subdirectories of the photos folder. They are used to create navigation between galleries and sub-galleries.
 
-Subgalleries are generated automatically when you initialize the gallery in the top most folder with the `-r` or `--recursive` flag. After that you can edit `subGalleries` attribute in the `gallery.json` file if you want to use different titles or images for the links.
+Sub-galleries are generated automatically when you initialize the gallery in the top-level folder with the `-r` or `--recursive` flag. After that, you can edit the `subGalleries` attribute in the `gallery.json` file if you want to use different titles or images for the links.
 
 ## Captions
 
-When displaying photos and videos in full screen, you can show captions on the bottom. The captions are automatically extracted from the EXIF data of the photos if you used some tool to add them. If not, you can add them manually in the `gallery.json` file using the `alt` attribute of each image or video.
+When displaying photos and videos in full screen, you can show captions at the bottom. The captions are automatically extracted from the EXIF data of the photos if you used a tool to add them. If not, you can add them manually in the `gallery.json` file using the `alt` attribute of each image or video.
 
 ## Thumbnail size
 
-Thumbnails will automatically be generated using sized that fit the theme (300px heigh and 600px height for retina displays). If you want you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
+Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.

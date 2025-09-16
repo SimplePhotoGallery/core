@@ -8,15 +8,15 @@ npx simple-photo-gallery thumbnails [options]
 
 ## How it works
 
-The command will go through all media files and generate thumbnails with suitable resolutions for the gallery and will also update the `gallery.json` file with the new thumbnail paths.
+The command will go through all media files and generate thumbnails with suitable resolutions for the gallery. It will also update the `gallery.json` file with the new thumbnail paths.
 
 Thumbnails for videos require FFmpeg to be installed so it can extract the first frame of the video. You can install it via:
 
-- macOS: `brew install ffmpeg`
-- Ubuntu/Debian: `sudo apt install ffmpeg`
-- Windows: [Download from ffmpeg.org](https://ffmpeg.org/download.html)
+- **macOS:** `brew install ffmpeg`
+- **Ubuntu/Debian:** `sudo apt install ffmpeg`
+- **Windows:** [Download from ffmpeg.org](https://ffmpeg.org/download.html)
 
-> Note: usually you don't need to run this command manually as it is run automatically when you run the `simple-photo-gallery build` command.
+> **Note:** Usually you don't need to run this command manually, as it runs automatically when you execute the [`simple-photo-gallery build`](./build.md) command.
 
 ## Options
 
