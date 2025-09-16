@@ -30,8 +30,8 @@ This will:
 
 For advanced usage, customization, and deployment options, see the [docs](./docs/) folder:
 
-- **[Commands](./docs/commands.md)** - Detailed guide for all CLI commands
-- **[Gallery Configuration](./docs/gallery-json.md)** - Manual editing of the `gallery.json` file and enabling advanced features like sections
+- **[Commands](./docs/commands)** - Detailed guide for all CLI commands
+- **[Gallery Configuration](./docs/configuration.md)** - Manual editing of the `gallery.json` file and enabling advanced features like sections
 - **[Deployment](./docs/deployment.md)** - Guildelines for hosting your gallery
 
 ## Supported Formats

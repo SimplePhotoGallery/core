@@ -59,7 +59,7 @@ This is the simplest option and will copy all photos in the gallery folder to th
 
 If you want to avoid copying the photos to the gallery folder, you can tell simple photo gallery the URL where they are uploaded and upload them separately from the gallery. For this you can use the `-b` or `--base-url` option in the `simple-photo-gallery build` command.
 
-This is especially useful for large galleries as static page hosting providers often have a limit on the size of the files you can upload. In this case, you can upload the photos to some kind of bucket storage that doesn't support hosting sites like for example Cloudflare R2, AWS S3 or DigitalOcean Spaces, while you keep hosting the gallery itself on another provider like Cloudflare Pages, GitHub Pages, Vercel or Netlify.
+This is especially useful for large galleries as static page hosting providers often have a limit on the size of the files you can upload. In this case, you can upload the photos to some kind of bucket storage that doesn't support hosting sites like for example [Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/), [AWS S3](https://aws.amazon.com/s3/) or [DigitalOcean Spaces](https://www.digitalocean.com/products/spaces), while you keep hosting the gallery itself on another provider like [Cloudflare Pages](https://pages.cloudflare.com/), [GitHub Pages](https://pages.github.com/), [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/).
 
 Keep in mind that the local files will be used when scanning the photos and when generating the thumbnails. The URL where they are hosted will only be used to link to them in the gallery.
 
