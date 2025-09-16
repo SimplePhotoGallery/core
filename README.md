@@ -33,7 +33,6 @@ For advanced usage, customization, and deployment options, see the [docs](./docs
 - **[Commands](./docs/commands.md)** - Detailed guide for all CLI commands
 - **[Gallery Configuration](./docs/gallery-json.md)** - Manual editing of the `gallery.json` file and enabling advanced features like sections
 - **[Deployment](./docs/deployment.md)** - Guildelines for hosting your gallery
-- **[Examples](./docs/examples.md)** - Copy-paste examples for common setups
 
 ## Supported Formats
 

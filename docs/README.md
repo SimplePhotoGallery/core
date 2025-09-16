@@ -1,11 +1,9 @@
 # Documentation
 
-Complete documentation for Simple Photo Gallery CLI.
+Complete documentation for the Simple Photo Gallery CLI tool.
 
-## Getting Started
-- **[Quick Examples](./examples.md)** - Copy-paste examples to get started fast
+## Reference
 
-## Reference 
 - **[Commands](./commands.md)** - All CLI commands and options
 - **[Gallery Configuration](./gallery-json.md)** - Manual editing of gallery.json
 - **[Deployment](./deployment.md)** - Hosting and deployment options
@@ -18,6 +16,7 @@ Complete documentation for Simple Photo Gallery CLI.
 
 ## Contributing
 
-Found an issue or want to improve the docs? 
+Found an issue or want to improve the docs?
+
 - Open an issue in the [GitHub repository](https://github.com/SimplePhotoGallery/core)
 - Submit a pull request with documentation improvements
