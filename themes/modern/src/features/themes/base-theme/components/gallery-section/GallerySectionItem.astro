@@ -18,7 +18,7 @@ const { image, mediaBaseUrl } = Astro.props;
   data-pswp-width={image.width}
   data-pswp-height={image.height}
   data-pswp-type={image.type}
-  data-pswp-caption={image.description ? `<p class="image-caption">${image.description}</p>` : ''}
+  data-pswp-caption={image.alt ? `<p class="image-caption">${image.alt}</p>` : ''}
   style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
   <img
     src={getRelativePath(image.thumbnail?.path)}

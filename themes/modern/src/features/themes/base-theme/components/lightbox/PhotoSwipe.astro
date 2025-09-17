@@ -39,7 +39,7 @@
           let captionHTML = '';
           if (currSlideElement) {
             const caption = currSlideElement?.getAttribute('data-pswp-caption');
-            captionHTML = caption ?? currSlideElement?.querySelector('img')?.getAttribute('alt') ?? '';
+            captionHTML = caption || currSlideElement?.querySelector('img')?.getAttribute('alt') || '';
             el.innerHTML = captionHTML || '';
           }
         });
@@ -81,33 +81,19 @@
   }
 
   .pswp__caption .image-caption {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    background: rgba(128, 128, 128, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: white;
     padding: 16px;
     border-radius: 16px;
     margin: 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    animation: glassSlideIn 0.6s ease-out;
-    transform-origin: bottom center;
-    transition: all 0.3s ease;
     @media (max-width: 768px) {
       padding: 8px 16px;
       font-size: 0.8rem;
       margin: 8px 0;
-    }
-  }
-
-  @keyframes glassSlideIn {
-    0% {
-      opacity: 0;
-      transform: translateY(20px) scale(0.95);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
     }
   }
 
