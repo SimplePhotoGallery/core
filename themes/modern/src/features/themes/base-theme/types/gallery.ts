@@ -1,7 +1,6 @@
 export interface GalleryImage {
   path: string;
   alt?: string;
-  description?: string;
   width: number;
   height: number;
   type: 'image' | 'video';
