@@ -40,10 +40,11 @@ npx simple-photo-gallery build
 
 This will:
 
-1. Prompt you for your gallery title, description, and header image
-2. Scan your photos and create a `gallery.json` file
-3. Generate optimized thumbnails
-4. Build a static HTML gallery that you can open in your browser and self-host
+1. Install the [simple-photo-gallery](https://www.npmjs.com/package/simple-photo-gallery) package from NPM (if you don't already have it)
+2. Prompt you for your gallery title, description, and header image
+3. Scan your photos and create a `gallery.json` file
+4. Generate optimized thumbnails
+5. Build a static HTML gallery that you can open in your browser and self-host
 
 ## Installation Requirements
 
