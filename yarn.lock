@@ -1652,7 +1652,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simple-photo-gallery/theme-modern@npm:0.0.1, @simple-photo-gallery/theme-modern@workspace:themes/modern":
+"@simple-photo-gallery/theme-modern@npm:0.0.1":
+  version: 0.0.1
+  resolution: "@simple-photo-gallery/theme-modern@npm:0.0.1"
+  dependencies:
+    "@types/photoswipe": "npm:^4.1.6"
+    astro: "npm:^5.11.0"
+    astro-relative-links: "npm:^0.4.2"
+    photoswipe: "npm:^5.4.4"
+  checksum: 10c0/579c3e656f6037c57f92543ddea3d295df8dd5c9d3832c768aebd6730963575e622d25390d155e48bfdaa2c752ec5fb3fd299294e80624f0982560c5c177e02a
+  languageName: node
+  linkType: hard
+
+"@simple-photo-gallery/theme-modern@workspace:themes/modern":
   version: 0.0.0-use.local
   resolution: "@simple-photo-gallery/theme-modern@workspace:themes/modern"
   dependencies:
