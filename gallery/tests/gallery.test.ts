@@ -91,9 +91,8 @@ function validateBaseUrlGallery(galleryPath: string, baseUrl: string, expectedIm
   expect(() => GalleryDataSchema.parse(galleryData)).not.toThrow();
   const validatedData = GalleryDataSchema.parse(galleryData);
 
-  // Check that mediaBaseUrl is set (build process adds trailing slash)
-  const expectedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  expect(validatedData.mediaBaseUrl).toBe(expectedBaseUrl);
+  // Check that mediaBaseUrl is set
+  expect(validatedData.mediaBaseUrl).toBe(baseUrl);
 
   // Check image count
   expect(validatedData.sections).toHaveLength(1);
