@@ -70,6 +70,10 @@ For advanced usage, customization, and deployment options, see the comprehensive
 - **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
 - **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
 
+## Python Version
+
+The old Python version of Simple Photo Gallery V1 is still available [here](https://github.com/haltakov/simple-photo-gallery), but is now deprecated.
+
 ## License
 
 Simple Photo Gallery is licensed under the MIT License - see [LICENSE](./LICENSE) file for details.
