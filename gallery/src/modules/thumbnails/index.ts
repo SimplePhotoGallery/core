@@ -57,7 +57,7 @@ async function processImage(
   }
 
   // Get the image description
-  const description = await getImageDescription(metadata);
+  const description = await getImageDescription(imagePath);
 
   // Create the thumbnails
   const thumbnailDimensions = await createImageThumbnails(

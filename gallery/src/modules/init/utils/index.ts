@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from '../const';
+import { IMAGE_EXTENSIONS, VIDEO_EXTENSIONS } from '../../../config';
 
 import type { MediaFileType } from '../types';
 

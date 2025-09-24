@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 
-import exifReader from 'exif-reader';
+import ExifReader from 'exifreader';
 import ffprobe from 'node-ffprobe';
 import sharp from 'sharp';
 
@@ -35,24 +35,40 @@ async function resizeAndSaveThumbnail(image: Sharp, outputPath: string, width: n
  * @param metadata - Sharp metadata object containing EXIF data
  * @returns Promise resolving to image description or undefined if not found
  */
-export async function getImageDescription(metadata: Metadata): Promise<string | undefined> {
-  let description: string | undefined;
+export async function getImageDescription(imagePath: string): Promise<string | undefined> {
+  try {
+    const tags = await ExifReader.load(imagePath);
 
-  // Extract description from EXIF data
-  if (metadata.exif) {
-    try {
-      const exifData = exifReader(metadata.exif);
-      if (exifData.Image?.ImageDescription) {
-        description = exifData.Image.ImageDescription.toString();
-      } else if (exifData.Image?.Description) {
-        description = exifData.Image.Description.toString();
-      }
-    } catch {
-      // EXIF parsing failed, but that's OK
+    // Description
+    if (tags.description?.description) return tags.description.description;
+
+    // ImageDescription
+    if (tags.ImageDescription?.description) return tags.ImageDescription.description;
+
+    // UserComment
+    if (
+      tags.UserComment &&
+      typeof tags.UserComment === 'object' &&
+      tags.UserComment !== null &&
+      'description' in tags.UserComment
+    ) {
+      return (tags.UserComment as { description: string }).description;
     }
-  }
 
-  return description;
+    // ExtDescrAccessibility
+    if (tags.ExtDescrAccessibility?.description) return tags.ExtDescrAccessibility.description;
+
+    // Caption/Abstract
+    if (tags['Caption/Abstract']?.description) return tags['Caption/Abstract'].description;
+
+    // XP Title
+    if (tags.XPTitle?.description) return tags.XPTitle.description;
+
+    // XP Comment
+    if (tags.XPComment?.description) return tags.XPComment.description;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
