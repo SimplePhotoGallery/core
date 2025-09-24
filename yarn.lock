@@ -1652,19 +1652,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simple-photo-gallery/theme-modern@npm:0.0.1":
-  version: 0.0.1
-  resolution: "@simple-photo-gallery/theme-modern@npm:0.0.1"
-  dependencies:
-    "@types/photoswipe": "npm:^4.1.6"
-    astro: "npm:^5.11.0"
-    astro-relative-links: "npm:^0.4.2"
-    photoswipe: "npm:^5.4.4"
-  checksum: 10c0/579c3e656f6037c57f92543ddea3d295df8dd5c9d3832c768aebd6730963575e622d25390d155e48bfdaa2c752ec5fb3fd299294e80624f0982560c5c177e02a
-  languageName: node
-  linkType: hard
-
-"@simple-photo-gallery/theme-modern@workspace:themes/modern":
+"@simple-photo-gallery/theme-modern@npm:2.0.0, @simple-photo-gallery/theme-modern@workspace:themes/modern":
   version: 0.0.0-use.local
   resolution: "@simple-photo-gallery/theme-modern@workspace:themes/modern"
   dependencies:
@@ -2230,6 +2218,13 @@ __metadata:
   version: 1.11.1
   resolution: "@unrs/resolver-binding-win32-x64-msvc@npm:1.11.1"
   conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@xmldom/xmldom@npm:^0.9.4":
+  version: 0.9.8
+  resolution: "@xmldom/xmldom@npm:0.9.8"
+  checksum: 10c0/2ea984270832de2843ab0bbb6df71bde9aa02126b69e5fd56b5512b98ace48e94aff7186e77d0b22fe4b6780483862be752bcf8577436638a9210109029a0503
   languageName: node
   linkType: hard
 
@@ -4154,10 +4149,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exif-reader@npm:^2.0.1":
-  version: 2.0.2
-  resolution: "exif-reader@npm:2.0.2"
-  checksum: 10c0/f1080ea4ecca5aafa8151385b12a5e4205413e15ede4022e0edd3132d02aeb158eb8e2272d288a89f8078cc3dd036e75151c9d218a095404eb53b359f814913b
+"exifreader@npm:^4.32.0":
+  version: 4.32.0
+  resolution: "exifreader@npm:4.32.0"
+  dependencies:
+    "@xmldom/xmldom": "npm:^0.9.4"
+  dependenciesMeta:
+    "@xmldom/xmldom":
+      optional: true
+  checksum: 10c0/1074664b92209659b49ff3295fc2c11fd4fd502aa8cbb2bedc962cb70323a0acec143fdfe16f8c546aade9f8ab6720c0ff1dfabcd3fe52bb9d068c5a26c0e58b
   languageName: node
   linkType: hard
 
@@ -8317,7 +8317,7 @@ __metadata:
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:^9.30.1"
-    "@simple-photo-gallery/theme-modern": "npm:0.0.1"
+    "@simple-photo-gallery/theme-modern": "npm:2.0.0"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^30.0.0"
     "@types/node": "npm:^24.0.10"
@@ -8332,7 +8332,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.31.0"
     eslint-plugin-prettier: "npm:^5.5.1"
     eslint-plugin-unicorn: "npm:^59.0.1"
-    exif-reader: "npm:^2.0.1"
+    exifreader: "npm:^4.32.0"
     fs-extra: "npm:^11.3.0"
     jest: "npm:^30.0.5"
     node-ffprobe: "npm:^3.0.0"
