@@ -163,9 +163,9 @@ async function processMediaFile(
 
     const fileName = path.basename(filePath);
     const fileNameWithoutExt = path.parse(fileName).name;
-    const thumbnailFileName = `${fileNameWithoutExt}.jpg`;
+    const thumbnailFileName = `${fileNameWithoutExt}.avif`;
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
-    const thumbnailPathRetina = thumbnailPath.replace('.jpg', '@2x.jpg');
+    const thumbnailPathRetina = thumbnailPath.replace('.avif', '@2x.avif');
     const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
     const relativeThumbnailRetinaPath = path.relative(galleryJsonDir, thumbnailPathRetina);
 

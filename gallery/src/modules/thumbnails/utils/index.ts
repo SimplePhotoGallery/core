@@ -27,7 +27,7 @@ export async function getFileMtime(filePath: string): Promise<Date> {
  * @param height - Target height for thumbnail
  */
 async function resizeAndSaveThumbnail(image: Sharp, outputPath: string, width: number, height: number): Promise<void> {
-  await image.resize(width, height, { withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(outputPath);
+  await image.resize(width, height, { withoutEnlargement: true }).avif().toFile(outputPath);
 }
 
 /**
@@ -77,7 +77,7 @@ export async function getImageDescription(imagePath: string): Promise<string | u
  * @param metadata - Image metadata containing dimensions
  * @param outputPath - Path where thumbnail should be saved
  * @param outputPathRetina - Path where retina thumbnail should be saved
- * @param height - Target height for thumbnail
+ * @param size - Target size of the longer side of the thumbnail
  * @returns Promise resolving to thumbnail dimensions
  */
 export async function createImageThumbnails(
@@ -85,7 +85,7 @@ export async function createImageThumbnails(
   metadata: Metadata,
   outputPath: string,
   outputPathRetina: string,
-  height: number,
+  size: number,
 ): Promise<Dimensions> {
   // Create thumbnail using sharp
   const originalWidth = metadata.width || 0;
@@ -95,9 +95,19 @@ export async function createImageThumbnails(
     throw new Error('Invalid image dimensions');
   }
 
-  // Calculate width maintaining aspect ratio
+  // Calculate the new size maintaining aspect ratio
   const aspectRatio = originalWidth / originalHeight;
-  const width = Math.round(height * aspectRatio);
+
+  let width: number;
+  let height: number;
+
+  if (originalWidth > originalHeight) {
+    width = size;
+    height = Math.round(size / aspectRatio);
+  } else {
+    width = Math.round(size * aspectRatio);
+    height = size;
+  }
 
   // Resize the image and create the thumbnails
   await resizeAndSaveThumbnail(image, outputPath, width, height);
