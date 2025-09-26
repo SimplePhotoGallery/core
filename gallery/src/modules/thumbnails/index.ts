@@ -13,7 +13,7 @@ import {
 } from './utils';
 
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
-import { GalleryDataSchema, type MediaFile } from '../../types';
+import { GalleryDataSchema, type MediaFile } from '../../types/gallery';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 
 import type { ThumbnailOptions } from './types';

@@ -6,7 +6,7 @@ import process from 'node:process';
 import { copySync } from 'fs-extra';
 
 import { init } from '../src/modules/init';
-import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '../src/types';
+import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '../src/types/gallery';
 
 import type { ConsolaInstance } from 'consola';
 

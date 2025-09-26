@@ -1,4 +1,4 @@
-import type { MediaFile } from '../../../types';
+import type { MediaFile } from '../../../types/gallery';
 
 /** Type for media file types supported by the gallery */
 export type MediaFileType = 'image' | 'video';
