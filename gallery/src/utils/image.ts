@@ -1,7 +1,7 @@
 import ExifReader from 'exifreader';
 
 import type { Dimensions } from '../types';
-import type { Metadata, Sharp } from 'sharp';
+import type { FormatEnum, Metadata, Sharp } from 'sharp';
 
 /**
  * Utility function to resize and save thumbnail using Sharp. The functions avoids upscaling the image and only reduces the size if necessary.
@@ -10,19 +10,15 @@ import type { Metadata, Sharp } from 'sharp';
  * @param width - Target width for thumbnail
  * @param height - Target height for thumbnail
  */
-export async function resizeImage(image: Sharp, outputPath: string, width: number, height: number): Promise<void> {
-  // Avoid upscaling the image
-  const metadata = await image.metadata();
-  const originalWidth = metadata.width || 0;
-  const originalHeight = metadata.height || 0;
-
-  if (originalWidth <= width || originalHeight <= height) {
-    width = originalWidth;
-    height = originalHeight;
-  }
-
-  // Resize the image
-  await image.resize(width, height, { withoutEnlargement: true }).avif().toFile(outputPath);
+export async function resizeImage(
+  image: Sharp,
+  outputPath: string,
+  width: number,
+  height: number,
+  format: keyof FormatEnum = 'avif',
+): Promise<void> {
+  // Resize the image without enlarging it
+  await image.resize(width, height, { withoutEnlargement: true }).toFormat(format).toFile(outputPath);
 }
 
 /**
@@ -32,48 +28,20 @@ export async function resizeImage(image: Sharp, outputPath: string, width: numbe
  * @param width - Target width for the image
  * @param height - Target height for the image
  */
-export async function cropAndResizeImage(image: Sharp, outputPath: string, width: number, height: number): Promise<void> {
-  // Get original image metadata
-  const metadata = await image.metadata();
-  const originalWidth = metadata.width || 0;
-  const originalHeight = metadata.height || 0;
-
-  // Calculate target aspect ratio
-  const targetAspectRatio = width / height;
-  const originalAspectRatio = originalWidth / originalHeight;
-
-  // Determine crop dimensions to match target aspect ratio
-  let cropWidth: number;
-  let cropHeight: number;
-
-  if (originalAspectRatio > targetAspectRatio) {
-    // Original is wider, crop width
-    cropHeight = originalHeight;
-    cropWidth = Math.round(originalHeight * targetAspectRatio);
-  } else {
-    // Original is taller, crop height
-    cropWidth = originalWidth;
-    cropHeight = Math.round(originalWidth / targetAspectRatio);
-  }
-
-  // Calculate crop position (center crop)
-  const left = Math.round((originalWidth - cropWidth) / 2);
-  const top = Math.round((originalHeight - cropHeight) / 2);
-
-  // Determine final dimensions (don't enlarge)
-  let finalWidth = width;
-  let finalHeight = height;
-
-  if (cropWidth < width || cropHeight < height) {
-    finalWidth = cropWidth;
-    finalHeight = cropHeight;
-  }
-
-  // Apply crop and resize
+export async function cropAndResizeImage(
+  image: Sharp,
+  outputPath: string,
+  width: number,
+  height: number,
+  format: keyof FormatEnum = 'avif',
+): Promise<void> {
+  // Apply resize with cover fit and without enlargement
   await image
-    .extract({ left, top, width: cropWidth, height: cropHeight })
-    .resize(finalWidth, finalHeight, { withoutEnlargement: true })
-    .avif()
+    .resize(width, height, {
+      fit: 'cover',
+      withoutEnlargement: true,
+    })
+    .toFormat(format)
     .toFile(outputPath);
 }
 

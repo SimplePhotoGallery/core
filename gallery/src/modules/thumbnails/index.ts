@@ -4,17 +4,13 @@ import path from 'node:path';
 import { LogLevels, type ConsolaInstance } from 'consola';
 import sharp from 'sharp';
 
-import {
-  createImageThumbnails,
-  createVideoThumbnails,
-  getImageDescription,
-  getFileMtime,
-  getVideoDimensions,
-} from './utils';
+import { getFileMtime } from './utils';
 
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { GalleryDataSchema, type MediaFile } from '../../types/gallery';
 import { findGalleries, handleFileProcessingError } from '../../utils';
+import { getImageDescription, createImageThumbnails } from '../../utils/image';
+import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
 
@@ -205,7 +201,7 @@ async function processMediaFile(
  */
 export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaInstance): Promise<number> {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
+  const thumbnailsPath = path.join(galleryDir, 'gallery', 'images');
 
   ui.start(`Creating thumbnails: ${galleryDir}`);
 
