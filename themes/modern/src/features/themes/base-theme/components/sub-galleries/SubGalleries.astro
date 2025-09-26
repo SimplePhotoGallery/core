@@ -1,5 +1,4 @@
 ---
-import { DEFAULT_STATIC_ASSETS_PATH } from '@/config';
 import Container from '@/features/themes/base-theme/components/container/Container.astro';
 import { getRelativePath, getSubgalleryThumbnailPath } from '@/features/themes/base-theme/utils';
 
@@ -33,14 +32,7 @@ const { title, description, subGalleries } = Astro.props;
         subGalleries.map((subgallery) => (
           <a href={getRelativePath(subgallery.path)} class="sub-galleries__item">
             <div class="sub-galleries__item-image">
-              <img
-                src={
-                  getSubgalleryThumbnailPath(subgallery.headerImage) ||
-                  `${DEFAULT_STATIC_ASSETS_PATH}/images/gallery-placeholder.png`
-                }
-                alt={subgallery.title}
-                loading="lazy"
-              />
+              <img src={getSubgalleryThumbnailPath(subgallery.headerImage)} alt={subgallery.title} loading="lazy" />
             </div>
             <div class="sub-galleries__item-content">
               <h3 class="sub-galleries__item-title">{subgallery.title}</h3>
