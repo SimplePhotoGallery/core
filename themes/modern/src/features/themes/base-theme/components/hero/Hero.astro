@@ -13,10 +13,10 @@ const { title, description, backgroundImage, mediaBaseUrl } = Astro.props;
 ---
 
 <section class="hero">
-  <div
-    class="hero__bg"
-    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${getPhotoPath(backgroundImage, mediaBaseUrl)}')`}>
-  </div>
+  <picture class="hero__bg">
+    <img src={getPhotoPath(backgroundImage, mediaBaseUrl)} alt={title} />
+  </picture>
+  <div class="hero__overlay"></div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>
     {description && <p class="hero__description">{description}</p>}
@@ -41,9 +41,23 @@ const { title, description, backgroundImage, mediaBaseUrl } = Astro.props;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  }
+
+  .hero__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 5;
   }
 
   .hero__content {
