@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { getImageDescription } from '../src/modules/thumbnails/utils';
+import { getImageDescription } from '../src/utils/image';
 
 const fixturesPath = path.resolve(process.cwd(), 'tests', 'fixtures', 'images');
 
