@@ -27,6 +27,7 @@
     "check": "npm run lint && npm run format"
   },
   "dependencies": {
+    "@simple-photo-gallery/common": "workspace:*",
     "@types/photoswipe": "^4.1.6",
     "astro": "^5.11.0",
     "astro-relative-links": "^0.4.2",

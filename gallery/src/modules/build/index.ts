@@ -7,7 +7,7 @@ import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { createGallerySocialMediaCardImage } from './utils';
 
-import { type GalleryData, GalleryDataSchema } from '../../types';
+import { type GalleryData, GalleryDataSchema } from '@simple-photo-gallery/common';
 import { findGalleries } from '../../utils';
 import { processGalleryThumbnails } from '../thumbnails';
 

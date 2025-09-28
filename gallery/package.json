@@ -27,6 +27,7 @@
     "prepublish": "npm run build"
   },
   "dependencies": {
+    "@simple-photo-gallery/common": "workspace:*",
     "@simple-photo-gallery/theme-modern": "2.0.0",
     "commander": "^12.0.0",
     "consola": "^3.4.2",

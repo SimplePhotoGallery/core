@@ -1,0 +1,37 @@
+{
+  "name": "@simple-photo-gallery/common",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for Simple Photo Gallery",
+  "license": "MIT",
+  "author": "Vladimir Haltakov, Tomasz Rusin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimplePhotoGallery/core"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./Gallery": {
+      "types": "./dist/Gallery.d.ts",
+      "default": "./dist/Gallery.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4.0.14"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

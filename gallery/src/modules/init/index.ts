@@ -4,7 +4,7 @@ import path from 'node:path';
 import { capitalizeTitle, getMediaFileType } from './utils';
 
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
-import type { MediaFile } from '../../types';
+import type { MediaFile } from '@simple-photo-gallery/common';
 import type { ConsolaInstance } from 'consola';
 
 /**

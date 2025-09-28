@@ -1,7 +1,7 @@
 ---
 import { getPhotoPath, getRelativePath } from '@/features/themes/base-theme/utils';
 
-import type { GalleryImage } from '@/features/themes/base-theme/types/gallery';
+import type { GalleryImage } from '@simple-photo-gallery/common';
 
 interface Props {
   image: GalleryImage;
@@ -9,6 +9,13 @@ interface Props {
 }
 
 const { image, mediaBaseUrl } = Astro.props;
+
+const fallbackImagePath = getPhotoPath(image.path, mediaBaseUrl);
+const thumbnailPath = image.thumbnail?.path ? getRelativePath(image.thumbnail.path) : fallbackImagePath;
+const thumbnailRetinaPath =
+  image.thumbnail?.pathRetina ? getRelativePath(image.thumbnail.pathRetina) : undefined;
+const thumbnailWidth = image.thumbnail?.width ?? image.width;
+const thumbnailHeight = image.thumbnail?.height ?? image.height;
 ---
 
 <a
@@ -19,14 +26,14 @@ const { image, mediaBaseUrl } = Astro.props;
   data-pswp-height={image.height}
   data-pswp-type={image.type}
   data-pswp-caption={image.alt ? `<p class="image-caption">${image.alt}</p>` : ''}
-  style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
+  style={`--w: ${thumbnailWidth}; --h: ${thumbnailHeight}`}>
   <img
-    src={getRelativePath(image.thumbnail?.path)}
-    srcset={`${getRelativePath(image.thumbnail?.path)} 1x, ${getRelativePath(image.thumbnail?.pathRetina)} 2x`}
+    src={thumbnailPath}
+    srcset={thumbnailRetinaPath ? `${thumbnailPath} 1x, ${thumbnailRetinaPath} 2x` : undefined}
     alt={image.alt}
     loading="lazy"
-    width={image.thumbnail?.width}
-    height={image.thumbnail?.height}
+    width={thumbnailWidth}
+    height={thumbnailHeight}
   />
 </a>
 
