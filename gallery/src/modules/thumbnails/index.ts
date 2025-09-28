@@ -9,6 +9,7 @@ import { getFileMtime } from './utils';
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { GalleryDataSchema, type MediaFile } from '../../types/gallery';
 import { findGalleries, handleFileProcessingError } from '../../utils';
+import { generateBlurHash } from '../../utils/blurhash';
 import { getImageDescription, createImageThumbnails } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
@@ -64,6 +65,9 @@ async function processImage(
     thumbnailSize,
   );
 
+  // Generate BlurHash from the thumbnail
+  const blurHash = await generateBlurHash(thumbnailPath);
+
   // Return the updated media file
   return {
     type: 'image',
@@ -76,6 +80,7 @@ async function processImage(
       pathRetina: thumbnailPathRetina,
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
+      blurHash,
     },
     lastMediaTimestamp: fileMtime.toISOString(),
   };
@@ -120,6 +125,9 @@ async function processVideo(
     verbose,
   );
 
+  // Generate BlurHash from the thumbnail
+  const blurHash = await generateBlurHash(thumbnailPath);
+
   return {
     type: 'video',
     path: videoPath,
@@ -131,6 +139,7 @@ async function processVideo(
       pathRetina: thumbnailPathRetina,
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
+      blurHash,
     },
     lastMediaTimestamp: fileMtime.toISOString(),
   };
@@ -176,6 +185,23 @@ async function processMediaFile(
 
     if (!updatedMediaFile) {
       ui.debug(`  Skipping ${fileName} because it has already been processed`);
+
+      // Check if we need to generate BlurHash for existing thumbnail
+      if (mediaFile.thumbnail && !mediaFile.thumbnail.blurHash && fs.existsSync(thumbnailPath)) {
+        try {
+          const blurHash = await generateBlurHash(thumbnailPath);
+          return {
+            ...mediaFile,
+            thumbnail: {
+              ...mediaFile.thumbnail,
+              blurHash,
+            },
+          };
+        } catch (error) {
+          ui.debug(`  Failed to generate BlurHash for ${fileName}:`, error);
+        }
+      }
+
       return mediaFile;
     }
 

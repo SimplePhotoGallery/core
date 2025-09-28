@@ -6,6 +6,7 @@ export const ThumbnailSchema = z.object({
   pathRetina: z.string(),
   width: z.number(),
   height: z.number(),
+  blurHash: z.string().optional(),
 });
 
 /** Zod schema for media file metadata including type, dimensions, and thumbnail info */
