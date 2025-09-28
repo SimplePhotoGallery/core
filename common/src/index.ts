@@ -1,1 +1,1 @@
-export * from './Gallery.js';
+export * from './Gallery.ts';
