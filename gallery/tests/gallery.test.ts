@@ -102,7 +102,7 @@ function validateBaseUrlGallery(galleryPath: string, baseUrl: string, expectedIm
   const galleryDir = path.resolve(galleryPath, 'gallery');
   const galleryFiles = readdirSync(galleryDir);
   expect(galleryFiles).toContain('gallery.json');
-  expect(galleryFiles).toContain('thumbnails');
+  expect(galleryFiles).toContain('images');
 
   // Check that no image files were copied to gallery directory
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
@@ -114,7 +114,7 @@ function validateBaseUrlGallery(galleryPath: string, baseUrl: string, expectedIm
 
 function validateThumbnails(galleryPath: string, expectedThumbnailCount: number) {
   // Check that thumbnails directory exists
-  const thumbnailsPath = path.resolve(galleryPath, 'thumbnails');
+  const thumbnailsPath = path.resolve(galleryPath, 'images');
   expect(existsSync(thumbnailsPath)).toBe(true);
 
   // Check thumbnail file count
@@ -143,7 +143,7 @@ function validateBuildOutput(testPath: string, galleryPath: string) {
   // Check that gallery files still exist
   const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
   const galleryFiles = readdirSync(galleryPath);
-  expect(galleryFiles).toContain('thumbnails');
+  expect(galleryFiles).toContain('images');
   expect(galleryFiles).toContain('gallery.json');
 
   // Validate gallery.json is still valid
@@ -160,7 +160,7 @@ function validateSeparateBuildOutput(galleryDir: string, galleryPath: string) {
   // Check that gallery files still exist
   const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
   const galleryFiles = readdirSync(galleryPath);
-  expect(galleryFiles).toContain('thumbnails');
+  expect(galleryFiles).toContain('images');
   expect(galleryFiles).toContain('gallery.json');
 
   // Validate gallery.json is still valid
@@ -529,7 +529,7 @@ describe('Separate gallery directory', () => {
       }
 
       const galleryPath = path.resolve(separateGalleryPath, 'gallery');
-      if (!existsSync(path.resolve(galleryPath, 'thumbnails'))) {
+      if (!existsSync(path.resolve(galleryPath, 'images'))) {
         execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
       }
 
