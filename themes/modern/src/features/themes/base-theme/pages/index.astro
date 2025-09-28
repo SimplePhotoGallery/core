@@ -8,7 +8,7 @@ import PhotoSwipe from '@/features/themes/base-theme/components/lightbox/PhotoSw
 import SubGalleries from '@/features/themes/base-theme/components/sub-galleries/SubGalleries.astro';
 import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
 
-import type { GalleryData } from '@/features/themes/base-theme/types/gallery';
+import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
 
 // Dynamically import gallery.json from source path or fallback to local
 const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
@@ -44,11 +44,7 @@ const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url 
 
   {
     subGalleries && subGalleries.galleries.length > 0 && (
-      <SubGalleries
-        title={subGalleries.title}
-        description={subGalleries.description}
-        subGalleries={subGalleries.galleries}
-      />
+      <SubGalleries title={subGalleries.title} subGalleries={subGalleries.galleries} />
     )
   }
   {

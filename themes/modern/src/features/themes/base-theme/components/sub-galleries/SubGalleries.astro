@@ -10,20 +10,18 @@ interface SubGallery {
 
 interface Props {
   title?: string;
-  description?: string;
   subGalleries: SubGallery[];
 }
 
-const { title, description, subGalleries } = Astro.props;
+const { title, subGalleries } = Astro.props;
 ---
 
 <section class="sub-galleries">
   <Container>
     {
-      (title || description) && (
+      (title) && (
         <div class="sub-galleries__header">
           {title && <h2 class="sub-galleries__header-title">{title}</h2>}
-          {description && <p class="sub-galleries__header-description">{description}</p>}
         </div>
       )
     }

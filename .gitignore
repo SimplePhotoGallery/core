@@ -151,3 +151,6 @@ cli/tests/fixtures/test
 
 # Astro
 .astro
+
+# Theme
+themes/*/_build

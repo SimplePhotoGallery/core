@@ -3,11 +3,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+import { type GalleryData, GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { createGallerySocialMediaCardImage, createOptimizedHeaderImage } from './utils';
 
-import { type GalleryData, GalleryDataSchema } from '../../types/gallery';
 import { findGalleries } from '../../utils';
 import { processGalleryThumbnails } from '../thumbnails';
 

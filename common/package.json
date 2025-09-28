@@ -1,0 +1,19 @@
+{
+  "name": "@simple-photo-gallery/common",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for Simple Photo Gallery",
+  "license": "MIT",
+  "author": "Vladimir Haltakov, Tomasz Rusin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimplePhotoGallery/core"
+  },
+  "type": "module",
+  "dependencies": {
+    "zod": "^4.0.14"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.0"
+  }
+}

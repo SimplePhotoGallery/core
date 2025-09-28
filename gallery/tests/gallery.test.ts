@@ -3,10 +3,10 @@ import { existsSync, rmSync, readFileSync, readdirSync, writeFileSync } from 'no
 import path from 'node:path';
 import process from 'node:process';
 
+import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '@simple-photo-gallery/common/src/gallery';
 import { copySync } from 'fs-extra';
 
 import { init } from '../src/modules/init';
-import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '../src/types/gallery';
 
 import type { ConsolaInstance } from 'consola';
 

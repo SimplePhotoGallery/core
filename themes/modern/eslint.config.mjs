@@ -20,6 +20,8 @@ const eslintConfig = [
       'tsconfig.json',
       'eslint.config.mjs',
       '.astro',
+      '**/_build/**',
+      '**/example/**',
     ],
   },
   ...tseslintConfig,
