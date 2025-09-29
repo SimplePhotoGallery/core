@@ -9,11 +9,33 @@
     "url": "https://github.com/SimplePhotoGallery/core"
   },
   "type": "module",
+  "scripts": {
+    "compile": "tsc --noEmit",
+    "check": "tsc --noEmit && eslint . && prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:fix": "prettier --write ."
+  },
   "dependencies": {
     "zod": "^4.0.14"
   },
   "devDependencies": {
-    "tsup": "^8.5.0",
-    "typescript": "^5.9.0"
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.30.1",
+    "@types/node": "^24.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-unicorn": "^59.0.1",
+    "prettier": "^3.4.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.38.0"
   }
 }

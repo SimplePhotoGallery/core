@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /** Zod schema for thumbnail metadata including path and dimensions */
 export const ThumbnailSchema = z.object({
@@ -11,7 +11,7 @@ export const ThumbnailSchema = z.object({
 
 /** Zod schema for media file metadata including type, dimensions, and thumbnail info */
 export const MediaFileSchema = z.object({
-  type: z.enum(["image", "video"]),
+  type: z.enum(['image', 'video']),
   path: z.string(),
   alt: z.string().optional(),
   width: z.number(),
