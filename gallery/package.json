@@ -12,7 +12,10 @@
   "files": [
     "dist"
   ],
-  "bin": "./dist/index.js",
+  "bin": {
+    "simple-photo-gallery": "./dist/index.js",
+    "spg": "./dist/index.js"
+  },
   "scripts": {
     "gallery": "tsx src/index.ts",
     "clean": "rm -rf dist",
