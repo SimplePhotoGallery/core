@@ -32,7 +32,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Run checks
+      - name: Run checks (common)
+        working-directory: ./common
+        run: yarn check
+
+      - name: Run checks (gallery)
         working-directory: ./gallery
         run: yarn check
 
