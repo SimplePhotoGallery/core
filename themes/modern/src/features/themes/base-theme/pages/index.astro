@@ -16,11 +16,31 @@ const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 
 const gallery = galleryData as GalleryData;
 
-const { title, description, headerImage, metadata, sections, subGalleries, mediaBaseUrl, url } = gallery;
+const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url } = gallery;
 ---
 
+<script>
+  import { decode } from 'blurhash';
+
+  const blurHashCanvases = document.querySelectorAll<HTMLCanvasElement>('canvas[data-blur-hash]');
+
+  for (const canvas of blurHashCanvases) {
+    const blurHashValue = canvas.dataset.blurHash;
+
+    if (blurHashValue) {
+      const pixels = decode(blurHashValue, 32, 32);
+      const ctx = canvas.getContext('2d');
+
+      if (pixels && ctx) {
+        const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
+        ctx.putImageData(imageData, 0, 0);
+      }
+    }
+  }
+</script>
+
 <MainLayout title={title} description={description} metadata={metadata} url={url}>
-  <Hero title={title} description={description} backgroundImage={headerImage} mediaBaseUrl={mediaBaseUrl} />
+  <Hero title={title} description={description} />
 
   {
     subGalleries && subGalleries.galleries.length > 0 && (

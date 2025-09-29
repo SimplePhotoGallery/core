@@ -9,6 +9,7 @@ export interface GalleryImage {
     pathRetina: string;
     width: number;
     height: number;
+    blurHash?: string;
   };
 }
 

@@ -4,17 +4,14 @@ import path from 'node:path';
 import { LogLevels, type ConsolaInstance } from 'consola';
 import sharp from 'sharp';
 
-import {
-  createImageThumbnails,
-  createVideoThumbnails,
-  getImageDescription,
-  getFileMtime,
-  getVideoDimensions,
-} from './utils';
+import { getFileMtime } from './utils';
 
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
-import { GalleryDataSchema, type MediaFile } from '../../types';
+import { GalleryDataSchema, type MediaFile } from '../../types/gallery';
 import { findGalleries, handleFileProcessingError } from '../../utils';
+import { generateBlurHash } from '../../utils/blurhash';
+import { getImageDescription, createImageThumbnails } from '../../utils/image';
+import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
 
@@ -68,6 +65,9 @@ async function processImage(
     thumbnailSize,
   );
 
+  // Generate BlurHash from the thumbnail
+  const blurHash = await generateBlurHash(thumbnailPath);
+
   // Return the updated media file
   return {
     type: 'image',
@@ -80,6 +80,7 @@ async function processImage(
       pathRetina: thumbnailPathRetina,
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
+      blurHash,
     },
     lastMediaTimestamp: fileMtime.toISOString(),
   };
@@ -124,6 +125,9 @@ async function processVideo(
     verbose,
   );
 
+  // Generate BlurHash from the thumbnail
+  const blurHash = await generateBlurHash(thumbnailPath);
+
   return {
     type: 'video',
     path: videoPath,
@@ -135,6 +139,7 @@ async function processVideo(
       pathRetina: thumbnailPathRetina,
       width: thumbnailDimensions.width,
       height: thumbnailDimensions.height,
+      blurHash,
     },
     lastMediaTimestamp: fileMtime.toISOString(),
   };
@@ -163,9 +168,9 @@ async function processMediaFile(
 
     const fileName = path.basename(filePath);
     const fileNameWithoutExt = path.parse(fileName).name;
-    const thumbnailFileName = `${fileNameWithoutExt}.jpg`;
+    const thumbnailFileName = `${fileNameWithoutExt}.avif`;
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
-    const thumbnailPathRetina = thumbnailPath.replace('.jpg', '@2x.jpg');
+    const thumbnailPathRetina = thumbnailPath.replace('.avif', '@2x.avif');
     const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
     const relativeThumbnailRetinaPath = path.relative(galleryJsonDir, thumbnailPathRetina);
 
@@ -180,6 +185,23 @@ async function processMediaFile(
 
     if (!updatedMediaFile) {
       ui.debug(`  Skipping ${fileName} because it has already been processed`);
+
+      // Check if we need to generate BlurHash for existing thumbnail
+      if (mediaFile.thumbnail && !mediaFile.thumbnail.blurHash && fs.existsSync(thumbnailPath)) {
+        try {
+          const blurHash = await generateBlurHash(thumbnailPath);
+          return {
+            ...mediaFile,
+            thumbnail: {
+              ...mediaFile.thumbnail,
+              blurHash,
+            },
+          };
+        } catch (error) {
+          ui.debug(`  Failed to generate BlurHash for ${fileName}:`, error);
+        }
+      }
+
       return mediaFile;
     }
 
@@ -205,7 +227,7 @@ async function processMediaFile(
  */
 export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaInstance): Promise<number> {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  const thumbnailsPath = path.join(galleryDir, 'gallery', 'thumbnails');
+  const thumbnailsPath = path.join(galleryDir, 'gallery', 'images');
 
   ui.start(`Creating thumbnails: ${galleryDir}`);
 

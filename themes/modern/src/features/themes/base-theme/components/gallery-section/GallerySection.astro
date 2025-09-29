@@ -22,7 +22,7 @@ const validImages = section.images.filter(
   <Container>
     <GallerySectionHeader section={section} />
     <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
-      {validImages.map((image) => <GallerySectionItem image={image} mediaBaseUrl={mediaBaseUrl} />)}
+      {validImages.map((image) => <GallerySectionItem image={image} mediaBaseUrl={mediaBaseUrl} blurHash={image.thumbnail?.blurHash} />)}
     </div>
   </Container>
 </section>

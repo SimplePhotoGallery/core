@@ -6,9 +6,10 @@ import type { GalleryImage } from '@/features/themes/base-theme/types/gallery';
 interface Props {
   image: GalleryImage;
   mediaBaseUrl?: string;
+  blurHash?: string;
 }
 
-const { image, mediaBaseUrl } = Astro.props;
+const { image, mediaBaseUrl, blurHash } = Astro.props;
 ---
 
 <a
@@ -20,6 +21,8 @@ const { image, mediaBaseUrl } = Astro.props;
   data-pswp-type={image.type}
   data-pswp-caption={image.alt ? `<p class="image-caption">${image.alt}</p>` : ''}
   style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
+  <canvas data-blur-hash={blurHash} width={32} height={32}></canvas>
+
   <img
     src={getRelativePath(image.thumbnail?.path)}
     srcset={`${getRelativePath(image.thumbnail?.path)} 1x, ${getRelativePath(image.thumbnail?.pathRetina)} 2x`}
@@ -45,6 +48,8 @@ const { image, mediaBaseUrl } = Astro.props;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    z-index: 1;
   }
 
   .gallery-section__item:hover {
@@ -57,9 +62,28 @@ const { image, mediaBaseUrl } = Astro.props;
     height: auto;
     display: block;
     transition: transform 0.5s ease;
+    position: relative;
+    z-index: 2;
+    color: transparent;
+    font-size: 0;
   }
 
   .gallery-section__item:hover img {
+    transform: scale(1.05);
+  }
+
+  .gallery-section__item canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .gallery-section__item:hover canvas {
     transform: scale(1.05);
   }
 

@@ -1663,6 +1663,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^8.35.1"
     astro: "npm:^5.11.0"
     astro-relative-links: "npm:^0.4.2"
+    blurhash: "npm:^2.0.5"
     eslint: "npm:^9.30.1"
     eslint-config-prettier: "npm:^10.1.5"
     eslint-import-resolver-alias: "npm:^1.1.2"
@@ -2705,6 +2706,13 @@ __metadata:
   version: 1.2.9
   resolution: "blob-to-buffer@npm:1.2.9"
   checksum: 10c0/ff8d3327f030fcd98b28c7557158721bc36b2102452bb4d8808d7bf497a6feee34623a40f80ec8a097851c866369fc76ef948cee4e78373f34738b70ab3f8cf6
+  languageName: node
+  linkType: hard
+
+"blurhash@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "blurhash@npm:2.0.5"
+  checksum: 10c0/75d5f042b5bb8ead977524a985048378a033af866534abbaee73c80030cc9fc34e6c5b7d483c68bbdb600e0ae438f2ea6140b1f46d75fcfa57a902208ae8b85e
   languageName: node
   linkType: hard
 
@@ -8323,6 +8331,7 @@ __metadata:
     "@types/node": "npm:^24.0.10"
     "@typescript-eslint/eslint-plugin": "npm:^8.38.0"
     "@typescript-eslint/parser": "npm:^8.38.0"
+    blurhash: "npm:^2.0.5"
     commander: "npm:^12.0.0"
     consola: "npm:^3.4.2"
     eslint: "npm:^9.30.1"

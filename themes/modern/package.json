@@ -30,6 +30,7 @@
     "@types/photoswipe": "^4.1.6",
     "astro": "^5.11.0",
     "astro-relative-links": "^0.4.2",
+    "blurhash": "^2.0.5",
     "photoswipe": "^5.4.4"
   },
   "devDependencies": {

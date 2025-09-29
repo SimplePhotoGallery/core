@@ -1,23 +1,66 @@
 ---
-import { DEFAULT_STATIC_ASSETS_PATH } from '@/config';
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
-import { getPhotoPath } from '@/features/themes/base-theme/utils';
 
 interface Props {
   title: string;
   description?: string;
-  backgroundImage: string;
-  mediaBaseUrl?: string;
 }
 
-const { title, description, backgroundImage, mediaBaseUrl } = Astro.props;
+const { title, description } = Astro.props;
 ---
 
 <section class="hero">
-  <div
-    class="hero__bg"
-    style={`background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${getPhotoPath(backgroundImage, mediaBaseUrl) || `${DEFAULT_STATIC_ASSETS_PATH}/images/hero-placeholder.png`}')`}>
-  </div>
+  <picture class="hero__bg">
+    <!-- Portrait -->
+    <source
+      type="image/avif"
+      media="(max-aspect-ratio: 3/4)"
+      srcset="
+        gallery/images/header_portrait_360.avif 360w,
+        gallery/images/header_portrait_480.avif 480w,
+        gallery/images/header_portrait_720.avif 720w,
+        gallery/images/header_portrait_1080.avif 1080w"
+      sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+    />
+    <source
+      type="image/jpeg"
+      media="(max-aspect-ratio: 3/4)"
+      srcset="
+        gallery/images/header_portrait_360.jpg 360w,
+        gallery/images/header_portrait_480.jpg 480w,
+        gallery/images/header_portrait_720.jpg 720w,
+        gallery/images/header_portrait_1080.jpg 1080w"
+      sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+    />
+
+    <!-- Landscape -->
+    <source
+      type="image/avif"
+      srcset="
+        gallery/images/header_landscape_640.avif 640w,
+        gallery/images/header_landscape_960.avif 960w,
+        gallery/images/header_landscape_1280.avif 1280w,
+        gallery/images/header_landscape_1920.avif 1920w,
+        gallery/images/header_landscape_2560.avif 2560w,
+        gallery/images/header_landscape_3840.avif 3840w"
+      sizes="100vw"
+    />
+    <source
+      type="image/jpg"
+      srcset="
+      gallery/images/header_landscape_640.jpg 640w,
+      gallery/images/header_landscape_960.jpg 960w,
+      gallery/images/header_landscape_1280.jpg 1280w,
+      gallery/images/header_landscape_1920.jpg 1920w,
+      gallery/images/header_landscape_2560.jpg 2560w,
+      gallery/images/header_landscape_3840.jpg 3840w"
+      sizes="100vw"
+    />
+
+    <!-- Fallback -->
+    <img src="gallery/images/header_landscape_1920.jpg" alt={title} />
+  </picture>
+  <div class="hero__overlay"></div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>
     {description && <p class="hero__description">{description}</p>}
@@ -42,9 +85,23 @@ const { title, description, backgroundImage, mediaBaseUrl } = Astro.props;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  }
+
+  .hero__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 5;
   }
 
   .hero__content {
