@@ -3,7 +3,7 @@
 Scans a folder for images and videos and creates a `gallery.json` file.
 
 ```bash
-npx simple-photo-gallery init [options]
+npx simple-photo-gallery@latest init [options]
 ```
 
 ## How it works
@@ -30,19 +30,19 @@ After that, the command will create a `gallery` folder and a `gallery.json` file
 
 ```bash
 # Create gallery in current folder
-npx simple-photo-gallery init
+npx simple-photo-gallery@latest init
 
 # Scan specific folder
-npx simple-photo-gallery init -p /path/to/photos
+npx simple-photo-gallery@latest init -p /path/to/photos
 
 # Create gallery in different location
-npx simple-photo-gallery init -p /photos -g /gallery
+npx simple-photo-gallery@latest init -p /photos -g /gallery
 
 # Scan subdirectories and create multiple galleries
-npx simple-photo-gallery init -r
+npx simple-photo-gallery@latest init -r
 
 # Skip interactive prompts
-npx simple-photo-gallery init -d
+npx simple-photo-gallery@latest init -d
 ```
 
 ## Creating the gallery in a folder other than the photos folder
@@ -68,7 +68,7 @@ Keep in mind that the local files will be used when scanning the photos and when
 The `-r` or `--recursive` flag can be used to create galleries from all subdirectories of the photos folder. This is useful if you have a lot of photos in subdirectories and you want to create a gallery for each subdirectory.
 
 ```bash
-npx simple-photo-gallery init -r
+npx simple-photo-gallery@latest init -r
 ```
 
 The command will recursively scan all subdirectories of the photos folder and create a separate gallery for each subdirectory. This has the same effect as running the command multiple times with the `-p` flag set to each subdirectory.

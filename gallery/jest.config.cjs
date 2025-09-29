@@ -5,8 +5,10 @@ module.exports = {
   extensionsToTreatAsEsm: ['.ts'],
   testMatch: ['**/tests/**/*.test.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  transformIgnorePatterns: ['node_modules/(?!(@simple-photo-gallery/common)/)'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^@simple-photo-gallery/common$': '<rootDir>/../common/src/index.ts',
   },
   transform: {
     '^.+\\.tsx?$': [

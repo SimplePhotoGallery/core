@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { GalleryDataSchema, type MediaFile } from '@simple-photo-gallery/common/src/gallery';
 import { LogLevels, type ConsolaInstance } from 'consola';
 import sharp from 'sharp';
 
 import { getFileMtime } from './utils';
 
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
-import { GalleryDataSchema, type MediaFile } from '../../types/gallery';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
 import { getImageDescription, createImageThumbnails } from '../../utils/image';

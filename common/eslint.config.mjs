@@ -1,6 +1,5 @@
 import eslint from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import eslintPluginAstro from 'eslint-plugin-astro';
 import importPlugin from 'eslint-plugin-import';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
@@ -16,12 +15,10 @@ const eslintConfig = [
       '.github',
       'tsconfig.tsbuildinfo',
       '**/dist/*',
-      '**/public/*',
       'tsconfig.json',
       'eslint.config.mjs',
-      '.astro',
-      '**/_build/**',
-      '**/example/**',
+      'jest.config.cjs',
+      '.prettierrc.mjs',
     ],
   },
   ...tseslintConfig,
@@ -29,34 +26,33 @@ const eslintConfig = [
   eslintPluginUnicorn.configs.recommended,
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
-  ...eslintPluginAstro.configs['flat/recommended'],
   {
-    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx,astro}'],
+    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+        project: './tsconfig.json',
+      },
       globals: {
         ...globals.jest,
         ...globals.browser,
-        ...globals.node,
         AddEventListenerOptions: 'readonly',
         EventListener: 'readonly',
-      },
-      parserOptions: {
-        tsconfigRootDir: import.meta.dirname,
       },
     },
     settings: {
       'import/resolver': {
         node: {
           paths: ['src'],
-          extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx', '.astro'],
+          extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx'],
         },
         typescript: {
           project: './tsconfig.json',
         },
         alias: {
           map: [['@', path.resolve(import.meta.dirname, './src')]],
-          extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx', '.astro'],
+          extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx'],
         },
       },
     },
@@ -65,7 +61,6 @@ const eslintConfig = [
       '@typescript-eslint/keyword-spacing': 'off',
       'import/prefer-default-export': 'off',
       'import/extensions': 'off',
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
       '@typescript-eslint/no-explicit-any': ['warn'],
       '@typescript-eslint/no-var-requires': ['warn'],
       '@typescript-eslint/consistent-type-imports': 'warn',

@@ -1,6 +1,6 @@
 # Commands
 
-This is the command reference for Simple Photo Gallery CLI. All commands can be run with `npx simple-photo-gallery <command>`.
+This is the command reference for Simple Photo Gallery CLI. All commands can be run with `npx simple-photo-gallery@latest <command>`.
 
 > **Navigation:** [Configuration Guide](../configuration.md) | [Deployment Guide](../deployment.md) | [Main Documentation](../README.md)
 
@@ -16,8 +16,8 @@ This is the command reference for Simple Photo Gallery CLI. All commands can be 
 For the fastest way to get started, run these two commands in your photos folder:
 
 ```bash
-npx simple-photo-gallery init
-npx simple-photo-gallery build
+npx simple-photo-gallery@latest init
+npx simple-photo-gallery@latest build
 ```
 
 For more advanced workflows and configuration options, see the individual command documentation above.

@@ -34,8 +34,8 @@ This is a free, open-source tool that you can use to generate galleries and self
 The fastest way to create a gallery is to use `npx` in your photos folder:
 
 ```bash
-npx simple-photo-gallery init
-npx simple-photo-gallery build
+npx simple-photo-gallery@latest init
+npx simple-photo-gallery@latest build
 ```
 
 This will:

@@ -1,10 +1,10 @@
 ---
 import { getPhotoPath, getRelativePath } from '@/features/themes/base-theme/utils';
 
-import type { GalleryImage } from '@/features/themes/base-theme/types/gallery';
+import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
 
 interface Props {
-  image: GalleryImage;
+  image: MediaFile;
   mediaBaseUrl?: string;
   blurHash?: string;
 }
@@ -23,14 +23,18 @@ const { image, mediaBaseUrl, blurHash } = Astro.props;
   style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
   <canvas data-blur-hash={blurHash} width={32} height={32}></canvas>
 
-  <img
-    src={getRelativePath(image.thumbnail?.path)}
-    srcset={`${getRelativePath(image.thumbnail?.path)} 1x, ${getRelativePath(image.thumbnail?.pathRetina)} 2x`}
-    alt={image.alt}
-    loading="lazy"
-    width={image.thumbnail?.width}
-    height={image.thumbnail?.height}
-  />
+  {
+    image.thumbnail && (
+      <img
+        src={getRelativePath(image.thumbnail.path)}
+        srcset={`${getRelativePath(image.thumbnail.path)} 1x, ${getRelativePath(image.thumbnail.pathRetina)} 2x`}
+        alt={image.alt}
+        loading="lazy"
+        width={image.thumbnail.width}
+        height={image.thumbnail.height}
+      />
+    )
+  }
 </a>
 
 <style>

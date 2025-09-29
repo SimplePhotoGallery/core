@@ -3,7 +3,7 @@ import Container from '@/features/themes/base-theme/components/container/Contain
 import GallerySectionHeader from '@/features/themes/base-theme/components/gallery-section/GallerySectionHeader.astro';
 import GallerySectionItem from '@/features/themes/base-theme/components/gallery-section/GallerySectionItem.astro';
 
-import type { GallerySection as GallerySectionType } from '@/features/themes/base-theme/types/gallery';
+import type { GallerySection as GallerySectionType } from '@simple-photo-gallery/common/src/gallery';
 
 interface Props {
   section: GallerySectionType;
@@ -14,7 +14,7 @@ interface Props {
 const { section, sectionIndex, mediaBaseUrl } = Astro.props;
 
 const validImages = section.images.filter(
-  (image) => image.width > 0 && image.height > 0 && image.thumbnail?.width > 0 && image.thumbnail?.height > 0,
+  (image) => image.width > 0 && image.height > 0 && (image.thumbnail?.width || 0) > 0 && (image.thumbnail?.height || 0) > 0,
 );
 ---
 
@@ -22,7 +22,11 @@ const validImages = section.images.filter(
   <Container>
     <GallerySectionHeader section={section} />
     <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
-      {validImages.map((image) => <GallerySectionItem image={image} mediaBaseUrl={mediaBaseUrl} blurHash={image.thumbnail?.blurHash} />)}
+      {
+        validImages.map((image) => (
+          <GallerySectionItem image={image} mediaBaseUrl={mediaBaseUrl} blurHash={image.thumbnail?.blurHash} />
+        ))
+      }
     </div>
   </Container>
 </section>
