@@ -3,7 +3,7 @@
 Creates the static HTML gallery website.
 
 ```bash
-npx simple-photo-gallery build [options]
+npx simple-photo-gallery@latest build [options]
 ```
 
 ## How it works
@@ -27,14 +27,14 @@ If you have created the gallery in a different folder from the photos folder, th
 
 ```bash
 # Build gallery in current directory
-npx simple-photo-gallery build
+npx simple-photo-gallery@latest build
 
 # Build specific gallery
-npx simple-photo-gallery build -g /path/to/gallery
+npx simple-photo-gallery@latest build -g /path/to/gallery
 
 # Build all galleries recursively
-npx simple-photo-gallery build -r
+npx simple-photo-gallery@latest build -r
 
 # Build with external base URL (no photo copying) - useful for hosting photos separately from the gallery
-npx simple-photo-gallery build -b https://photos.example.com/
+npx simple-photo-gallery@latest build -b https://photos.example.com/
 ```
