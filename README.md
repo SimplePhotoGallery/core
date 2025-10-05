@@ -31,7 +31,15 @@ This is a free, open-source tool that you can use to generate galleries and self
 
 ## Quick Start
 
-The fastest way to create a gallery is to use `npx` in your photos folder:
+To create a gallery you need to install he `simple-photo-gallery` package globally and then you can use the `spg` command:
+
+```bash
+npm install -g simple-photo-gallery@latest
+spg init
+spg build
+```
+
+Alternatively you can use `npx` to run the commands directly:
 
 ```bash
 npx simple-photo-gallery@latest init

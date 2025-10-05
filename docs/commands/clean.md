@@ -3,7 +3,7 @@
 Removes gallery files while preserving original photos.
 
 ```bash
-npx simple-photo-gallery@latest clean [options]
+spg clean [options]
 ```
 
 ## How it works
@@ -24,11 +24,11 @@ The command will remove the `index.html` file and the `gallery` folder from the 
 
 ```bash
 # Clean current directory
-npx simple-photo-gallery@latest clean
+spg clean
 
 # Clean specific directory
-npx simple-photo-gallery@latest clean -g /path/to/gallery
+spg clean -g /path/to/gallery
 
 # Clean all galleries recursively
-npx simple-photo-gallery@latest clean -r
+spg clean -r
 ```
