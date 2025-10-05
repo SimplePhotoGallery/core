@@ -3,7 +3,7 @@
 Generates optimized thumbnail images for all media files.
 
 ```bash
-npx simple-photo-gallery@latest thumbnails [options]
+spg thumbnails [options]
 ```
 
 ## How it works
@@ -32,10 +32,10 @@ Thumbnails for videos require FFmpeg to be installed so it can extract the first
 
 ```bash
 # Generate thumbnails in current directory
-npx simple-photo-gallery@latest thumbnails
+spg thumbnails
 
 # Process specific gallery
-npx simple-photo-gallery@latest thumbnails -g /path/to/gallery
+spg thumbnails -g /path/to/gallery
 
 # Process all galleries recursively
 npx simple-photo-gallery@latest thumbnails -r

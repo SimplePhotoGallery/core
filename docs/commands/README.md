@@ -13,7 +13,15 @@ This is the command reference for Simple Photo Gallery CLI. All commands can be 
 
 ## Quick Reference
 
-For the fastest way to get started, run these two commands in your photos folder:
+For the fastest way to get started, install the `simple-photo-gallery` package globally and then you can use the `spg` command:
+
+```bash
+npm install -g simple-photo-gallery@latest
+spg init
+spg build
+```
+
+Alternatively you can use `npx` to run the commands directly:
 
 ```bash
 npx simple-photo-gallery@latest init

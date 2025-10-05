@@ -10,13 +10,15 @@ import { clean } from './modules/clean';
 import { init } from './modules/init';
 import { thumbnails } from './modules/thumbnails';
 
+import packageJson from '../package.json' with { type: 'json' };
+
 /** Command line interface program instance */
 const program = new Command();
 
 program
   .name('gallery')
   .description('Simple Photo Gallery CLI')
-  .version('0.0.1')
+  .version(packageJson.version)
   .option('-v, --verbose', 'Verbose output (debug level)', false)
   .option('-q, --quiet', 'Minimal output (only warnings/errors)', false)
   .showHelpAfterError(true);
