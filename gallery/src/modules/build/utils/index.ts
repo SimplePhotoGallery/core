@@ -5,7 +5,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 import { HEADER_IMAGE_LANDSCAPE_WIDTHS, HEADER_IMAGE_PORTRAIT_WIDTHS } from '../../../config';
-import { cropAndResizeImage } from '../../../utils/image';
+import { cropAndResizeImage, loadImage } from '../../../utils/image';
 
 import type { ConsolaInstance } from 'consola';
 
@@ -42,10 +42,8 @@ export async function createGallerySocialMediaCardImage(
   }
 
   // Read and resize the header image to 1200x631 using fit
-  const resizedImageBuffer = await sharp(headerPhotoPath)
-    .resize(1200, 631, { fit: 'cover' })
-    .jpeg({ quality: 90 })
-    .toBuffer();
+  const image = await loadImage(headerPhotoPath);
+  const resizedImageBuffer = await image.resize(1200, 631, { fit: 'cover' }).jpeg({ quality: 90 }).toBuffer();
 
   // Save the resized image as social media card
   const outputPath = ouputPath;
@@ -83,7 +81,7 @@ export async function createOptimizedHeaderImage(
 ): Promise<void> {
   ui.start(`Creating optimized header images`);
 
-  const image = sharp(headerPhotoPath);
+  const image = await loadImage(headerPhotoPath);
 
   // Create landscape header images
   const landscapeYFactor = 3 / 4;

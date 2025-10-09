@@ -1,5 +1,6 @@
 import { encode } from 'blurhash';
-import sharp from 'sharp';
+
+import { loadImage } from './image';
 
 /**
  * Generates a BlurHash from an image file or Sharp instance
@@ -9,7 +10,7 @@ import sharp from 'sharp';
  * @returns Promise resolving to BlurHash string
  */
 export async function generateBlurHash(imagePath: string, componentX: number = 4, componentY: number = 3): Promise<string> {
-  const image = sharp(imagePath);
+  const image = await loadImage(imagePath);
 
   // Resize to small size for BlurHash computation to improve performance
   // BlurHash doesn't need high resolution

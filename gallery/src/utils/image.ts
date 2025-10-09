@@ -1,7 +1,42 @@
 import ExifReader from 'exifreader';
+import sharp from 'sharp';
 
-import type { Dimensions } from '../types';
+import type { Dimensions, ImageWithMetadata } from '../types';
 import type { FormatEnum, Metadata, Sharp } from 'sharp';
+
+/**
+ * Loads an image and auto-rotates it based on EXIF orientation.
+ * @param imagePath - Path to the image file
+ * @returns Promise resolving to Sharp image instance
+ */
+export async function loadImage(imagePath: string): Promise<Sharp> {
+  return sharp(imagePath).rotate();
+}
+
+/**
+ * Loads an image and its metadata, auto-rotating it based on EXIF orientation and swapping dimensions if needed.
+ * @param imagePath - Path to the image file
+ * @returns Promise resolving to ImageWithMetadata object containing Sharp image instance and metadata
+ */
+export async function loadImageWithMetadata(imagePath: string): Promise<ImageWithMetadata> {
+  const image = sharp(imagePath);
+  const metadata = await image.metadata();
+
+  // Auto-rotate based on EXIF orientation
+  image.rotate();
+
+  // EXIF orientation values 5, 6, 7, 8 require dimension swap after rotation
+  const needsDimensionSwap = metadata.orientation && metadata.orientation >= 5 && metadata.orientation <= 8;
+
+  // Update metadata with swapped dimensions if needed
+  if (needsDimensionSwap) {
+    const originalWidth = metadata.width;
+    metadata.width = metadata.height;
+    metadata.height = originalWidth;
+  }
+
+  return { image, metadata };
+}
 
 /**
  * Utility function to resize and save thumbnail using Sharp. The functions avoids upscaling the image and only reduces the size if necessary.

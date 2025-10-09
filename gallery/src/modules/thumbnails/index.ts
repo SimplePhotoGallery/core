@@ -3,14 +3,13 @@ import path from 'node:path';
 
 import { GalleryDataSchema, type MediaFile } from '@simple-photo-gallery/common/src/gallery';
 import { LogLevels, type ConsolaInstance } from 'consola';
-import sharp from 'sharp';
 
 import { getFileMtime } from './utils';
 
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
-import { getImageDescription, createImageThumbnails } from '../../utils/image';
+import { getImageDescription, createImageThumbnails, loadImageWithMetadata } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
@@ -24,7 +23,7 @@ import type { ThumbnailOptions } from './types';
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
  * @returns Promise resolving to updated MediaFile or undefined if skipped
  */
-async function processImage(
+export async function processImage(
   imagePath: string,
   thumbnailPath: string,
   thumbnailPathRetina: string,
@@ -39,9 +38,8 @@ async function processImage(
     return undefined;
   }
 
-  // Load the image
-  const image = sharp(imagePath);
-  const metadata = await image.metadata();
+  // Load the image and get metadata first to check orientation
+  const { image, metadata } = await loadImageWithMetadata(imagePath);
 
   // Get the image dimensions
   const imageDimensions = {
