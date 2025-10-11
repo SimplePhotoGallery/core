@@ -1,5 +1,6 @@
 ---
 import { getPhotoPath, getRelativePath } from '@/features/themes/base-theme/utils';
+import { renderMarkdown } from '@/lib/markdown';
 
 import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
 
@@ -10,6 +11,10 @@ interface Props {
 }
 
 const { image, mediaBaseUrl, blurHash } = Astro.props;
+
+// Parse caption as Markdown if it exists
+const parsedCaption = image.alt ? await renderMarkdown(image.alt) : '';
+const captionHtml = parsedCaption ? `<div class="image-caption markdown-content">${parsedCaption}</div>` : '';
 ---
 
 <a
@@ -19,7 +24,7 @@ const { image, mediaBaseUrl, blurHash } = Astro.props;
   data-pswp-width={image.width}
   data-pswp-height={image.height}
   data-pswp-type={image.type}
-  data-pswp-caption={image.alt ? `<p class="image-caption">${image.alt}</p>` : ''}
+  data-pswp-caption={captionHtml}
   style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
   <canvas data-blur-hash={blurHash} width={32} height={32}></canvas>
 

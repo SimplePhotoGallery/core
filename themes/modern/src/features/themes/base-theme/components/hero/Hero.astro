@@ -1,5 +1,6 @@
 ---
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
+import { renderMarkdown } from '@/lib/markdown';
 
 interface Props {
   title: string;
@@ -7,6 +8,9 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+
+// Parse description as Markdown if it exists
+const parsedDescription: string = description ? await renderMarkdown(description) : '';
 ---
 
 <section class="hero">
@@ -63,7 +67,7 @@ const { title, description } = Astro.props;
   <div class="hero__overlay"></div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>
-    {description && <p class="hero__description">{description}</p>}
+    {parsedDescription && <div class="hero__description markdown-content" set:html={parsedDescription} />}
     <HeroScrollToGalleryBtn />
   </div>
 </section>

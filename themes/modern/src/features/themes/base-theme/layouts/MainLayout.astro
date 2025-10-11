@@ -40,4 +40,74 @@ const { title, description, metadata, url } = Astro.props;
     color: #333;
     font-weight: 400;
   }
+
+  /* Markdown content styles */
+  .markdown-content p {
+    margin-bottom: 1rem;
+  }
+
+  .markdown-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-content strong {
+    font-weight: 600;
+  }
+
+  .markdown-content em {
+    font-style: italic;
+  }
+
+  .markdown-content a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .markdown-content a:hover {
+    opacity: 0.8;
+  }
+
+  .markdown-content ul,
+  .markdown-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+  }
+
+  .markdown-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown-content li:last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-content blockquote {
+    border-left: 3px solid currentColor;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  .markdown-content code {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+  }
+
+  .markdown-content pre {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .markdown-content pre code {
+    background-color: transparent;
+    padding: 0;
+  }
 </style>

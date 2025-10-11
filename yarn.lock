@@ -1697,6 +1697,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.31.0"
     eslint-plugin-prettier: "npm:^5.5.1"
     eslint-plugin-unicorn: "npm:^60.0.0"
+    marked: "npm:^16.4.0"
     photoswipe: "npm:^5.4.4"
     prettier: "npm:^3.4.2"
     prettier-plugin-astro: "npm:^0.14.1"
@@ -6234,6 +6235,15 @@ __metadata:
   version: 3.0.4
   resolution: "markdown-table@npm:3.0.4"
   checksum: 10c0/1257b31827629a54c24a5030a3dac952256c559174c95ce3ef89bebd6bff0cb1444b1fd667b1a1bb53307f83278111505b3e26f0c4e7b731e0060d435d2d930b
+  languageName: node
+  linkType: hard
+
+"marked@npm:^16.4.0":
+  version: 16.4.0
+  resolution: "marked@npm:16.4.0"
+  bin:
+    marked: bin/marked.js
+  checksum: 10c0/5d5e34a913e888b3ec42b9ad69409cc674d3fb91c75fd66749280c5f0c6cf69de9f3a2076af2a952ca577dd226f05b2f3d00d6850df71c37e662f3492377a582
   languageName: node
   linkType: hard
 
