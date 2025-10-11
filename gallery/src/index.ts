@@ -9,6 +9,7 @@ import { build } from './modules/build';
 import { clean } from './modules/clean';
 import { init } from './modules/init';
 import { thumbnails } from './modules/thumbnails';
+import { checkForUpdates, displayUpdateNotification, waitForUpdateCheck } from './utils/version';
 
 import packageJson from '../package.json' with { type: 'json' };
 
@@ -50,12 +51,24 @@ function createConsolaUI(globalOpts: ReturnType<typeof program.opts>): ConsolaIn
 function withConsolaUI<O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) {
   return async (opts: O) => {
     const ui = createConsolaUI(program.opts());
+
+    // Start update check in background (non-blocking)
+    const updateCheckPromise = checkForUpdates(packageJson.name, packageJson.version);
+
     try {
       await handler(opts, ui);
     } catch (error) {
       ui.debug(error);
 
       process.exitCode = 1;
+    }
+
+    // After command completes, check if update is available
+    // Wait up to 5 seconds for the check to complete
+    const updateInfo = await waitForUpdateCheck(updateCheckPromise);
+
+    if (updateInfo) {
+      displayUpdateNotification(updateInfo, ui);
     }
   };
 }
