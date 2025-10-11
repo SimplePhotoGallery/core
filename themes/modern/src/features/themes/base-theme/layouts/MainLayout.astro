@@ -59,13 +59,25 @@ const { title, description, metadata, url } = Astro.props;
   }
 
   .markdown-content a {
-    color: inherit;
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
   }
 
   .markdown-content a:hover {
-    opacity: 0.8;
+    color: #111827;
+  }
+
+  /* Light links on dark backgrounds (hero, captions) */
+  .hero__description.markdown-content a,
+  .image-caption.markdown-content a {
+    color: #d1d5db;
+  }
+
+  .hero__description.markdown-content a:hover,
+  .image-caption.markdown-content a:hover {
+    color: #f3f4f6;
   }
 
   .markdown-content ul,
