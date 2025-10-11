@@ -51,6 +51,63 @@ Sub-galleries are generated automatically when you initialize the gallery in the
 
 When displaying photos and videos in full screen, you can show captions at the bottom. The captions are automatically extracted from the EXIF data of the photos if you used a tool to add them. If not, you can add them manually in the `gallery.json` file using the `alt` attribute of each image or video.
 
+## Markdown formatting
+
+Gallery descriptions, section descriptions, and image captions support Markdown formatting for rich text styling. This allows you to add emphasis, links, lists, and code snippets to your text.
+
+### Supported Markdown features
+
+The following Markdown elements are supported:
+
+- **Bold text** - Use `**bold**` or `__bold__`
+- _Italic text_ - Use `*italic*` or `_italic_`
+- [Links](https://example.com) - Use `[link text](url)`
+- Lists - Both ordered (`1. Item`) and unordered (`- Item`)
+- `Inline code` - Use backticks: `` `code` ``
+- Code blocks - Use triple backticks:
+  ````
+  ```
+  code block
+  ```
+  ````
+- Block quotes - Use `> quote text`
+
+### Where you can use Markdown
+
+Markdown formatting is available in:
+
+1. **Gallery description** - The main description shown on the hero section
+2. **Section descriptions** - Descriptions for each gallery section
+3. **Image/video captions** - The `alt` attribute of images and videos
+
+### Example
+
+```json
+{
+  "title": "My Gallery",
+  "description": "Welcome to my **photo collection**! Check out [my website](https://example.com) for more.",
+  "sections": [
+    {
+      "title": "Tokyo 2024",
+      "description": "Photos from *Japan* featuring:\n\n- Cherry blossoms\n- Street photography\n- `Fujifilm X-T5`",
+      "images": [
+        {
+          "path": "tokyo-001.jpg",
+          "alt": "Sunset at **Mount Fuji** - taken with `50mm f/1.8`"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Styling notes
+
+- **Links** are styled with a subtle gray color that stands out from regular text
+- **Headings** in Markdown are automatically converted to paragraphs to maintain consistent styling
+- **Images** and **tables** are not supported for security and layout consistency
+- **HTML tags** are stripped for security
+
 ## Thumbnail size
 
 Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
