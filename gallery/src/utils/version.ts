@@ -96,13 +96,11 @@ export function displayUpdateNotification(
   const { currentVersion, latestVersion } = updateInfo;
 
   const message = [
-    `Update available: ${currentVersion} → ${latestVersion}`,
+    `New version available: ${currentVersion} → ${latestVersion}`,
     '',
-    'Run one of the following commands to update:',
+    'Run the following commands to update:',
     '',
     '  npm install -g simple-photo-gallery@latest',
-    '  yarn global add simple-photo-gallery@latest',
-    '  pnpm add -g simple-photo-gallery@latest',
   ].join('\n');
 
   ui.box(message);
