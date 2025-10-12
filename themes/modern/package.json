@@ -1,6 +1,6 @@
 {
   "name": "@simple-photo-gallery/theme-modern",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Modern theme for Simple Photo Gallery",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -30,6 +30,7 @@
     "astro": "^5.11.0",
     "astro-relative-links": "^0.4.2",
     "blurhash": "^2.0.5",
+    "marked": "^16.4.0",
     "photoswipe": "^5.4.4"
   },
   "devDependencies": {

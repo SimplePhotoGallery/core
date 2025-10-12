@@ -1,21 +1,24 @@
 ---
 import type { GallerySection as GallerySectionType } from '@simple-photo-gallery/common';
+import { renderMarkdown } from '@/lib/markdown';
 
 interface Props {
   section: GallerySectionType;
 }
 
 const { section } = Astro.props;
+
+// Parse description as Markdown if it exists
+const parsedDescription = section.description ? await renderMarkdown(section.description) : '';
 ---
 
 <div class="gallery-section__header">
   <h2 class="gallery-section__header-title">{section.title}</h2>
-  <p class="gallery-section__header-description">{section.description}</p>
+  {parsedDescription && <div class="gallery-section__header-description markdown-content" set:html={parsedDescription} />}
 </div>
 
 <style>
   .gallery-section__header {
-    text-align: center;
     margin-bottom: 4rem;
   }
 
@@ -24,6 +27,7 @@ const { section } = Astro.props;
     font-weight: 700;
     margin-bottom: 1.5rem;
     color: #111827;
+    text-align: center;
   }
 
   .gallery-section__header-description {
@@ -32,5 +36,6 @@ const { section } = Astro.props;
     max-width: 42rem;
     margin: 0 auto;
     line-height: 1.6;
+    text-align: left;
   }
 </style>
