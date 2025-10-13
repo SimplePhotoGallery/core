@@ -4,6 +4,7 @@ import path from 'node:path';
 import { findGalleries } from '../../utils';
 
 import type { CleanOptions } from './types';
+import type { CommandResultSummary } from '../telemetry/types';
 import type { ConsolaInstance } from 'consola';
 
 /**
@@ -11,7 +12,7 @@ import type { ConsolaInstance } from 'consola';
  * @param galleryDir - Directory containing a gallery
  * @param ui - Consola instance for logging
  */
-async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<void> {
+async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<CommandResultSummary> {
   let filesRemoved = 0;
 
   // Remove index.html file from the gallery directory
@@ -43,20 +44,22 @@ async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<vo
   } else {
     ui.info(`No gallery files found at: ${galleryDir}`);
   }
+
+  return { processedGalleryCount: filesRemoved };
 }
 
 /**
  * Clean command implementation
  * Removes all gallery-related files and directories
  */
-export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise<void> {
+export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
   try {
     const basePath = path.resolve(options.gallery);
 
     // Check if the base path exists
     if (!fs.existsSync(basePath)) {
       ui.error(`Directory does not exist: ${basePath}`);
-      return;
+      return { processedGalleryCount: 0 };
     }
 
     // Find all gallery directories
@@ -64,7 +67,7 @@ export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise
 
     if (galleryDirs.length === 0) {
       ui.info('No galleries found to clean.');
-      return;
+      return { processedGalleryCount: 0 };
     }
 
     // Clean each gallery directory
@@ -73,6 +76,8 @@ export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise
     }
 
     ui.box(`Successfully cleaned ${galleryDirs.length} ${galleryDirs.length === 1 ? 'gallery' : 'galleries'}`);
+
+    return { processedGalleryCount: galleryDirs.length };
   } catch (error) {
     ui.error('Error cleaning galleries');
     throw error;

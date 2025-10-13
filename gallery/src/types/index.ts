@@ -8,7 +8,16 @@ export interface Dimensions {
   height: number;
 }
 
+/** Represents an image with metadata */
 export interface ImageWithMetadata {
+  /** The image */
   image: Sharp;
+
+  /** The metadata */
   metadata: Metadata;
+}
+
+/** Represents the telemetry option */
+export interface TelemetryOption {
+  telemetry?: '0' | '1';
 }
