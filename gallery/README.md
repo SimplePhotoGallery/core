@@ -79,6 +79,20 @@ For advanced usage, customization, and deployment options, see the comprehensive
 - **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
 - **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
 
+## Telemetry
+
+Simple Photo Gallery collects anonymised usage telemetry to help us understand which features are the most helpful and to prioritise improvements. The CLI will ask for your consent the first time it runs on a new machine and remembers your choice using the [`conf`](https://www.npmjs.com/package/conf) package. No personal data or information about your photos is collected.
+
+You can manage telemetry at any time:
+
+```bash
+gallery telemetry --disable   # opt out of telemetry
+gallery telemetry --enable    # opt back in
+gallery telemetry --provider console  # switch to console logging implementation
+```
+
+Every command also accepts `--telemetry 0` or `--telemetry 1` to temporarily override your global preference.
+
 ## Python Version
 
 The old Python version of Simple Photo Gallery V1 is still available [here](https://github.com/haltakov/simple-photo-gallery), but is now deprecated.

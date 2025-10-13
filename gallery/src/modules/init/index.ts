@@ -6,6 +6,7 @@ import { capitalizeTitle, getMediaFileType } from './utils';
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
 import type { ConsolaInstance } from 'consola';
+import type { CommandResultSummary } from '../../types/command';
 
 /**
  * Scans a directory for media files and subdirectories
@@ -238,7 +239,7 @@ async function processDirectory(
  * @param options - Options specifying paths, recursion, and default settings
  * @param ui - ConsolaInstance for logging and user prompts
  */
-export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<void> {
+export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
   try {
     const scanPath = path.resolve(options.photos);
     const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
@@ -249,6 +250,11 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<v
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,
     );
+
+    return {
+      processedMediaCount: result.totalFiles,
+      processedGalleryCount: result.totalGalleries,
+    };
   } catch (error) {
     ui.error('Error initializing gallery');
     throw error;

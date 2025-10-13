@@ -5,6 +5,7 @@ import { findGalleries } from '../../utils';
 
 import type { CleanOptions } from './types';
 import type { ConsolaInstance } from 'consola';
+import type { CommandResultSummary } from '../../types/command';
 
 /**
  * Clean gallery files from a single directory
@@ -49,14 +50,14 @@ async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<vo
  * Clean command implementation
  * Removes all gallery-related files and directories
  */
-export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise<void> {
+export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
   try {
     const basePath = path.resolve(options.gallery);
 
     // Check if the base path exists
     if (!fs.existsSync(basePath)) {
       ui.error(`Directory does not exist: ${basePath}`);
-      return;
+      return { processedGalleryCount: 0 };
     }
 
     // Find all gallery directories
@@ -64,7 +65,7 @@ export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise
 
     if (galleryDirs.length === 0) {
       ui.info('No galleries found to clean.');
-      return;
+      return { processedGalleryCount: 0 };
     }
 
     // Clean each gallery directory
@@ -73,6 +74,8 @@ export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise
     }
 
     ui.box(`Successfully cleaned ${galleryDirs.length} ${galleryDirs.length === 1 ? 'gallery' : 'galleries'}`);
+
+    return { processedGalleryCount: galleryDirs.length };
   } catch (error) {
     ui.error('Error cleaning galleries');
     throw error;

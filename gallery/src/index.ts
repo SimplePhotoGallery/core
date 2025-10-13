@@ -3,18 +3,24 @@
 import process from 'node:process';
 
 import { Command } from 'commander';
+import type { Command as CommanderCommand } from 'commander';
 import { createConsola, LogLevels, type ConsolaInstance } from 'consola';
 
 import { build } from './modules/build';
 import { clean } from './modules/clean';
 import { init } from './modules/init';
+import { manageTelemetry } from './modules/telemetry-command';
 import { thumbnails } from './modules/thumbnails';
+import { TelemetryService } from './telemetry';
+import type { CommandResultSummary, TelemetryOption } from './types/command';
 import { checkForUpdates, displayUpdateNotification, waitForUpdateCheck } from './utils/version';
 
 import packageJson from '../package.json' with { type: 'json' };
 
 /** Command line interface program instance */
 const program = new Command();
+
+const telemetryService = new TelemetryService(packageJson.name, packageJson.version);
 
 program
   .name('gallery')
@@ -43,33 +49,85 @@ function createConsolaUI(globalOpts: ReturnType<typeof program.opts>): ConsolaIn
   }).withTag('simple-photo-gallery');
 }
 
+function collectCommandArguments(command: CommanderCommand): string[] {
+  return command.options
+    .map((option) => ({ name: option.attributeName(), source: command.getOptionValueSource(option.attributeName()) }))
+    .filter((option) => option.source && option.source !== 'default')
+    .map((option) => option.name);
+}
+
+function collectGlobalArguments(): string[] {
+  return program.options
+    .map((option) => ({ name: option.attributeName(), source: program.getOptionValueSource(option.attributeName()) }))
+    .filter((option) => option.source && option.source !== 'default')
+    .map((option) => option.name);
+}
+
+function parseTelemetryOption(value: string): '0' | '1' {
+  if (value !== '0' && value !== '1') {
+    throw new Error('Telemetry option must be either 0 or 1.');
+  }
+
+  return value;
+}
+
 /**
- * Higher-order function that wraps command handlers to provide ConsolaUI instance
- * @param handler - Command handler function that receives options and UI instance
- * @returns Wrapped handler function that creates UI and handles errors
+ * Higher-order function that wraps command handlers to provide Consola UI and telemetry instrumentation.
+ * @param handler - Command handler function that receives options, UI instance and commander command
+ * @returns Wrapped handler function that creates UI, handles errors and records telemetry
  */
-function withConsolaUI<O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) {
-  return async (opts: O) => {
+function withCommandContext<O>(
+  handler: (opts: O, ui: ConsolaInstance, command: CommanderCommand) => Promise<CommandResultSummary | void> | CommandResultSummary | void,
+) {
+  return async (rawOpts: O & TelemetryOption, command: CommanderCommand) => {
+    const { telemetry: telemetryOverride, ...commandOptions } = rawOpts as O & TelemetryOption;
     const ui = createConsolaUI(program.opts());
 
-    // Start update check in background (non-blocking)
+    const startedAt = Date.now();
+
     const updateCheckPromise = checkForUpdates(packageJson.name, packageJson.version);
 
+    const decision = await telemetryService.resolveDecision(telemetryOverride);
+
+    let success = false;
+    let metrics: CommandResultSummary | undefined;
+    let errorInfo: { name: string; message: string } | undefined;
+
     try {
-      await handler(opts, ui);
+      const result = await handler(commandOptions as O, ui, command);
+      if (result && Object.keys(result).length > 0) {
+        metrics = result;
+      }
+
+      success = true;
     } catch (error) {
       ui.debug(error);
+
+      if (error instanceof Error) {
+        errorInfo = { name: error.name, message: error.message };
+      } else {
+        errorInfo = { name: 'UnknownError', message: String(error) };
+      }
 
       process.exitCode = 1;
     }
 
-    // After command completes, check if update is available
-    // Wait up to 5 seconds for the check to complete
     const updateInfo = await waitForUpdateCheck(updateCheckPromise);
 
     if (updateInfo) {
       displayUpdateNotification(updateInfo, ui);
     }
+
+    await telemetryService.emit({
+      command: command.name(),
+      argumentsProvided: collectCommandArguments(command),
+      globalOptionsProvided: collectGlobalArguments(),
+      metrics,
+      success,
+      error: errorInfo,
+      decision,
+      startedAt,
+    });
   };
 }
 
@@ -87,14 +145,16 @@ program
   )
   .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
   .option('-d, --default', 'Use default gallery settings instead of asking the user', false)
-  .action(withConsolaUI(init));
+  .option('--telemetry <state>', 'Enable (1) or disable (0) telemetry for this command', parseTelemetryOption)
+  .action(withCommandContext((options, ui) => init(options, ui)));
 
 program
   .command('thumbnails')
   .description('Create thumbnails for all media files in the gallery')
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(withConsolaUI(thumbnails));
+  .option('--telemetry <state>', 'Enable (1) or disable (0) telemetry for this command', parseTelemetryOption)
+  .action(withCommandContext((options, ui) => thumbnails(options, ui)));
 
 program
   .command('build')
@@ -102,13 +162,24 @@ program
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .option('-b, --base-url <url>', 'Base URL where the photos are hosted')
-  .action(withConsolaUI(build));
+  .option('--telemetry <state>', 'Enable (1) or disable (0) telemetry for this command', parseTelemetryOption)
+  .action(withCommandContext((options, ui) => build(options, ui)));
 
 program
   .command('clean')
   .description('Remove all gallery files and folders (index.html, gallery/)')
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Clean subdirectories recursively', false)
-  .action(withConsolaUI(clean));
+  .option('--telemetry <state>', 'Enable (1) or disable (0) telemetry for this command', parseTelemetryOption)
+  .action(withCommandContext((options, ui) => clean(options, ui)));
+
+program
+  .command('telemetry')
+  .description('Manage anonymous telemetry preferences')
+  .option('--enable', 'Enable anonymous telemetry')
+  .option('--disable', 'Disable anonymous telemetry')
+  .option('--provider <provider>', 'Set telemetry provider (console|plausible)')
+  .option('--telemetry <state>', 'Enable (1) or disable (0) telemetry for this command', parseTelemetryOption)
+  .action(withCommandContext((options, ui) => manageTelemetry(options, ui, telemetryService)));
 
 program.parse();
