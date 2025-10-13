@@ -4,4 +4,6 @@ export interface CleanOptions {
   gallery: string;
   /** Whether to clean galleries in subdirectories recursively */
   recursive: boolean;
+  /** Override telemetry setting (0=disable, 1=enable) */
+  telemetry?: number;
 }

@@ -6,6 +6,7 @@ import { capitalizeTitle, getMediaFileType } from './utils';
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
 import type { ConsolaInstance } from 'consola';
+import { setCommandMetrics } from '../../utils/command-metrics';
 
 /**
  * Scans a directory for media files and subdirectories
@@ -249,6 +250,12 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<v
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,
     );
+
+    // Set metrics for telemetry
+    setCommandMetrics({
+      itemsProcessed: result.totalFiles,
+      itemType: 'media-files',
+    });
   } catch (error) {
     ui.error('Error initializing gallery');
     throw error;

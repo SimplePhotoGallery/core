@@ -11,6 +11,7 @@ import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
 import { getImageDescription, createImageThumbnails, loadImageWithMetadata } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
+import { setCommandMetrics } from '../../utils/command-metrics';
 
 import type { ThumbnailOptions } from './types';
 
@@ -290,6 +291,12 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
     ui.box(
       `Created thumbnails for ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} with ${totalProcessed} media ${totalProcessed === 1 ? 'file' : 'files'}`,
     );
+
+    // Set metrics for telemetry
+    setCommandMetrics({
+      itemsProcessed: totalProcessed,
+      itemType: 'thumbnails',
+    });
   } catch (error) {
     ui.error('Error creating thumbnails');
     throw error;

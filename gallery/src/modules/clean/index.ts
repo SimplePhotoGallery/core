@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { findGalleries } from '../../utils';
+import { setCommandMetrics } from '../../utils/command-metrics';
 
 import type { CleanOptions } from './types';
 import type { ConsolaInstance } from 'consola';
@@ -73,6 +74,12 @@ export async function clean(options: CleanOptions, ui: ConsolaInstance): Promise
     }
 
     ui.box(`Successfully cleaned ${galleryDirs.length} ${galleryDirs.length === 1 ? 'gallery' : 'galleries'}`);
+
+    // Set metrics for telemetry
+    setCommandMetrics({
+      itemsProcessed: galleryDirs.length,
+      itemType: 'galleries',
+    });
   } catch (error) {
     ui.error('Error cleaning galleries');
     throw error;

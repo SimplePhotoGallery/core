@@ -10,6 +10,7 @@ import { createGallerySocialMediaCardImage, createOptimizedHeaderImage } from '.
 
 import { findGalleries } from '../../utils';
 import { processGalleryThumbnails } from '../thumbnails';
+import { setCommandMetrics } from '../../utils/command-metrics';
 
 import type { BuildOptions } from './types';
 
@@ -155,6 +156,12 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     }
 
     ui.box(`Built ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} successfully`);
+
+    // Set metrics for telemetry
+    setCommandMetrics({
+      itemsProcessed: totalGalleries,
+      itemType: 'galleries',
+    });
   } catch (error) {
     if (error instanceof Error && error.message.includes('Cannot find package')) {
       ui.error('Theme package not found: @simple-photo-gallery/theme-modern/package.json');

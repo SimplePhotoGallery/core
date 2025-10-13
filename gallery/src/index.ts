@@ -8,7 +8,10 @@ import { createConsola, LogLevels, type ConsolaInstance } from 'consola';
 import { build } from './modules/build';
 import { clean } from './modules/clean';
 import { init } from './modules/init';
+import { telemetryCommand } from './modules/telemetry';
 import { thumbnails } from './modules/thumbnails';
+import { ensureTelemetryConsent, telemetry } from './utils';
+import { getAndClearCommandMetrics } from './utils/command-metrics';
 import { checkForUpdates, displayUpdateNotification, waitForUpdateCheck } from './utils/version';
 
 import packageJson from '../package.json' with { type: 'json' };
@@ -46,21 +49,53 @@ function createConsolaUI(globalOpts: ReturnType<typeof program.opts>): ConsolaIn
 /**
  * Higher-order function that wraps command handlers to provide ConsolaUI instance
  * @param handler - Command handler function that receives options and UI instance
+ * @param commandName - Name of the command for telemetry
  * @returns Wrapped handler function that creates UI and handles errors
  */
-function withConsolaUI<O>(handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void) {
+function withConsolaUI<O extends { telemetry?: number }>(
+  handler: (opts: O, ui: ConsolaInstance) => Promise<void> | void,
+  commandName: string,
+) {
   return async (opts: O) => {
     const ui = createConsolaUI(program.opts());
+
+    // Get telemetry override from options
+    const telemetryOverride = opts.telemetry;
+
+    // Ask for telemetry consent on first run (only for non-telemetry commands)
+    if (commandName !== 'telemetry') {
+      await ensureTelemetryConsent(ui);
+    }
 
     // Start update check in background (non-blocking)
     const updateCheckPromise = checkForUpdates(packageJson.name, packageJson.version);
 
+    let commandError: Error | undefined;
+    let commandResult: unknown;
+
     try {
-      await handler(opts, ui);
+      commandResult = await handler(opts, ui);
     } catch (error) {
+      commandError = error instanceof Error ? error : new Error(String(error));
       ui.debug(error);
 
       process.exitCode = 1;
+    }
+
+    // Record telemetry
+    if (commandName !== 'telemetry') {
+      // Get metrics from commands
+      const metrics = getAndClearCommandMetrics();
+
+      await (commandError
+        ? telemetry.recordError(commandName, opts as Record<string, unknown>, commandError, telemetryOverride)
+        : telemetry.recordSuccess(
+            commandName,
+            opts as Record<string, unknown>,
+            metrics?.itemsProcessed,
+            metrics?.itemType,
+            telemetryOverride,
+          ));
     }
 
     // After command completes, check if update is available
@@ -87,14 +122,16 @@ program
   )
   .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
   .option('-d, --default', 'Use default gallery settings instead of asking the user', false)
-  .action(withConsolaUI(init));
+  .option('--telemetry <value>', 'Override telemetry setting (0=disable, 1=enable)', (value) => Number.parseInt(value, 10))
+  .action(withConsolaUI(init, 'init'));
 
 program
   .command('thumbnails')
   .description('Create thumbnails for all media files in the gallery')
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
-  .action(withConsolaUI(thumbnails));
+  .option('--telemetry <value>', 'Override telemetry setting (0=disable, 1=enable)', (value) => Number.parseInt(value, 10))
+  .action(withConsolaUI(thumbnails, 'thumbnails'));
 
 program
   .command('build')
@@ -102,13 +139,28 @@ program
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .option('-b, --base-url <url>', 'Base URL where the photos are hosted')
-  .action(withConsolaUI(build));
+  .option('--telemetry <value>', 'Override telemetry setting (0=disable, 1=enable)', (value) => Number.parseInt(value, 10))
+  .action(withConsolaUI(build, 'build'));
 
 program
   .command('clean')
   .description('Remove all gallery files and folders (index.html, gallery/)')
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Clean subdirectories recursively', false)
-  .action(withConsolaUI(clean));
+  .option('--telemetry <value>', 'Override telemetry setting (0=disable, 1=enable)', (value) => Number.parseInt(value, 10))
+  .action(withConsolaUI(clean, 'clean'));
+
+program
+  .command('telemetry <action>')
+  .description('Manage telemetry settings (enable, disable, status)')
+  .action(async (action: string) => {
+    const ui = createConsolaUI(program.opts());
+    try {
+      await telemetryCommand({ action }, ui);
+    } catch (error) {
+      ui.debug(error);
+      process.exitCode = 1;
+    }
+  });
 
 program.parse();

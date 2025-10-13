@@ -60,3 +60,7 @@ export function handleFileProcessingError(error: unknown, filename: string, ui: 
 
   ui.debug(error);
 }
+
+// Export telemetry utilities
+export { telemetry, isTelemetryEnabled, setTelemetryConsent, ensureTelemetryConsent } from './telemetry';
+export type { TelemetryEvent, TelemetryProvider } from './telemetry';

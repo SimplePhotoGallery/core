@@ -6,4 +6,6 @@ export interface BuildOptions {
   recursive: boolean;
   /** Optional base URL where the photos are hosted */
   baseUrl?: string;
+  /** Override telemetry setting (0=disable, 1=enable) */
+  telemetry?: number;
 }

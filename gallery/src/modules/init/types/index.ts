@@ -13,6 +13,8 @@ export interface ScanOptions {
   recursive: boolean;
   /** Whether to use default gallery settings instead of prompting user */
   default: boolean;
+  /** Override telemetry setting (0=disable, 1=enable) */
+  telemetry?: number;
 }
 
 /** Metadata for a sub-gallery */
