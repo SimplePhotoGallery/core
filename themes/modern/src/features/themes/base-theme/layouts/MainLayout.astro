@@ -19,6 +19,11 @@ const { title, description, metadata, url, analyticsScript } = Astro.props;
   <MainHead title={title} description={description} metadata={metadata} url={url} />
   <body>
     <slot />
+    {
+      /* Analytics script is injected directly from gallery.json, which is controlled by the gallery owner.
+         This is safe because the gallery owner has full control over the build process and could inject
+         arbitrary code anyway. This field should only be edited by trusted users. */
+    }
     {analyticsScript && <Fragment set:html={analyticsScript} />}
   </body>
 </html>
