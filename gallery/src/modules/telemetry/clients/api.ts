@@ -12,7 +12,7 @@ export class ApiTelemetryClient implements TelemetryClient {
 
   async record(event: TelemetryEvent): Promise<void> {
     try {
-      await axios.post(this.endpoint, event, {
+      axios.post(this.endpoint, event, {
         headers: {
           'content-type': 'application/json',
           'user-agent': `simple-photo-gallery/${event.packageVersion} (${process.platform}; ${process.arch})`,
