@@ -5,7 +5,6 @@ import Conf from 'conf';
 
 import { ApiTelemetryClient } from '../clients/api';
 import { ConsoleTelemetryClient } from '../clients/console';
-import { PlausibleTelemetryClient } from '../clients/plausible';
 
 import type { CommandResultSummary, TelemetryClient, TelemetryConfigSchema, TelemetryEvent } from '../types';
 import type { ConsolaInstance } from 'consola';
@@ -166,10 +165,6 @@ export class TelemetryService {
         }
         case 'console': {
           this.client = new ConsoleTelemetryClient();
-          break;
-        }
-        case 'plausible': {
-          this.client = new PlausibleTelemetryClient();
           break;
         }
         case 'api': {
