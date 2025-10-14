@@ -21,4 +21,6 @@ module.exports = {
       },
     ],
   },
+  // Run tests serially to avoid race conditions with file system operations
+  maxWorkers: 1,
 };
