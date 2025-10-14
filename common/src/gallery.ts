@@ -61,6 +61,7 @@ export const GalleryDataSchema = z.object({
   metadata: GalleryMetadataSchema,
   galleryOutputPath: z.string().optional(),
   mediaBaseUrl: z.string().optional(),
+  analyticsScript: z.string().optional(),
   sections: z.array(GallerySectionSchema),
   subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });
