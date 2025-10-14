@@ -137,7 +137,7 @@ export class TelemetryService {
   /** Prompts the user for consent to collect telemetry. */
   private async promptForConsent(): Promise<boolean> {
     this.ui.info(
-      'Simple Photo Gallery collects anonymous usage telemetry to improve the CLI. No personal data or information about your photos is collected.',
+      'Simple Photo Gallery collects anonymous usage telemetry to improve the CLI. No personal data or information about your photos is collected. For more information, see https://simple.photo/telemetry.',
     );
 
     const answer = await this.ui.prompt('Would you like to enable telemetry?', {
