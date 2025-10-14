@@ -86,8 +86,8 @@ Simple Photo Gallery collects optional anonymised usage telemetry to help us und
 You can manage telemetry at any time:
 
 ```bash
-gallery telemetry --disable   # opt out of telemetry
-gallery telemetry --enable    # opt back in
+spg telemetry -s 0   # opt out of telemetry
+spg telemetry -s 1   # opt back in
 ```
 
 Every command also accepts `--telemetry 0` or `--telemetry 1` to temporarily override your global preference.

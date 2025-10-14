@@ -184,8 +184,9 @@ program
   .action(withCommandContext((options, ui) => clean(options, ui)));
 
 program
-  .command('telemetry [state]')
+  .command('telemetry')
   .description('Manage anonymous telemetry preferences. Use 1 to enable, 0 to disable, or no argument to check status')
+  .option('-s, --state <state>', 'Enable (1) or disable (0) telemetry', parseTelemetryOption)
   .action(withCommandContext((options, ui) => telemetry(options, ui, telemetryService)));
 
 program.parse();
