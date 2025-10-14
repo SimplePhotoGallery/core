@@ -92,6 +92,8 @@ spg telemetry -s 1   # opt back in
 
 Every command also accepts `--telemetry 0` or `--telemetry 1` to temporarily override your global preference.
 
+For more information about what data is collected please visit the [telemetry page](https://simple.photo/telemetry).
+
 ## Python Version
 
 The old Python version of Simple Photo Gallery V1 is still available [here](https://github.com/haltakov/simple-photo-gallery), but is now deprecated.
