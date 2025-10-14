@@ -97,7 +97,7 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   }
 
   // Build the template
-  ui.debug('Building gallery form template');
+  ui.debug('Building gallery from template');
   try {
     // Set the environment variable for the gallery.json path that will be used by the template
     process.env.GALLERY_JSON_PATH = galleryJsonPath;
