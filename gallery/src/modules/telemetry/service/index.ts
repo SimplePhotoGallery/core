@@ -3,6 +3,7 @@ import process from 'node:process';
 
 import Conf from 'conf';
 
+import { ApiTelemetryClient } from '../clients/api';
 import { ConsoleTelemetryClient } from '../clients/console';
 import { PlausibleTelemetryClient } from '../clients/plausible';
 
@@ -171,8 +172,12 @@ export class TelemetryService {
           this.client = new PlausibleTelemetryClient();
           break;
         }
+        case 'api': {
+          this.client = new ApiTelemetryClient();
+          break;
+        }
         default: {
-          this.client = new PlausibleTelemetryClient();
+          this.client = new ApiTelemetryClient();
           break;
         }
       }
