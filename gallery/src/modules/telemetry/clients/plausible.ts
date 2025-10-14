@@ -10,7 +10,6 @@ import type { TelemetryClient, TelemetryEvent } from '../types';
 export class PlausibleTelemetryClient implements TelemetryClient {
   async record(event: TelemetryEvent): Promise<void> {
     const props: Record<string, string> = {
-      command: event.command,
       result: event.result,
       packageVersion: event.packageVersion,
       packageName: event.packageName,
@@ -47,6 +46,8 @@ export class PlausibleTelemetryClient implements TelemetryClient {
       props.errorMessage = event.errorMessage;
     }
 
+    console.log('props', props);
+
     try {
       await fetch(PLAUSIBLE_ENDPOINT, {
         method: 'POST',
@@ -55,7 +56,7 @@ export class PlausibleTelemetryClient implements TelemetryClient {
           'user-agent': `simple-photo-gallery/${event.packageVersion} (${process.platform}; ${process.arch})`,
         },
         body: JSON.stringify({
-          name: 'cli-command',
+          name: event.command,
           domain: PLAUSIBLE_DOMAIN,
           url: PLAUSIBLE_URL,
           props,

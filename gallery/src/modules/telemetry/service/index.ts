@@ -159,16 +159,20 @@ export class TelemetryService {
     if (!this.client) {
       // Create the client based on the environment variable
       switch (process.env.SPG_TELEMETRY_PROVIDER) {
-        case 'plausible': {
-          this.client = new PlausibleTelemetryClient();
+        case 'none': {
+          this.client = undefined;
           break;
         }
         case 'console': {
           this.client = new ConsoleTelemetryClient();
           break;
         }
+        case 'plausible': {
+          this.client = new PlausibleTelemetryClient();
+          break;
+        }
         default: {
-          this.client = undefined;
+          this.client = new PlausibleTelemetryClient();
           break;
         }
       }

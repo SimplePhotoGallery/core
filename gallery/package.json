@@ -17,7 +17,7 @@
     "spg": "./dist/index.js"
   },
   "scripts": {
-    "gallery": "tsx src/index.ts",
+    "gallery": "SPG_TELEMETRY_PROVIDER=none tsx src/index.ts",
     "clean": "rm -rf dist",
     "compile": "tsc --noEmit",
     "build": "yarn clean && tsup",
