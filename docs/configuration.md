@@ -111,3 +111,20 @@ Markdown formatting is available in:
 ## Thumbnail size
 
 Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
+
+## Analytics script
+
+You can add custom analytics scripts (such as Google Analytics, Plausible, or other tracking services) to your gallery by including an `analyticsScript` field in your `gallery.json` file. The script will be embedded at the end of the HTML body tag.
+
+### Example
+
+```json
+{
+  "title": "My Gallery",
+  "description": "My gallery with fantastic photos.",
+  "analyticsScript": "<!-- Google Analytics -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID\"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('js', new Date());\n  gtag('config', 'GA_MEASUREMENT_ID');\n</script>",
+  ...
+}
+```
+
+> **Security Note:** The `analyticsScript` field accepts arbitrary HTML and JavaScript that will be embedded directly into your gallery. Only add scripts from trusted sources and never include user-provided content in this field. This field is intended to be edited by the gallery owner, not by end users.
