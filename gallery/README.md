@@ -79,6 +79,21 @@ For advanced usage, customization, and deployment options, see the comprehensive
 - **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
 - **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
 
+## Telemetry
+
+Simple Photo Gallery collects optional anonymised usage telemetry to help us understand which features are the most helpful and to prioritise improvements. No personal data or information about your photos is collected. You need to opt-in the first time you use a command for telemetry to be collected. When the CI or DO_NOT_TRACK environment variables are set, telemetry is disabled.
+
+You can manage telemetry at any time:
+
+```bash
+spg telemetry -s 0   # opt out of telemetry
+spg telemetry -s 1   # opt back in
+```
+
+Every command also accepts `--telemetry 0` or `--telemetry 1` to temporarily override your global preference.
+
+For more information about what data is collected please visit the [telemetry page](https://simple.photo/telemetry).
+
 ## Python Version
 
 The old Python version of Simple Photo Gallery V1 is still available [here](https://github.com/haltakov/simple-photo-gallery), but is now deprecated.

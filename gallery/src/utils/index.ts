@@ -60,3 +60,16 @@ export function handleFileProcessingError(error: unknown, filename: string, ui: 
 
   ui.debug(error);
 }
+
+/**
+ * Parses the telemetry option
+ * @param value - The value to parse
+ * @returns The parsed telemetry option
+ */
+export function parseTelemetryOption(value: string): '0' | '1' {
+  if (value !== '0' && value !== '1') {
+    throw new Error('Telemetry option must be either 0 or 1.');
+  }
+
+  return value;
+}

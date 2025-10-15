@@ -12,6 +12,7 @@ import { findGalleries } from '../../utils';
 import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
+import type { CommandResultSummary } from '../telemetry/types';
 
 /**
  * Checks if a file path refers to a file one folder up from the current directory
@@ -132,13 +133,13 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
  * @param options - Options specifying gallery path, recursion, and base URL
  * @param ui - ConsolaInstance for logging
  */
-export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<void> {
+export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
   try {
     // Find all gallery directories
     const galleryDirs = findGalleries(options.gallery, options.recursive);
     if (galleryDirs.length === 0) {
       ui.error('No galleries found.');
-      return;
+      return { processedGalleryCount: 0 };
     }
 
     // Get the astro theme directory from the default one
@@ -155,6 +156,8 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     }
 
     ui.box(`Built ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} successfully`);
+
+    return { processedGalleryCount: totalGalleries };
   } catch (error) {
     if (error instanceof Error && error.message.includes('Cannot find package')) {
       ui.error('Theme package not found: @simple-photo-gallery/theme-modern/package.json');

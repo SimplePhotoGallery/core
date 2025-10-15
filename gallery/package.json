@@ -17,7 +17,7 @@
     "spg": "./dist/index.js"
   },
   "scripts": {
-    "gallery": "tsx src/index.ts",
+    "gallery": "SPG_TELEMETRY_PROVIDER=none tsx src/index.ts",
     "clean": "rm -rf dist",
     "compile": "tsc --noEmit",
     "build": "yarn clean && tsup",
@@ -34,6 +34,7 @@
     "axios": "^1.12.2",
     "blurhash": "^2.0.5",
     "commander": "^12.0.0",
+    "conf": "^13.0.1",
     "consola": "^3.4.2",
     "exifreader": "^4.32.0",
     "node-ffprobe": "^3.0.0",

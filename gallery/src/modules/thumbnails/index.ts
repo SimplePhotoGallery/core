@@ -13,6 +13,7 @@ import { getImageDescription, createImageThumbnails, loadImageWithMetadata } fro
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
+import type { CommandResultSummary } from '../telemetry/types';
 
 /**
  * Processes an image file to create thumbnail and extract metadata
@@ -266,13 +267,13 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
  * @param options - Options specifying gallery path and recursion settings
  * @param ui - ConsolaInstance for logging
  */
-export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance): Promise<void> {
+export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
   try {
     // Find all gallery directories
     const galleryDirs = findGalleries(options.gallery, options.recursive);
     if (galleryDirs.length === 0) {
       ui.error('No galleries found.');
-      return;
+      return { processedGalleryCount: 0, processedMediaCount: 0 };
     }
 
     // Process each gallery directory
@@ -290,6 +291,8 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
     ui.box(
       `Created thumbnails for ${totalGalleries} ${totalGalleries === 1 ? 'gallery' : 'galleries'} with ${totalProcessed} media ${totalProcessed === 1 ? 'file' : 'files'}`,
     );
+
+    return { processedGalleryCount: totalGalleries, processedMediaCount: totalProcessed };
   } catch (error) {
     ui.error('Error creating thumbnails');
     throw error;
