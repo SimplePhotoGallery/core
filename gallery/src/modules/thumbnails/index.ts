@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { GalleryDataSchema, type MediaFile } from '@simple-photo-gallery/common/src/gallery';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { getFileMtime } from './utils';
@@ -9,11 +8,13 @@ import { getFileMtime } from './utils';
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
+import { parseGalleryJson } from '../../utils/gallery';
 import { getImageDescription, createImageThumbnails, loadImageWithMetadata } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
+import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
 
 /**
  * Processes an image file to create thumbnail and extract metadata
@@ -239,8 +240,7 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     fs.mkdirSync(thumbnailsPath, { recursive: true });
 
     // Read gallery.json
-    const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
-    const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+    const galleryData = parseGalleryJson(galleryJsonPath, ui);
 
     const thumbnailSize = galleryData.thumbnailSize || DEFAULT_THUMBNAIL_SIZE;
 

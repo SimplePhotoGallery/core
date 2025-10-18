@@ -3,16 +3,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { type GalleryData, GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { createGallerySocialMediaCardImage, createOptimizedHeaderImage } from './utils';
 
 import { findGalleries } from '../../utils';
+import { parseGalleryJson } from '../../utils/gallery';
 import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
+import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
 
 /**
  * Copies photos from gallery subdirectory to main directory when needed
@@ -49,8 +50,7 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
 
   // Read the gallery.json file
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
-  const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+  const galleryData = parseGalleryJson(galleryJsonPath, ui);
   const socialMediaCardImagePath = path.join(galleryDir, 'gallery', 'images', 'social-media-card.jpg');
   const mediaBasePath = galleryData.mediaBasePath;
   const mediaBaseUrl = baseUrl || galleryData.mediaBaseUrl;
