@@ -46,6 +46,17 @@ function validateGalleryStructure(galleryPath: string, expectedImageCount: numbe
   // Check subgallery count
   expect(validatedData.subGalleries.galleries).toHaveLength(expectedSubGalleryCount);
 
+  // For same-folder galleries, mediaBasePath should NOT be set
+  expect(validatedData.mediaBasePath).toBeUndefined();
+
+  // Verify all images have filename property and files exist (one folder up from gallery.json)
+  const photosPath = path.dirname(galleryPath);
+  for (const image of validatedData.sections[0].images) {
+    expect(image.filename).toBeDefined();
+    const expectedImagePath = path.resolve(photosPath, image.filename);
+    expect(existsSync(expectedImagePath)).toBe(true);
+  }
+
   return validatedData;
 }
 
@@ -67,11 +78,15 @@ function validateSeparateGalleryStructure(photosPath: string, galleryPath: strin
   expect(validatedData.sections).toHaveLength(1);
   expect(validatedData.sections[0].images).toHaveLength(expectedImageCount);
 
-  // Verify all image paths are relative to gallery and point back to photos directory
+  // For separate galleries, mediaBasePath should be set to the absolute photos path
+  expect(validatedData.mediaBasePath).toBeDefined();
+  expect(path.isAbsolute(validatedData.mediaBasePath!)).toBe(true);
+  expect(validatedData.mediaBasePath).toBe(photosPath);
+
+  // Verify all images have filename property and files exist
   for (const image of validatedData.sections[0].images) {
-    const absoluteImagePath = path.resolve(path.dirname(galleryJsonPath), image.path);
-    const expectedImagePath = path.resolve(photosPath, path.basename(image.path));
-    expect(absoluteImagePath).toBe(expectedImagePath);
+    expect(image.filename).toBeDefined();
+    const expectedImagePath = path.resolve(validatedData.mediaBasePath!, image.filename);
     expect(existsSync(expectedImagePath)).toBe(true);
   }
 
@@ -234,7 +249,7 @@ describe('Single-folder gallery', () => {
       // Verify custom settings were applied
       expect(validatedData.title).toBe('My Custom Gallery');
       expect(validatedData.description).toBe('Custom gallery description');
-      expect(validatedData.headerImage).toBe('../img_1.jpg');
+      expect(validatedData.headerImage).toBe('img_1.jpg');
     });
   });
 
@@ -355,19 +370,19 @@ describe('Multi-folder gallery', () => {
       const mainValidatedData = validateGalleryStructure(mainGalleryPath, 3, 2);
       expect(mainValidatedData.title).toBe('Multi Gallery Main');
       expect(mainValidatedData.description).toBe('Main gallery description');
-      expect(mainValidatedData.headerImage).toBe('../img_1.jpg');
+      expect(mainValidatedData.headerImage).toBe('img_1.jpg');
 
       // Validate first subgallery with custom settings
       const firstValidatedData = validateGalleryStructure(firstGalleryPath, 2, 0);
       expect(firstValidatedData.title).toBe('First Sub Gallery');
       expect(firstValidatedData.description).toBe('First sub description');
-      expect(firstValidatedData.headerImage).toBe('../img_4.jpg');
+      expect(firstValidatedData.headerImage).toBe('img_4.jpg');
 
       // Validate second subgallery with custom settings
       const secondValidatedData = validateGalleryStructure(secondGalleryPath, 2, 0);
       expect(secondValidatedData.title).toBe('Second Sub Gallery');
       expect(secondValidatedData.description).toBe('Second sub description');
-      expect(secondValidatedData.headerImage).toBe('../img_6.jpg');
+      expect(secondValidatedData.headerImage).toBe('img_6.jpg');
     });
   });
 
@@ -498,7 +513,7 @@ describe('Separate gallery directory', () => {
 
       expect(galleryData.title).toBe('Separate Gallery Custom');
       expect(galleryData.description).toBe('Custom separate gallery description');
-      expect(galleryData.headerImage).toBe('../img_2.jpg');
+      expect(galleryData.headerImage).toBe('img_2.jpg');
 
       // Clean up temporary directories
       for (const tempPath of [tempSeparatePhotosPath, tempSeparateGalleryPath]) {
