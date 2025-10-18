@@ -13,6 +13,8 @@ export interface ScanOptions {
   recursive: boolean;
   /** Whether to use default gallery settings instead of prompting user */
   default: boolean;
+  /** Whether to force override existing galleries without prompting */
+  force: boolean;
 }
 
 /** Metadata for a sub-gallery */

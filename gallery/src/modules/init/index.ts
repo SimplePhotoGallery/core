@@ -149,11 +149,29 @@ async function createGalleryJson(
 }
 
 /**
+ * Checks if a gallery already exists in the specified directory
+ * @param outputPath - Path where gallery would be created
+ * @returns Promise resolving to true if gallery exists, false otherwise
+ */
+async function galleryExists(outputPath: string): Promise<boolean> {
+  const galleryPath = path.join(outputPath, 'gallery');
+  const galleryJsonPath = path.join(galleryPath, 'gallery.json');
+
+  try {
+    await fs.access(galleryJsonPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Processes a directory and its subdirectories to create galleries
  * @param scanPath - Path to scan for media files
  * @param outputPath - Path where gallery should be created
  * @param recursive - Whether to process subdirectories recursively
  * @param useDefaultSettings - Whether to use default settings or prompt user
+ * @param force - Whether to force override existing galleries without prompting
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to processing results
  */
@@ -162,6 +180,7 @@ async function processDirectory(
   outputPath: string,
   recursive: boolean,
   useDefaultSettings: boolean,
+  force: boolean,
   ui: ConsolaInstance,
 ): Promise<ProcessDirectoryResult> {
   ui.start(`Scanning ${scanPath}`);
@@ -182,6 +201,7 @@ async function processDirectory(
         path.join(outputPath, path.basename(subGalleryDir)),
         recursive,
         useDefaultSettings,
+        force,
         ui,
       );
 
@@ -199,6 +219,22 @@ async function processDirectory(
   if (mediaFiles.length > 0 || subGalleries.length > 0) {
     const galleryPath = path.join(outputPath, 'gallery');
     const galleryJsonPath = path.join(galleryPath, 'gallery.json');
+
+    // Check if gallery already exists
+    const exists = await galleryExists(outputPath);
+
+    if (exists && !force) {
+      // Ask user if they want to override
+      const shouldOverride = await ui.prompt(`Gallery already exists at ${galleryJsonPath}. Do you want to override it?`, {
+        type: 'confirm',
+        default: false,
+      });
+
+      if (!shouldOverride) {
+        ui.info('Skipping gallery creation');
+        return { totalFiles: 0, totalGalleries: 0 };
+      }
+    }
 
     try {
       // Create output directory
@@ -243,7 +279,7 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<C
     const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
 
     // Process the directory tree with the specified recursion setting
-    const result = await processDirectory(scanPath, outputPath, options.recursive, options.default, ui);
+    const result = await processDirectory(scanPath, outputPath, options.recursive, options.default, options.force, ui);
 
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,

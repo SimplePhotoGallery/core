@@ -16,15 +16,16 @@ After that, the command will create a `gallery` folder and a `gallery.json` file
 
 ## Options
 
-| Option                 | Description                          | Default               |
-| ---------------------- | ------------------------------------ | --------------------- |
-| `-p, --photos <path>`  | Path to folder containing photos     | Current directory     |
-| `-g, --gallery <path>` | Where to create the gallery          | Same as photos folder |
-| `-r, --recursive`      | Create galleries from subdirectories | `false`               |
-| `-d, --default`        | Use default settings (skip prompts)  | `false`               |
-| `-v, --verbose`        | Show detailed output                 |                       |
-| `-q, --quiet`          | Only show warnings/errors            |                       |
-| `-h, --help`           | Show command help                    |                       |
+| Option                 | Description                                      | Default               |
+| ---------------------- | ------------------------------------------------ | --------------------- |
+| `-p, --photos <path>`  | Path to folder containing photos                 | Current directory     |
+| `-g, --gallery <path>` | Where to create the gallery                      | Same as photos folder |
+| `-r, --recursive`      | Create galleries from subdirectories             | `false`               |
+| `-d, --default`        | Use default settings (skip prompts)              | `false`               |
+| `-f, --force`          | Force override existing galleries without asking | `false`               |
+| `-v, --verbose`        | Show detailed output                             |                       |
+| `-q, --quiet`          | Only show warnings/errors                        |                       |
+| `-h, --help`           | Show command help                                |                       |
 
 ## Examples
 
@@ -43,6 +44,12 @@ spg init -r
 
 # Skip interactive prompts
 spg init -d
+
+# Force override existing gallery
+spg init -f
+
+# Combine options
+spg init -r -d -f
 ```
 
 ## Creating the gallery in a folder other than the photos folder
@@ -76,3 +83,21 @@ The command will recursively scan all subdirectories of the photos folder and cr
 What the recursive option does in addition is create links between the galleries, and sub-galleries will appear as links in each folder's gallery. This way, you can navigate between the galleries and sub-galleries.
 
 > **Note:** If you have a lot of subdirectories, you might want to use the `-d` or `--default` flag to skip the interactive prompts.
+
+## Overriding existing galleries
+
+By default, if a gallery already exists in the target directory, the command will ask you whether you want to override it. You can use the `-f` or `--force` flag to skip this confirmation and automatically override any existing galleries.
+
+```bash
+# Force override without confirmation
+spg init -f
+
+# Useful in scripts and automated workflows
+spg init -p /photos -f -d
+```
+
+This is particularly useful when:
+
+- Running the command in automated scripts or CI/CD pipelines
+- Re-initializing galleries after making changes to your photos
+- You want to reset your gallery configuration
