@@ -27,6 +27,7 @@
     "format": "prettier --write .",
     "format:fix": "prettier --write .",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "prepublish": "npm run build"
   },
   "dependencies": {
