@@ -1,10 +1,10 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
 import { GalleryDataDeprecatedSchema, GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
 
 import type { GalleryData, GalleryDataDeprecated } from '@simple-photo-gallery/common/src/gallery';
 import type { ConsolaInstance } from 'consola';
-import path from 'node:path';
 
 /**
  * Parses a gallery.json file and returns the gallery data
