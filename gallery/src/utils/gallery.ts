@@ -79,6 +79,7 @@ export function migrateGalleryJson(
 
   const galleryData = {
     ...deprecatedGalleryData,
+    headerImage: path.basename(deprecatedGalleryData.headerImage),
     sections,
     mediaBasePath,
   };

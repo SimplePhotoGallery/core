@@ -198,6 +198,11 @@ describe('Gallery JSON Migration', () => {
       expect(galleryData.sections[0].images[0]).toHaveProperty('filename');
       expect(galleryData.sections[0].images[0].filename).toBeDefined();
 
+      // Verify headerImage was also migrated (should be just filename, not path)
+      expect(galleryData.headerImage).toBe('img_1.jpg');
+      expect(galleryData.headerImage).not.toContain('/');
+      expect(galleryData.headerImage).not.toContain(path.sep);
+
       // Verify UI messages were called
       expect(mockUI.start).toHaveBeenCalledWith(expect.stringContaining('Old gallery.json format detected'));
       expect(mockUI.success).toHaveBeenCalledWith(expect.stringContaining('migrated'));
@@ -237,6 +242,10 @@ describe('Gallery JSON Migration', () => {
 
       // Verify mediaBasePath is absolute
       expect(path.isAbsolute(galleryData.mediaBasePath!)).toBe(true);
+
+      // Verify headerImage was also migrated
+      expect(galleryData.headerImage).toBe('img_1.jpg');
+      expect(path.basename(galleryData.headerImage)).toBe(galleryData.headerImage);
     });
 
     test('should parse already migrated gallery.json without re-migrating', () => {
@@ -378,6 +387,91 @@ describe('Gallery JSON Migration', () => {
 
       // Verify backup was created
       expect(existsSync(`${galleryJsonPath}.old`)).toBe(true);
+    });
+
+    test('should migrate headerImage path to filename', () => {
+      const testPath = path.resolve(migrationTestPath, 'header-image-migration');
+      const galleryPath = path.resolve(testPath, 'gallery');
+
+      mkdirSync(galleryPath, { recursive: true });
+
+      const deprecatedData: GalleryDataDeprecated = {
+        title: 'Test',
+        description: 'Test',
+        headerImage: '../header-image.jpg',
+        metadata: {},
+        sections: [
+          {
+            images: [
+              {
+                type: 'image',
+                path: '../image-1.jpg',
+                width: 1920,
+                height: 1080,
+              },
+            ],
+          },
+        ],
+        subGalleries: {
+          title: 'Sub Galleries',
+          galleries: [],
+        },
+      };
+
+      const mockUI = createMockUI();
+      const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+
+      // Write the deprecated data first so the migration can backup it
+      writeFileSync(galleryJsonPath, JSON.stringify(deprecatedData, null, 2));
+
+      const migratedData = migrateGalleryJson(deprecatedData, galleryJsonPath, mockUI);
+
+      // Verify headerImage is transformed to just the filename
+      expect(migratedData.headerImage).toBe('header-image.jpg');
+      expect(migratedData.headerImage).not.toContain('/');
+      expect(migratedData.headerImage).not.toContain(path.sep);
+    });
+
+    test('should migrate headerImage with nested path to filename', () => {
+      const testPath = path.resolve(migrationTestPath, 'header-nested-path');
+      const galleryPath = path.resolve(testPath, 'gallery');
+
+      mkdirSync(galleryPath, { recursive: true });
+
+      const deprecatedData: GalleryDataDeprecated = {
+        title: 'Test',
+        description: 'Test',
+        headerImage: path.join('..', 'photos', 'subfolder', 'header-image.jpg'),
+        metadata: {},
+        sections: [
+          {
+            images: [
+              {
+                type: 'image',
+                path: path.join('..', 'photos', 'image-1.jpg'),
+                width: 1920,
+                height: 1080,
+              },
+            ],
+          },
+        ],
+        subGalleries: {
+          title: 'Sub Galleries',
+          galleries: [],
+        },
+      };
+
+      const mockUI = createMockUI();
+      const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+
+      // Write the deprecated data first so the migration can backup it
+      writeFileSync(galleryJsonPath, JSON.stringify(deprecatedData, null, 2));
+
+      const migratedData = migrateGalleryJson(deprecatedData, galleryJsonPath, mockUI);
+
+      // Verify headerImage is transformed to just the filename (no path components)
+      expect(migratedData.headerImage).toBe('header-image.jpg');
+      expect(path.basename(migratedData.headerImage)).toBe(migratedData.headerImage);
     });
 
     test('should set mediaBasePath for nested photo paths', () => {
