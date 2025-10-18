@@ -9,6 +9,7 @@ import { createGallerySocialMediaCardImage, createOptimizedHeaderImage } from '.
 
 import { findGalleries } from '../../utils';
 import { parseGalleryJson } from '../../utils/gallery';
+import { scanDirectory } from '../init';
 import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
@@ -36,6 +37,69 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
 }
 
 /**
+ * Scans a directory for new media files and appends them to the gallery.json
+ * @param galleryDir - Directory containing the gallery
+ * @param galleryJsonPath - Path to the gallery.json file
+ * @param galleryData - Current gallery data
+ * @param ui - ConsolaInstance for logging
+ * @returns Updated gallery data with new files appended
+ */
+async function scanAndAppendNewFiles(
+  galleryDir: string,
+  galleryJsonPath: string,
+  galleryData: GalleryData,
+  ui: ConsolaInstance,
+): Promise<GalleryData> {
+  // Determine the directory to scan based on mediaBasePath
+  const scanPath = galleryData.mediaBasePath || galleryDir;
+
+  ui.debug(`Scanning ${scanPath} for new media files`);
+
+  // Use the scanDirectory function from init module to get all media files
+  let scanResult;
+  try {
+    scanResult = await scanDirectory(scanPath, ui);
+  } catch {
+    ui.debug(`Could not scan directory ${scanPath}`);
+    return galleryData;
+  }
+
+  // Get all existing filenames from all sections
+  const existingFilenames = new Set<string>(
+    galleryData.sections.flatMap((section) => section.images.map((image) => image.filename)),
+  );
+
+  // Filter out files that already exist in the gallery
+  const newMediaFiles = scanResult.mediaFiles.filter((file) => !existingFilenames.has(file.filename));
+
+  // If there are new files, append them to the last section
+  if (newMediaFiles.length > 0) {
+    ui.info(`Found ${newMediaFiles.length} new media ${newMediaFiles.length === 1 ? 'file' : 'files'}`);
+
+    // Get the last section (or create one if no sections exist)
+    if (galleryData.sections.length === 0) {
+      galleryData.sections.push({ images: [] });
+    }
+
+    const lastSectionIndex = galleryData.sections.length - 1;
+    const lastSection = galleryData.sections[lastSectionIndex];
+
+    // Append new files to the last section
+    lastSection.images.push(...newMediaFiles);
+
+    // Save the updated gallery.json
+    ui.debug('Updating gallery.json with new files');
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+
+    ui.success(`Added ${newMediaFiles.length} new ${newMediaFiles.length === 1 ? 'file' : 'files'} to gallery.json`);
+  } else {
+    ui.debug('No new media files found');
+  }
+
+  return galleryData;
+}
+
+/**
  * Builds a single gallery by generating thumbnails and creating HTML output
  * @param galleryDir - Directory containing the gallery
  * @param templateDir - Directory containing the Astro template
@@ -45,12 +109,13 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
 async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string): Promise<void> {
   ui.start(`Building gallery ${galleryDir}`);
 
-  // Generate the thumbnails if needed
-  await processGalleryThumbnails(galleryDir, ui);
-
   // Read the gallery.json file
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  const galleryData = parseGalleryJson(galleryJsonPath, ui);
+  let galleryData = parseGalleryJson(galleryJsonPath, ui);
+
+  // Scan for new media files and append them to the gallery.json
+  galleryData = await scanAndAppendNewFiles(galleryDir, galleryJsonPath, galleryData, ui);
+
   const socialMediaCardImagePath = path.join(galleryDir, 'gallery', 'images', 'social-media-card.jpg');
   const mediaBasePath = galleryData.mediaBasePath;
   const mediaBaseUrl = baseUrl || galleryData.mediaBaseUrl;
@@ -85,6 +150,9 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
     galleryData.mediaBaseUrl = mediaBaseUrl;
     fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
   }
+
+  // Generate the thumbnails if needed
+  await processGalleryThumbnails(galleryDir, ui);
 
   // Build the template
   ui.debug('Building gallery from template');

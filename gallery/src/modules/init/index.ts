@@ -14,7 +14,7 @@ import type { ConsolaInstance } from 'consola';
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to scan results with media files and subdirectories
  */
-async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
+export async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<ScanDirectoryResult> {
   const mediaFiles: MediaFile[] = [];
   const subGalleryDirectories: string[] = [];
 
