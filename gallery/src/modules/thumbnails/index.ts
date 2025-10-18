@@ -70,7 +70,7 @@ export async function processImage(
   // Return the updated media file
   return {
     type: 'image',
-    path: imagePath,
+    filename: path.basename(imagePath),
     alt: description,
     width: imageDimensions.width,
     height: imageDimensions.height,
@@ -129,7 +129,7 @@ async function processVideo(
 
   return {
     type: 'video',
-    path: videoPath,
+    filename: path.basename(videoPath),
     alt: undefined,
     width: videoDimensions.width,
     height: videoDimensions.height,
@@ -147,7 +147,8 @@ async function processVideo(
 /**
  * Processes a media file to generate thumbnails and update metadata
  * @param mediaFile - Media file to process
- * @param galleryDir - Gallery directory path
+ * @param mediaBasePath - Base path for the media files
+ * @param galleryDir - Path to the gallery directory
  * @param thumbnailsPath - Directory where thumbnails are stored
  * @param thumbnailSize - Target size for thumbnails
  * @param ui - ConsolaInstance for logging
@@ -155,18 +156,21 @@ async function processVideo(
  */
 async function processMediaFile(
   mediaFile: MediaFile,
+  mediaBasePath: string,
   galleryDir: string,
   thumbnailsPath: string,
   thumbnailSize: number,
   ui: ConsolaInstance,
 ): Promise<MediaFile> {
   try {
-    // Resolve the path relative to the gallery.json file location, not the gallery directory
-    const galleryJsonDir = path.join(galleryDir, 'gallery');
-    const filePath = path.resolve(path.join(galleryJsonDir, mediaFile.path));
+    // Resolve the path relative to the mediaBasePath
+    const filePath = path.resolve(path.join(mediaBasePath, mediaFile.filename));
 
-    const fileName = path.basename(filePath);
+    console.log('filePath', filePath);
+
+    const fileName = mediaFile.filename;
     const fileNameWithoutExt = path.parse(fileName).name;
+    const galleryJsonDir = path.join(galleryDir, 'gallery');
     const thumbnailFileName = `${fileNameWithoutExt}.avif`;
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
     const thumbnailPathRetina = thumbnailPath.replace('.avif', '@2x.avif');
@@ -204,7 +208,7 @@ async function processMediaFile(
       return mediaFile;
     }
 
-    updatedMediaFile.path = mediaFile.path;
+    updatedMediaFile.filename = mediaFile.filename;
     if (updatedMediaFile.thumbnail) {
       updatedMediaFile.thumbnail.path = relativeThumbnailPath;
       updatedMediaFile.thumbnail.pathRetina = relativeThumbnailRetinaPath;
@@ -212,7 +216,7 @@ async function processMediaFile(
 
     return updatedMediaFile;
   } catch (error) {
-    handleFileProcessingError(error, path.basename(mediaFile.path), ui);
+    handleFileProcessingError(error, mediaFile.filename, ui);
 
     return mediaFile;
   }
@@ -240,11 +244,21 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
 
     const thumbnailSize = galleryData.thumbnailSize || DEFAULT_THUMBNAIL_SIZE;
 
+    // If the mediaBasePath is not set, use the gallery directory
+    const mediaBasePath = galleryData.mediaBasePath ?? path.join(galleryDir);
+
     // Process all sections and their images
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, galleryDir, thumbnailsPath, thumbnailSize, ui);
+        section.images[index] = await processMediaFile(
+          mediaFile,
+          mediaBasePath,
+          galleryDir,
+          thumbnailsPath,
+          thumbnailSize,
+          ui,
+        );
       }
 
       processedCount += section.images.length;

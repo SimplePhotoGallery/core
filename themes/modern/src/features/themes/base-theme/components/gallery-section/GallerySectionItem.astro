@@ -19,8 +19,8 @@ const captionHtml = parsedCaption ? `<div class="image-caption markdown-content"
 
 <a
   class="gallery-section__item"
-  href={getPhotoPath(image.path, mediaBaseUrl)}
-  data-pswp-src={getPhotoPath(image.path, mediaBaseUrl)}
+  href={getPhotoPath(image.filename, mediaBaseUrl)}
+  data-pswp-src={getPhotoPath(image.filename, mediaBaseUrl)}
   data-pswp-width={image.width}
   data-pswp-height={image.height}
   data-pswp-type={image.type}

@@ -19,13 +19,12 @@ export const getRelativePath = (resourcePath: string) => {
 /**
  * Get the path to a photo that is always in the gallery root directory.
  *
- * @param resourcePath - The path to the photo on the hard disk
+ * @param filename - The filename to get the path for
+ * @param mediaBaseUrl - The base URL for the media
  * @returns The normalized path relative to the gallery root directory
  */
-export const getPhotoPath = (photoPath: string, mediaBaseUrl?: string) => {
-  const resourceBasename = path.basename(photoPath);
-
-  return mediaBaseUrl ? `${mediaBaseUrl}/${resourceBasename}` : path.join('.', resourceBasename);
+export const getPhotoPath = (filename: string, mediaBaseUrl?: string) => {
+  return mediaBaseUrl ? `${mediaBaseUrl}/${filename}` : filename;
 };
 
 /**
