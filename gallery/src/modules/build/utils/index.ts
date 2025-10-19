@@ -54,8 +54,7 @@ export async function createGallerySocialMediaCardImage(
     <svg width="1200" height="631" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <style>
-          .title { font-family: Arial, sans-serif; font-size: 96px; font-weight: bold; fill: white; text-anchor: middle; }
-          .description { font-family: Arial, sans-serif; font-size: 48px; fill: white; text-anchor: middle; }
+          .title { font-family: Arial, sans-serif; font-size: 96px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
         </style>
       </defs>
       <text x="600" y="250" class="title">${title}</text>
