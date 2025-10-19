@@ -5,7 +5,12 @@ import process from 'node:process';
 
 import { LogLevels, type ConsolaInstance } from 'consola';
 
-import { createGallerySocialMediaCardImage, createOptimizedHeaderImage } from './utils';
+import {
+  cleanupOldHeaderImages,
+  createGallerySocialMediaCardImage,
+  createOptimizedHeaderImage,
+  hasOldHeaderImages,
+} from './utils';
 
 import { findGalleries } from '../../utils';
 import { parseGalleryJson } from '../../utils/gallery';
@@ -123,6 +128,30 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
     ? path.join(mediaBasePath, galleryData.headerImage)
     : path.resolve(galleryDir, galleryData.headerImage);
 
+  const imagesFolder = path.join(galleryDir, 'gallery', 'images');
+  const currentHeaderBasename = path.basename(headerImagePath, path.extname(headerImagePath));
+
+  // Create the images folder if it doesn't exist
+  if (!fs.existsSync(imagesFolder)) {
+    fs.mkdirSync(imagesFolder, { recursive: true });
+  }
+
+  // Check if header image has changed by looking for old header images
+  const headerImageChanged = hasOldHeaderImages(imagesFolder, currentHeaderBasename);
+
+  if (headerImageChanged) {
+    ui.info('Header image changed, cleaning up old assets');
+
+    // Clean up old header images
+    cleanupOldHeaderImages(imagesFolder, currentHeaderBasename, ui);
+
+    // Delete old social media card since header image changed
+    if (fs.existsSync(socialMediaCardImagePath)) {
+      fs.unlinkSync(socialMediaCardImagePath);
+      ui.debug('Deleted old social media card');
+    }
+  }
+
   // Create the gallery social media card image
   await createGallerySocialMediaCardImage(headerImagePath, galleryData.title, socialMediaCardImagePath, ui);
   galleryData.metadata.image =
@@ -130,7 +159,7 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 
   // Create optimized header image
-  await createOptimizedHeaderImage(headerImagePath, path.join(galleryDir, 'gallery', 'images'), ui);
+  await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
 
   // Ask the user if the photos should be copied if there is not baseUrl and mediaBasePath is set
   if (!mediaBaseUrl && mediaBasePath) {

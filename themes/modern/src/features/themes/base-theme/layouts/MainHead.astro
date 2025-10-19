@@ -6,9 +6,13 @@ interface Props {
   description?: string;
   url?: string;
   metadata?: GalleryMetadata;
+  headerImageBasename?: string;
 }
 
-const { title, description, url, metadata } = Astro.props;
+const { title, description, url, metadata, headerImageBasename } = Astro.props;
+
+// Use headerImageBasename for dynamic image paths, fallback to generic name
+const imgBasename = headerImageBasename || 'header';
 ---
 
 <head>
@@ -74,7 +78,7 @@ const { title, description, url, metadata } = Astro.props;
     as="image"
     type="image/avif"
     media="(max-aspect-ratio: 3/4)"
-    imagesrcset="gallery/images/header_portrait_360.avif 360w, gallery/images/header_portrait_480.avif 480w, gallery/images/header_portrait_720.avif 720w, gallery/images/header_portrait_1080.avif 1080w"
+    imagesrcset={`gallery/images/${imgBasename}_portrait_360.avif 360w, gallery/images/${imgBasename}_portrait_480.avif 480w, gallery/images/${imgBasename}_portrait_720.avif 720w, gallery/images/${imgBasename}_portrait_1080.avif 1080w`}
     imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
     fetchpriority="high"
   />
@@ -83,7 +87,7 @@ const { title, description, url, metadata } = Astro.props;
     as="image"
     type="image/avif"
     media="(min-aspect-ratio: 3/4)"
-    imagesrcset="gallery/images/header_landscape_640.avif 640w, gallery/images/header_landscape_960.avif 960w, gallery/images/header_landscape_1280.avif 1280w, gallery/images/header_landscape_1920.avif 1920w, gallery/images/header_landscape_2560.avif 2560w, gallery/images/header_landscape_3840.avif 3840w"
+    imagesrcset={`gallery/images/${imgBasename}_landscape_640.avif 640w, gallery/images/${imgBasename}_landscape_960.avif 960w, gallery/images/${imgBasename}_landscape_1280.avif 1280w, gallery/images/${imgBasename}_landscape_1920.avif 1920w, gallery/images/${imgBasename}_landscape_2560.avif 2560w, gallery/images/${imgBasename}_landscape_3840.avif 3840w`}
     imagesizes="100vw"
     fetchpriority="high"
   />

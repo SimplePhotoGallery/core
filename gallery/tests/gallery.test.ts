@@ -624,6 +624,105 @@ describe('Gallery with base URL (no photo copying)', () => {
   });
 });
 
+describe('Header image change detection', () => {
+  const headerChangeTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'header-change');
+
+  beforeAll(() => {
+    // Clean up any existing test directories
+    if (existsSync(headerChangeTestPath)) {
+      rmSync(headerChangeTestPath, { recursive: true, force: true });
+    }
+
+    // Copy single fixture photos to test directory
+    copySync(singleFixturePath, headerChangeTestPath);
+  });
+
+  afterAll(() => {
+    // Clean up test directories
+    if (existsSync(headerChangeTestPath)) {
+      rmSync(headerChangeTestPath, { recursive: true, force: true });
+    }
+  });
+
+  test('should generate header images with filename in the name', () => {
+    // Initialize gallery with default settings (img_1.jpg as header)
+    execSync(`${tsxPath} ${cliPath} init --photos ${headerChangeTestPath} -d`);
+    execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${headerChangeTestPath}`);
+    execSync(`${tsxPath} ${cliPath} build --gallery ${headerChangeTestPath}`);
+
+    const imagesPath = path.resolve(headerChangeTestPath, 'gallery', 'images');
+    const files = readdirSync(imagesPath);
+
+    // Check that header images include the filename (img_1)
+    expect(files).toContain('img_1_landscape_640.avif');
+    expect(files).toContain('img_1_landscape_640.jpg');
+    expect(files).toContain('img_1_portrait_360.avif');
+    expect(files).toContain('img_1_portrait_360.jpg');
+
+    // Verify gallery.json has headerImage set
+    const galleryJsonPath = path.resolve(headerChangeTestPath, 'gallery', 'gallery.json');
+    const galleryData = JSON.parse(readFileSync(galleryJsonPath, 'utf8'));
+    expect(galleryData.headerImage).toBe('img_1.jpg');
+  });
+
+  test('should detect header image change and regenerate assets', () => {
+    const galleryJsonPath = path.resolve(headerChangeTestPath, 'gallery', 'gallery.json');
+    const imagesPath = path.resolve(headerChangeTestPath, 'gallery', 'images');
+
+    // Get the list of files before changing header
+    const filesBefore = readdirSync(imagesPath);
+
+    // Change header image in gallery.json
+    const galleryData = JSON.parse(readFileSync(galleryJsonPath, 'utf8'));
+    galleryData.headerImage = 'img_2.jpg';
+    writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+
+    // Rebuild gallery
+    execSync(`${tsxPath} ${cliPath} build --gallery ${headerChangeTestPath}`);
+
+    // Get the list of files after changing header
+    const filesAfter = readdirSync(imagesPath);
+
+    // Old img_1 header images should be deleted
+    expect(filesAfter).not.toContain('img_1_landscape_640.avif');
+    expect(filesAfter).not.toContain('img_1_landscape_640.jpg');
+    expect(filesAfter).not.toContain('img_1_portrait_360.avif');
+    expect(filesAfter).not.toContain('img_1_portrait_360.jpg');
+
+    // New img_2 header images should exist
+    expect(filesAfter).toContain('img_2_landscape_640.avif');
+    expect(filesAfter).toContain('img_2_landscape_640.jpg');
+    expect(filesAfter).toContain('img_2_portrait_360.avif');
+    expect(filesAfter).toContain('img_2_portrait_360.jpg');
+
+    // Verify gallery.json still has the correct headerImage
+    const updatedGalleryData = JSON.parse(readFileSync(galleryJsonPath, 'utf8'));
+    expect(updatedGalleryData.headerImage).toBe('img_2.jpg');
+
+    // Social media card should also be regenerated
+    expect(filesAfter).toContain('social-media-card.jpg');
+  });
+
+  test('should generate all header image sizes', () => {
+    const imagesPath = path.resolve(headerChangeTestPath, 'gallery', 'images');
+    const files = readdirSync(imagesPath);
+
+    // Check all landscape sizes
+    const landscapeSizes = [640, 960, 1280, 1920, 2560, 3840];
+    for (const size of landscapeSizes) {
+      expect(files).toContain(`img_2_landscape_${size}.avif`);
+      expect(files).toContain(`img_2_landscape_${size}.jpg`);
+    }
+
+    // Check all portrait sizes
+    const portraitSizes = [360, 480, 720, 1080];
+    for (const size of portraitSizes) {
+      expect(files).toContain(`img_2_portrait_${size}.avif`);
+      expect(files).toContain(`img_2_portrait_${size}.jpg`);
+    }
+  });
+});
+
 describe('Clean command', () => {
   const cleanTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'clean');
   const cleanMultiTestPath = path.resolve(testDir, 'tests', 'fixtures', 'test', 'clean-multi');

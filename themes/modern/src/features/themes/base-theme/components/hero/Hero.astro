@@ -1,16 +1,22 @@
 ---
+import path from 'node:path';
+
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
 import { renderMarkdown } from '@/lib/markdown';
 
 interface Props {
   title: string;
   description?: string;
+  headerImage?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, headerImage } = Astro.props;
 
 // Parse description as Markdown if it exists
 const parsedDescription: string = description ? await renderMarkdown(description) : '';
+
+// Extract basename from headerImage filename, fallback to generic name
+const imgBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : 'header';
 ---
 
 <section class="hero">
@@ -19,50 +25,50 @@ const parsedDescription: string = description ? await renderMarkdown(description
     <source
       type="image/avif"
       media="(max-aspect-ratio: 3/4)"
-      srcset="
-        gallery/images/header_portrait_360.avif 360w,
-        gallery/images/header_portrait_480.avif 480w,
-        gallery/images/header_portrait_720.avif 720w,
-        gallery/images/header_portrait_1080.avif 1080w"
+      srcset={`
+        gallery/images/${imgBasename}_portrait_360.avif 360w,
+        gallery/images/${imgBasename}_portrait_480.avif 480w,
+        gallery/images/${imgBasename}_portrait_720.avif 720w,
+        gallery/images/${imgBasename}_portrait_1080.avif 1080w`}
       sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
     />
     <source
       type="image/jpeg"
       media="(max-aspect-ratio: 3/4)"
-      srcset="
-        gallery/images/header_portrait_360.jpg 360w,
-        gallery/images/header_portrait_480.jpg 480w,
-        gallery/images/header_portrait_720.jpg 720w,
-        gallery/images/header_portrait_1080.jpg 1080w"
+      srcset={`
+        gallery/images/${imgBasename}_portrait_360.jpg 360w,
+        gallery/images/${imgBasename}_portrait_480.jpg 480w,
+        gallery/images/${imgBasename}_portrait_720.jpg 720w,
+        gallery/images/${imgBasename}_portrait_1080.jpg 1080w`}
       sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
     />
 
     <!-- Landscape -->
     <source
       type="image/avif"
-      srcset="
-        gallery/images/header_landscape_640.avif 640w,
-        gallery/images/header_landscape_960.avif 960w,
-        gallery/images/header_landscape_1280.avif 1280w,
-        gallery/images/header_landscape_1920.avif 1920w,
-        gallery/images/header_landscape_2560.avif 2560w,
-        gallery/images/header_landscape_3840.avif 3840w"
+      srcset={`
+        gallery/images/${imgBasename}_landscape_640.avif 640w,
+        gallery/images/${imgBasename}_landscape_960.avif 960w,
+        gallery/images/${imgBasename}_landscape_1280.avif 1280w,
+        gallery/images/${imgBasename}_landscape_1920.avif 1920w,
+        gallery/images/${imgBasename}_landscape_2560.avif 2560w,
+        gallery/images/${imgBasename}_landscape_3840.avif 3840w`}
       sizes="100vw"
     />
     <source
       type="image/jpg"
-      srcset="
-      gallery/images/header_landscape_640.jpg 640w,
-      gallery/images/header_landscape_960.jpg 960w,
-      gallery/images/header_landscape_1280.jpg 1280w,
-      gallery/images/header_landscape_1920.jpg 1920w,
-      gallery/images/header_landscape_2560.jpg 2560w,
-      gallery/images/header_landscape_3840.jpg 3840w"
+      srcset={`
+      gallery/images/${imgBasename}_landscape_640.jpg 640w,
+      gallery/images/${imgBasename}_landscape_960.jpg 960w,
+      gallery/images/${imgBasename}_landscape_1280.jpg 1280w,
+      gallery/images/${imgBasename}_landscape_1920.jpg 1920w,
+      gallery/images/${imgBasename}_landscape_2560.jpg 2560w,
+      gallery/images/${imgBasename}_landscape_3840.jpg 3840w`}
       sizes="100vw"
     />
 
     <!-- Fallback -->
-    <img src="gallery/images/header_landscape_1920.jpg" alt={title} />
+    <img src={`gallery/images/${imgBasename}_landscape_1920.jpg`} alt={title} />
   </picture>
   <div class="hero__overlay"></div>
   <div class="hero__content">

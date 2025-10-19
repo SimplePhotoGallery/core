@@ -27,18 +27,21 @@ export function resolveFromCurrentDir(...segments: string[]): string {
  * @param title - Title of the gallery
  * @param ouputPath - Output path for the social media card image
  * @param ui - ConsolaInstance for logging
+ * @returns The basename of the header photo used
  */
 export async function createGallerySocialMediaCardImage(
   headerPhotoPath: string,
   title: string,
   ouputPath: string,
   ui: ConsolaInstance,
-): Promise<void> {
+): Promise<string> {
   ui.start(`Creating social media card image`);
+
+  const headerBasename = path.basename(headerPhotoPath, path.extname(headerPhotoPath));
 
   if (fs.existsSync(ouputPath)) {
     ui.success(`Social media card image already exists`);
-    return;
+    return headerBasename;
   }
 
   // Read and resize the header image to 1200x631 using fit
@@ -72,45 +75,54 @@ export async function createGallerySocialMediaCardImage(
   await sharp(finalImageBuffer).toFile(outputPath);
 
   ui.success(`Created social media card image successfully`);
+  return headerBasename;
 }
 
+/**
+ * Creates optimized header images for different orientations and sizes
+ * @param headerPhotoPath - Path to the header photo
+ * @param outputFolder - Folder where header images should be saved
+ * @param ui - ConsolaInstance for logging
+ * @returns Object containing the header basename and array of generated file paths
+ */
 export async function createOptimizedHeaderImage(
   headerPhotoPath: string,
   outputFolder: string,
   ui: ConsolaInstance,
-): Promise<void> {
+): Promise<{ headerBasename: string; generatedFiles: string[] }> {
   ui.start(`Creating optimized header images`);
 
   const image = await loadImage(headerPhotoPath);
+  const headerBasename = path.basename(headerPhotoPath, path.extname(headerPhotoPath));
+  const generatedFiles: string[] = [];
 
   // Create landscape header images
   const landscapeYFactor = 3 / 4;
   for (const width of HEADER_IMAGE_LANDSCAPE_WIDTHS) {
     ui.debug(`Creating landscape header image ${width}`);
 
-    if (fs.existsSync(path.join(outputFolder, `header_landscape_${width}.avif`))) {
+    const avifFilename = `${headerBasename}_landscape_${width}.avif`;
+    const jpgFilename = `${headerBasename}_landscape_${width}.jpg`;
+
+    if (fs.existsSync(path.join(outputFolder, avifFilename))) {
       ui.debug(`Landscape header image ${width} AVIF already exists`);
     } else {
       await cropAndResizeImage(
         image.clone(),
-        path.join(outputFolder, `header_landscape_${width}.avif`),
+        path.join(outputFolder, avifFilename),
         width,
         width * landscapeYFactor,
         'avif',
       );
     }
+    generatedFiles.push(avifFilename);
 
-    if (fs.existsSync(path.join(outputFolder, `header_landscape_${width}.jpg`))) {
+    if (fs.existsSync(path.join(outputFolder, jpgFilename))) {
       ui.debug(`Landscape header image ${width} JPG already exists`);
     } else {
-      await cropAndResizeImage(
-        image.clone(),
-        path.join(outputFolder, `header_landscape_${width}.jpg`),
-        width,
-        width * landscapeYFactor,
-        'jpg',
-      );
+      await cropAndResizeImage(image.clone(), path.join(outputFolder, jpgFilename), width, width * landscapeYFactor, 'jpg');
     }
+    generatedFiles.push(jpgFilename);
   }
 
   // Create portrait header images
@@ -118,30 +130,95 @@ export async function createOptimizedHeaderImage(
   for (const width of HEADER_IMAGE_PORTRAIT_WIDTHS) {
     ui.debug(`Creating portrait header image ${width}`);
 
-    if (fs.existsSync(path.join(outputFolder, `header_portrait_${width}.avif`))) {
+    const avifFilename = `${headerBasename}_portrait_${width}.avif`;
+    const jpgFilename = `${headerBasename}_portrait_${width}.jpg`;
+
+    if (fs.existsSync(path.join(outputFolder, avifFilename))) {
       ui.debug(`Portrait header image ${width} AVIF already exists`);
     } else {
-      await cropAndResizeImage(
-        image.clone(),
-        path.join(outputFolder, `header_portrait_${width}.avif`),
-        width,
-        width * portraitYFactor,
-        'avif',
-      );
+      await cropAndResizeImage(image.clone(), path.join(outputFolder, avifFilename), width, width * portraitYFactor, 'avif');
     }
+    generatedFiles.push(avifFilename);
 
-    if (fs.existsSync(path.join(outputFolder, `header_portrait_${width}.jpg`))) {
+    if (fs.existsSync(path.join(outputFolder, jpgFilename))) {
       ui.debug(`Portrait header image ${width} JPG already exists`);
     } else {
-      await cropAndResizeImage(
-        image.clone(),
-        path.join(outputFolder, `header_portrait_${width}.jpg`),
-        width,
-        width * portraitYFactor,
-        'jpg',
-      );
+      await cropAndResizeImage(image.clone(), path.join(outputFolder, jpgFilename), width, width * portraitYFactor, 'jpg');
     }
+    generatedFiles.push(jpgFilename);
   }
 
   ui.success(`Created optimized header image successfully`);
+  return { headerBasename, generatedFiles };
+}
+
+/**
+ * Checks if there are old header images with a different basename than the current one
+ * @param outputFolder - Folder containing the header images
+ * @param currentHeaderBasename - Basename of the current header image
+ * @returns True if old header images with different basename exist, false otherwise
+ */
+export function hasOldHeaderImages(outputFolder: string, currentHeaderBasename: string): boolean {
+  if (!fs.existsSync(outputFolder)) {
+    return false;
+  }
+
+  const files = fs.readdirSync(outputFolder);
+
+  for (const file of files) {
+    // Check if file is a header image (landscape or portrait) with different basename
+    const landscapeMatch = file.match(/^(.+)_landscape_\d+\.(avif|jpg)$/);
+    const portraitMatch = file.match(/^(.+)_portrait_\d+\.(avif|jpg)$/);
+
+    if (
+      (landscapeMatch && landscapeMatch[1] !== currentHeaderBasename) ||
+      (portraitMatch && portraitMatch[1] !== currentHeaderBasename)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Cleans up old header images that don't match the current header image
+ * @param outputFolder - Folder containing the header images
+ * @param currentHeaderBasename - Basename of the current header image
+ * @param ui - ConsolaInstance for logging
+ */
+export function cleanupOldHeaderImages(outputFolder: string, currentHeaderBasename: string, ui: ConsolaInstance): void {
+  ui.start(`Cleaning up old header images`);
+
+  if (!fs.existsSync(outputFolder)) {
+    ui.debug(`Output folder ${outputFolder} does not exist, skipping cleanup`);
+    return;
+  }
+
+  const files = fs.readdirSync(outputFolder);
+  let deletedCount = 0;
+
+  for (const file of files) {
+    // Check if file is a header image (landscape or portrait) with different basename
+    const landscapeMatch = file.match(/^(.+)_landscape_\d+\.(avif|jpg)$/);
+    const portraitMatch = file.match(/^(.+)_portrait_\d+\.(avif|jpg)$/);
+
+    if (landscapeMatch && landscapeMatch[1] !== currentHeaderBasename) {
+      const filePath = path.join(outputFolder, file);
+      ui.debug(`Deleting old landscape header image: ${file}`);
+      fs.unlinkSync(filePath);
+      deletedCount++;
+    } else if (portraitMatch && portraitMatch[1] !== currentHeaderBasename) {
+      const filePath = path.join(outputFolder, file);
+      ui.debug(`Deleting old portrait header image: ${file}`);
+      fs.unlinkSync(filePath);
+      deletedCount++;
+    }
+  }
+
+  if (deletedCount > 0) {
+    ui.success(`Deleted ${deletedCount} old header image(s)`);
+  } else {
+    ui.debug(`No old header images to clean up`);
+  }
 }
