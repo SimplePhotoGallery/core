@@ -167,8 +167,6 @@ async function processMediaFile(
     // Resolve the path relative to the mediaBasePath
     const filePath = path.resolve(path.join(mediaBasePath, mediaFile.filename));
 
-    console.log('filePath', filePath);
-
     const fileName = mediaFile.filename;
     const fileNameWithoutExt = path.parse(fileName).name;
     const galleryJsonDir = path.join(galleryDir, 'gallery');
@@ -219,7 +217,7 @@ async function processMediaFile(
   } catch (error) {
     handleFileProcessingError(error, mediaFile.filename, ui);
 
-    return mediaFile;
+    return { ...mediaFile, thumbnail: undefined };
   }
 }
 

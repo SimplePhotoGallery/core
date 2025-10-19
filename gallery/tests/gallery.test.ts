@@ -239,6 +239,7 @@ describe('Single-folder gallery', () => {
           photos: singleTestPath,
           recursive: false,
           default: false,
+          force: false,
         },
         mockUI as unknown as ConsolaInstance,
       );
@@ -362,6 +363,7 @@ describe('Multi-folder gallery', () => {
           photos: multiTestPath,
           recursive: true,
           default: false,
+          force: false,
         },
         mockUI as unknown as ConsolaInstance,
       );
@@ -499,6 +501,7 @@ describe('Separate gallery directory', () => {
           gallery: tempSeparateGalleryPath,
           recursive: false,
           default: false,
+          force: false,
         },
         mockUI as unknown as ConsolaInstance,
       );

@@ -159,6 +159,7 @@ program
   )
   .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
   .option('-d, --default', 'Use default gallery settings instead of asking the user', false)
+  .option('-f, --force', 'Force override existing galleries without asking', false)
   .action(withCommandContext((options, ui) => init(options, ui)));
 
 program
