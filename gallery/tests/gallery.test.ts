@@ -669,9 +669,6 @@ describe('Header image change detection', () => {
     const galleryJsonPath = path.resolve(headerChangeTestPath, 'gallery', 'gallery.json');
     const imagesPath = path.resolve(headerChangeTestPath, 'gallery', 'images');
 
-    // Get the list of files before changing header
-    const filesBefore = readdirSync(imagesPath);
-
     // Change header image in gallery.json
     const galleryData = JSON.parse(readFileSync(galleryJsonPath, 'utf8'));
     galleryData.headerImage = 'img_2.jpg';
