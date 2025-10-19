@@ -3,27 +3,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { type GalleryData, GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { createGallerySocialMediaCardImage, createOptimizedHeaderImage } from './utils';
 
 import { findGalleries } from '../../utils';
+import { parseGalleryJson } from '../../utils/gallery';
 import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-
-/**
- * Checks if a file path refers to a file one folder up from the current directory
- * @param filePath - The file path to check
- * @returns True if the file is exactly one folder up (../filename)
- */
-function checkFileIsOneFolderUp(filePath: string): boolean {
-  const normalizedPath = path.normalize(filePath);
-  const pathParts = normalizedPath.split(path.sep);
-  return pathParts.length === 2 && pathParts[0] === '..';
-}
+import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
 
 /**
  * Copies photos from gallery subdirectory to main directory when needed
@@ -34,10 +24,9 @@ function checkFileIsOneFolderUp(filePath: string): boolean {
 function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaInstance): void {
   for (const section of galleryData.sections) {
     for (const image of section.images) {
-      if (!checkFileIsOneFolderUp(image.path)) {
-        const sourcePath = path.join(galleryDir, 'gallery', image.path);
-        const fileName = path.basename(image.path);
-        const destPath = path.join(galleryDir, fileName);
+      if (galleryData.mediaBasePath) {
+        const sourcePath = path.join(galleryData.mediaBasePath, image.filename);
+        const destPath = path.join(galleryDir, image.filename);
 
         ui.debug(`Copying photo to ${destPath}`);
         fs.copyFileSync(sourcePath, destPath);
@@ -61,10 +50,13 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
 
   // Read the gallery.json file
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
-  const galleryContent = fs.readFileSync(galleryJsonPath, 'utf8');
-  const galleryData = GalleryDataSchema.parse(JSON.parse(galleryContent));
+  const galleryData = parseGalleryJson(galleryJsonPath, ui);
   const socialMediaCardImagePath = path.join(galleryDir, 'gallery', 'images', 'social-media-card.jpg');
-  const headerImagePath = path.resolve(path.join(galleryDir, 'gallery'), galleryData.headerImage);
+  const mediaBasePath = galleryData.mediaBasePath;
+  const mediaBaseUrl = baseUrl || galleryData.mediaBaseUrl;
+  const headerImagePath = mediaBasePath
+    ? path.join(mediaBasePath, galleryData.headerImage)
+    : path.resolve(galleryDir, galleryData.headerImage);
 
   // Create the gallery social media card image
   await createGallerySocialMediaCardImage(headerImagePath, galleryData.title, socialMediaCardImagePath, ui);
@@ -75,25 +67,22 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   // Create optimized header image
   await createOptimizedHeaderImage(headerImagePath, path.join(galleryDir, 'gallery', 'images'), ui);
 
-  // Check if the photos need to be copied. Not needed if the baseUrl is provided.
-  if (!baseUrl) {
-    const shouldCopyPhotos = galleryData.sections.some((section) =>
-      section.images.some((image) => !checkFileIsOneFolderUp(image.path)),
-    );
+  // Ask the user if the photos should be copied if there is not baseUrl and mediaBasePath is set
+  if (!mediaBaseUrl && mediaBasePath) {
+    const shouldCopyPhotos = await ui.prompt('All photos need to be copied. Are you sure you want to continue?', {
+      type: 'confirm',
+    });
 
-    if (
-      shouldCopyPhotos &&
-      (await ui.prompt('All photos need to be copied. Are you sure you want to continue?', { type: 'confirm' }))
-    ) {
+    if (shouldCopyPhotos) {
       ui.debug('Copying photos');
       copyPhotos(galleryData, galleryDir, ui);
     }
   }
 
-  // If the baseUrl is provided, update the gallery.json file
-  if (baseUrl) {
+  // If the baseUrl is provided, update the gallery.json file if needed
+  if (mediaBaseUrl && galleryData.mediaBaseUrl !== mediaBaseUrl) {
     ui.debug('Updating gallery.json with baseUrl');
-    galleryData.mediaBaseUrl = baseUrl;
+    galleryData.mediaBaseUrl = mediaBaseUrl;
     fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
   }
 

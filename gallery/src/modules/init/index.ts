@@ -23,13 +23,12 @@ async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promise<Scan
 
     for (const entry of entries) {
       if (entry.isFile()) {
-        const fullPath = path.join(dirPath, entry.name);
         const mediaType = getMediaFileType(entry.name);
 
         if (mediaType) {
           const mediaFile: MediaFile = {
             type: mediaType,
-            path: fullPath,
+            filename: entry.name,
             width: 0,
             height: 0,
           };
@@ -80,13 +79,11 @@ async function getGallerySettingsFromUser(
     default: '',
     placeholder: '',
   });
-  const headerImageName = await ui.prompt('Enter the name of the header image', {
+  const headerImage = await ui.prompt('Enter the name of the header image', {
     type: 'text',
     default: defaultImage,
     placeholder: defaultImage,
   });
-
-  const headerImage = path.join('..', headerImageName);
 
   return { title, description, url, headerImage };
 }
@@ -95,6 +92,7 @@ async function getGallerySettingsFromUser(
  * Creates a gallery.json file with media files and settings
  * @param mediaFiles - Array of media files to include in gallery
  * @param galleryJsonPath - Path where gallery.json should be created
+ * @param scanPath - Path to the directory that was scanned
  * @param subGalleries - Array of sub-galleries to include
  * @param useDefaultSettings - Whether to use default settings or prompt user
  * @param ui - ConsolaInstance for prompting and logging
@@ -102,17 +100,16 @@ async function getGallerySettingsFromUser(
 async function createGalleryJson(
   mediaFiles: MediaFile[],
   galleryJsonPath: string,
+  scanPath: string,
   subGalleries: SubGallery[] = [],
   useDefaultSettings: boolean,
   ui: ConsolaInstance,
 ): Promise<void> {
   const galleryDir = path.dirname(galleryJsonPath);
 
-  // Convert media file paths to be relative to gallery.json
-  const relativeMediaFiles = mediaFiles.map((file) => ({
-    ...file,
-    path: path.relative(galleryDir, file.path),
-  }));
+  // If the gallery is stored in the same location as the media files, use a relative base path, otherwise use an absolute path
+  const isSameLocation = path.relative(scanPath, path.join(galleryDir, '..')) === '';
+  const mediaBasePath = isSameLocation ? undefined : scanPath;
 
   // Convert subGallery header image paths to be relative to gallery.json
   const relativeSubGalleries = subGalleries.map((subGallery) => ({
@@ -123,11 +120,12 @@ async function createGalleryJson(
   let galleryData = {
     title: 'My Gallery',
     description: 'My gallery with fantastic photos.',
-    headerImage: relativeMediaFiles[0]?.path || '',
+    headerImage: mediaFiles[0]?.filename || '',
+    mediaBasePath: mediaBasePath,
     metadata: {},
     sections: [
       {
-        images: relativeMediaFiles,
+        images: mediaFiles,
       },
     ],
     subGalleries: {
@@ -141,7 +139,7 @@ async function createGalleryJson(
       ...galleryData,
       ...(await getGallerySettingsFromUser(
         path.basename(path.join(galleryDir, '..')),
-        path.basename(mediaFiles[0]?.path || ''),
+        path.basename(mediaFiles[0]?.filename || ''),
         ui,
       )),
     };
@@ -207,7 +205,7 @@ async function processDirectory(
       await fs.mkdir(galleryPath, { recursive: true });
 
       // Create gallery.json for this directory
-      await createGalleryJson(mediaFiles, galleryJsonPath, subGalleries, useDefaultSettings, ui);
+      await createGalleryJson(mediaFiles, galleryJsonPath, scanPath, subGalleries, useDefaultSettings, ui);
 
       ui.success(
         `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
@@ -226,7 +224,7 @@ async function processDirectory(
     const dirName = path.basename(scanPath);
     result.subGallery = {
       title: capitalizeTitle(dirName),
-      headerImage: mediaFiles[0]?.path || '',
+      headerImage: mediaFiles[0]?.filename || '',
       path: path.join('..', dirName),
     };
   }

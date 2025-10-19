@@ -12,6 +12,17 @@ export const ThumbnailSchema = z.object({
 /** Zod schema for media file metadata including type, dimensions, and thumbnail info */
 export const MediaFileSchema = z.object({
   type: z.enum(['image', 'video']),
+  filename: z.string(),
+  alt: z.string().optional(),
+  width: z.number(),
+  height: z.number(),
+  thumbnail: ThumbnailSchema.optional(),
+  lastMediaTimestamp: z.string().optional(),
+});
+
+/** Zod schema for media file with path (deprecated) */
+export const MediaFileDeprecatedSchema = z.object({
+  type: z.enum(['image', 'video']),
   path: z.string(),
   alt: z.string().optional(),
   width: z.number(),
@@ -25,6 +36,13 @@ export const GallerySectionSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   images: z.array(MediaFileSchema),
+});
+
+/** Zod schema for a gallery section containing title, description, and media files (deprecated) */
+export const GallerySectionDeprecatedSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  images: z.array(MediaFileDeprecatedSchema),
 });
 
 /** Zod schema for sub-gallery metadata including title, header image, and path */
@@ -55,14 +73,28 @@ export const GalleryMetadataSchema = z.object({
 export const GalleryDataSchema = z.object({
   title: z.string(),
   description: z.string(),
+  mediaBasePath: z.string().optional(),
   url: z.string().optional(),
   headerImage: z.string(),
   thumbnailSize: z.number().optional(),
   metadata: GalleryMetadataSchema,
-  galleryOutputPath: z.string().optional(),
   mediaBaseUrl: z.string().optional(),
   analyticsScript: z.string().optional(),
   sections: z.array(GallerySectionSchema),
+  subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
+});
+
+/** Zod schema for complete gallery data without mediaBasePath (deprecated) */
+export const GalleryDataDeprecatedSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  url: z.string().optional(),
+  headerImage: z.string(),
+  thumbnailSize: z.number().optional(),
+  metadata: GalleryMetadataSchema,
+  mediaBaseUrl: z.string().optional(),
+  analyticsScript: z.string().optional(),
+  sections: z.array(GallerySectionDeprecatedSchema),
   subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });
 
@@ -83,3 +115,8 @@ export type GalleryMetadata = z.infer<typeof GalleryMetadataSchema>;
 
 /** TypeScript type for complete gallery data structure */
 export type GalleryData = z.infer<typeof GalleryDataSchema>;
+
+/** Deprecated types */
+export type MediaFileWithPath = z.infer<typeof MediaFileDeprecatedSchema>;
+export type GallerySectionDeprecated = z.infer<typeof GallerySectionDeprecatedSchema>;
+export type GalleryDataDeprecated = z.infer<typeof GalleryDataDeprecatedSchema>;

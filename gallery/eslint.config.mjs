@@ -19,6 +19,7 @@ const eslintConfig = [
       'eslint.config.mjs',
       'jest.config.cjs',
       '.prettierrc.mjs',
+      'coverage',
     ],
   },
   ...tseslintConfig,
