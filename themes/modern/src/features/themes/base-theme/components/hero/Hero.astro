@@ -8,9 +8,10 @@ interface Props {
   title: string;
   description?: string;
   headerImage?: string;
+  headerImageBlurHash?: string;
 }
 
-const { title, description, headerImage } = Astro.props;
+const { title, description, headerImage, headerImageBlurHash } = Astro.props;
 
 // Parse description as Markdown if it exists
 const parsedDescription: string = description ? await renderMarkdown(description) : '';
@@ -20,56 +21,59 @@ const imgBasename = headerImage ? path.basename(headerImage, path.extname(header
 ---
 
 <section class="hero">
-  <picture class="hero__bg">
-    <!-- Portrait -->
-    <source
-      type="image/avif"
-      media="(max-aspect-ratio: 3/4)"
-      srcset={`
-        gallery/images/${imgBasename}_portrait_360.avif 360w,
-        gallery/images/${imgBasename}_portrait_480.avif 480w,
-        gallery/images/${imgBasename}_portrait_720.avif 720w,
-        gallery/images/${imgBasename}_portrait_1080.avif 1080w`}
-      sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-    />
-    <source
-      type="image/jpeg"
-      media="(max-aspect-ratio: 3/4)"
-      srcset={`
-        gallery/images/${imgBasename}_portrait_360.jpg 360w,
-        gallery/images/${imgBasename}_portrait_480.jpg 480w,
-        gallery/images/${imgBasename}_portrait_720.jpg 720w,
-        gallery/images/${imgBasename}_portrait_1080.jpg 1080w`}
-      sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-    />
+  <div class="hero__bg-wrapper">
+    {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} ></canvas>}
+    <picture class="hero__bg">
+      <!-- Portrait -->
+      <source
+        type="image/avif"
+        media="(max-aspect-ratio: 3/4)"
+        srcset={`
+          gallery/images/${imgBasename}_portrait_360.avif 360w,
+          gallery/images/${imgBasename}_portrait_480.avif 480w,
+          gallery/images/${imgBasename}_portrait_720.avif 720w,
+          gallery/images/${imgBasename}_portrait_1080.avif 1080w`}
+        sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+      />
+      <source
+        type="image/jpeg"
+        media="(max-aspect-ratio: 3/4)"
+        srcset={`
+          gallery/images/${imgBasename}_portrait_360.jpg 360w,
+          gallery/images/${imgBasename}_portrait_480.jpg 480w,
+          gallery/images/${imgBasename}_portrait_720.jpg 720w,
+          gallery/images/${imgBasename}_portrait_1080.jpg 1080w`}
+        sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+      />
 
-    <!-- Landscape -->
-    <source
-      type="image/avif"
-      srcset={`
-        gallery/images/${imgBasename}_landscape_640.avif 640w,
-        gallery/images/${imgBasename}_landscape_960.avif 960w,
-        gallery/images/${imgBasename}_landscape_1280.avif 1280w,
-        gallery/images/${imgBasename}_landscape_1920.avif 1920w,
-        gallery/images/${imgBasename}_landscape_2560.avif 2560w,
-        gallery/images/${imgBasename}_landscape_3840.avif 3840w`}
-      sizes="100vw"
-    />
-    <source
-      type="image/jpg"
-      srcset={`
-      gallery/images/${imgBasename}_landscape_640.jpg 640w,
-      gallery/images/${imgBasename}_landscape_960.jpg 960w,
-      gallery/images/${imgBasename}_landscape_1280.jpg 1280w,
-      gallery/images/${imgBasename}_landscape_1920.jpg 1920w,
-      gallery/images/${imgBasename}_landscape_2560.jpg 2560w,
-      gallery/images/${imgBasename}_landscape_3840.jpg 3840w`}
-      sizes="100vw"
-    />
+      <!-- Landscape -->
+      <source
+        type="image/avif"
+        srcset={`
+          gallery/images/${imgBasename}_landscape_640.avif 640w,
+          gallery/images/${imgBasename}_landscape_960.avif 960w,
+          gallery/images/${imgBasename}_landscape_1280.avif 1280w,
+          gallery/images/${imgBasename}_landscape_1920.avif 1920w,
+          gallery/images/${imgBasename}_landscape_2560.avif 2560w,
+          gallery/images/${imgBasename}_landscape_3840.avif 3840w`}
+        sizes="100vw"
+      />
+      <source
+        type="image/jpg"
+        srcset={`
+        gallery/images/${imgBasename}_landscape_640.jpg 640w,
+        gallery/images/${imgBasename}_landscape_960.jpg 960w,
+        gallery/images/${imgBasename}_landscape_1280.jpg 1280w,
+        gallery/images/${imgBasename}_landscape_1920.jpg 1920w,
+        gallery/images/${imgBasename}_landscape_2560.jpg 2560w,
+        gallery/images/${imgBasename}_landscape_3840.jpg 3840w`}
+        sizes="100vw"
+      />
 
-    <!-- Fallback -->
-    <img src={`gallery/images/${imgBasename}_landscape_1920.jpg`} alt={title} />
-  </picture>
+      <!-- Fallback -->
+      <img src={`gallery/images/${imgBasename}_landscape_1920.jpg`} class="hero__bg-img" />
+    </picture>
+  </div>
   <div class="hero__overlay"></div>
   <div class="hero__content">
     <h1 class="hero__title">{title}</h1>
@@ -89,6 +93,14 @@ const imgBasename = headerImage ? path.basename(headerImage, path.extname(header
     overflow: hidden;
   }
 
+  .hero__bg-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .hero__bg {
     position: absolute;
     top: 0;
@@ -97,11 +109,21 @@ const imgBasename = headerImage ? path.basename(headerImage, path.extname(header
     height: 100%;
   }
 
-  .hero__bg img {
+  .hero__bg-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
+  }
+
+  .hero__bg-wrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: transform 0.5s ease;
   }
 
   .hero__overlay {

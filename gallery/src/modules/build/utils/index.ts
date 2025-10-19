@@ -5,6 +5,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 import { HEADER_IMAGE_LANDSCAPE_WIDTHS, HEADER_IMAGE_PORTRAIT_WIDTHS } from '../../../config';
+import { generateBlurHash } from '../../../utils/blurhash';
 import { cropAndResizeImage, loadImage } from '../../../utils/image';
 
 import type { ConsolaInstance } from 'consola';
@@ -83,18 +84,22 @@ export async function createGallerySocialMediaCardImage(
  * @param headerPhotoPath - Path to the header photo
  * @param outputFolder - Folder where header images should be saved
  * @param ui - ConsolaInstance for logging
- * @returns Object containing the header basename and array of generated file paths
+ * @returns Object containing the header basename, array of generated file paths, and blurhash
  */
 export async function createOptimizedHeaderImage(
   headerPhotoPath: string,
   outputFolder: string,
   ui: ConsolaInstance,
-): Promise<{ headerBasename: string; generatedFiles: string[] }> {
+): Promise<{ headerBasename: string; generatedFiles: string[]; blurHash: string }> {
   ui.start(`Creating optimized header images`);
 
   const image = await loadImage(headerPhotoPath);
   const headerBasename = path.basename(headerPhotoPath, path.extname(headerPhotoPath));
   const generatedFiles: string[] = [];
+
+  // Generate blurhash for the header image
+  ui.debug('Generating blurhash for header image');
+  const blurHash = await generateBlurHash(headerPhotoPath);
 
   // Create landscape header images
   const landscapeYFactor = 3 / 4;
@@ -149,7 +154,7 @@ export async function createOptimizedHeaderImage(
   }
 
   ui.success(`Created optimized header image successfully`);
-  return { headerBasename, generatedFiles };
+  return { headerBasename, generatedFiles, blurHash };
 }
 
 /**
