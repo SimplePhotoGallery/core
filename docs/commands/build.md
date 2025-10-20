@@ -19,6 +19,7 @@ If you have created the gallery in a different folder from the photos folder, th
 | `-g, --gallery <path>` | Path to gallery directory     | Current directory |
 | `-r, --recursive`      | Build all galleries           | `false`           |
 | `-b, --base-url <url>` | Base URL for external hosting | None              |
+| `--no-scan`            | Do not scan for new photos    | `false`           |
 | `-v, --verbose`        | Show detailed output          |                   |
 | `-q, --quiet`          | Only show warnings/errors     |                   |
 | `-h, --help`           | Show command help             |                   |
@@ -37,4 +38,7 @@ spg build -r
 
 # Build with external base URL (no photo copying) - useful for hosting photos separately from the gallery
 spg build -b https://photos.example.com/
+
+# Build without scanning for new photos
+spg build --no-scan
 ```
