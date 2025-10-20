@@ -108,10 +108,17 @@ async function scanAndAppendNewFiles(
  * Builds a single gallery by generating thumbnails and creating HTML output
  * @param galleryDir - Directory containing the gallery
  * @param templateDir - Directory containing the Astro template
+ * @param scan - Whether to scan for new media files
  * @param ui - ConsolaInstance for logging
  * @param baseUrl - Optional base URL for hosting photos
  */
-async function buildGallery(galleryDir: string, templateDir: string, ui: ConsolaInstance, baseUrl?: string): Promise<void> {
+async function buildGallery(
+  galleryDir: string,
+  templateDir: string,
+  scan: boolean,
+  ui: ConsolaInstance,
+  baseUrl?: string,
+): Promise<void> {
   ui.start(`Building gallery ${galleryDir}`);
 
   // Read the gallery.json file
@@ -119,7 +126,9 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
   let galleryData = parseGalleryJson(galleryJsonPath, ui);
 
   // Scan for new media files and append them to the gallery.json
-  galleryData = await scanAndAppendNewFiles(galleryDir, galleryJsonPath, galleryData, ui);
+  if (scan) {
+    galleryData = await scanAndAppendNewFiles(galleryDir, galleryJsonPath, galleryData, ui);
+  }
 
   const socialMediaCardImagePath = path.join(galleryDir, 'gallery', 'images', 'social-media-card.jpg');
   const mediaBasePath = galleryData.mediaBasePath;
@@ -227,6 +236,7 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
  * @param ui - ConsolaInstance for logging
  */
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
+  console.log('DBG: options', options);
   try {
     // Find all gallery directories
     const galleryDirs = findGalleries(options.gallery, options.recursive);
@@ -243,7 +253,7 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     let totalGalleries = 0;
     for (const dir of galleryDirs) {
       const baseUrl = options.baseUrl ? `${options.baseUrl}${path.relative(options.gallery, dir)}` : undefined;
-      await buildGallery(path.resolve(dir), themeDir, ui, baseUrl);
+      await buildGallery(path.resolve(dir), themeDir, options.scan, ui, baseUrl);
 
       ++totalGalleries;
     }

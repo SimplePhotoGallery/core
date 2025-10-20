@@ -6,4 +6,6 @@ export interface BuildOptions {
   recursive: boolean;
   /** Optional base URL where the photos are hosted */
   baseUrl?: string;
+  /** Scan for new photos */
+  scan: boolean;
 }
