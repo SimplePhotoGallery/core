@@ -16,7 +16,7 @@ const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 
 const gallery = galleryData as GalleryData;
 
-const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url, analyticsScript } = gallery;
+const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url, analyticsScript, headerImage, headerImageBlurHash } = gallery;
 ---
 
 <script>
@@ -39,8 +39,8 @@ const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url,
   }
 </script>
 
-<MainLayout title={title} description={description} metadata={metadata} url={url} analyticsScript={analyticsScript}>
-  <Hero title={title} description={description} />
+<MainLayout title={title} description={description} metadata={metadata} url={url} analyticsScript={analyticsScript} headerImage={headerImage}>
+  <Hero title={title} description={description} headerImage={headerImage} headerImageBlurHash={headerImageBlurHash} />
 
   {
     subGalleries && subGalleries.galleries.length > 0 && (

@@ -76,6 +76,7 @@ export const GalleryDataSchema = z.object({
   mediaBasePath: z.string().optional(),
   url: z.string().optional(),
   headerImage: z.string(),
+  headerImageBlurHash: z.string().optional(),
   thumbnailSize: z.number().optional(),
   metadata: GalleryMetadataSchema,
   mediaBaseUrl: z.string().optional(),

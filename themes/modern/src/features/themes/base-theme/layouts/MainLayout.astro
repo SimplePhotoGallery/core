@@ -1,4 +1,6 @@
 ---
+import path from 'node:path';
+
 import MainHead from '@/features/themes/base-theme/layouts/MainHead.astro';
 
 import type { GalleryMetadata } from '@simple-photo-gallery/common';
@@ -9,14 +11,18 @@ interface Props {
   url?: string;
   metadata?: GalleryMetadata;
   analyticsScript?: string;
+  headerImage?: string;
 }
 
-const { title, description, metadata, url, analyticsScript } = Astro.props;
+const { title, description, metadata, url, analyticsScript, headerImage } = Astro.props;
+
+// Extract basename from headerImage filename
+const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;
 ---
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead title={title} description={description} metadata={metadata} url={url} />
+  <MainHead title={title} description={description} metadata={metadata} url={url} headerImageBasename={headerImageBasename} />
   <body>
     <slot />
     
