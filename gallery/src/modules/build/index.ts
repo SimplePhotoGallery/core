@@ -158,8 +158,15 @@ async function buildGallery(galleryDir: string, templateDir: string, ui: Consola
     galleryData.metadata.image || `${galleryData.url || ''}/${path.relative(galleryDir, socialMediaCardImagePath)}`;
   fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 
-  // Create optimized header image
-  await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
+  // Create optimized header image and generate blurhash
+  const { blurHash } = await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
+
+  // Save the blurhash to gallery.json if it changed
+  if (galleryData.headerImageBlurHash !== blurHash) {
+    ui.debug('Updating gallery.json with header image blurhash');
+    galleryData.headerImageBlurHash = blurHash;
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  }
 
   // Ask the user if the photos should be copied if there is not baseUrl and mediaBasePath is set
   if (!mediaBaseUrl && mediaBasePath) {
