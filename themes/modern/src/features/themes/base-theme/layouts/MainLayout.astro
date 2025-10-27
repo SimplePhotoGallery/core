@@ -9,12 +9,13 @@ interface Props {
   title: string;
   description?: string;
   url?: string;
+  thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
   analyticsScript?: string;
   headerImage?: string;
 }
 
-const { title, description, metadata, url, analyticsScript, headerImage } = Astro.props;
+const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage } = Astro.props;
 
 // Extract basename from headerImage filename
 const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;
@@ -22,10 +23,17 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead title={title} description={description} metadata={metadata} url={url} headerImageBasename={headerImageBasename} />
+  <MainHead
+    title={title}
+    description={description}
+    metadata={metadata}
+    url={url}
+    thumbsBaseUrl={thumbsBaseUrl}
+    headerImageBasename={headerImageBasename}
+  />
   <body>
     <slot />
-    
+
     {analyticsScript && <Fragment set:html={analyticsScript} />}
   </body>
 </html>

@@ -6,6 +6,10 @@ export interface BuildOptions {
   recursive: boolean;
   /** Optional base URL where the photos are hosted */
   baseUrl?: string;
+  /** Optional base URL where the thumbnails are hosted */
+  thumbsBaseUrl?: string;
   /** Scan for new photos */
   scan: boolean;
+  /** Create thumbnails */
+  thumbnails: boolean;
 }

@@ -169,12 +169,9 @@ async function processMediaFile(
 
     const fileName = mediaFile.filename;
     const fileNameWithoutExt = path.parse(fileName).name;
-    const galleryJsonDir = path.join(galleryDir, 'gallery');
     const thumbnailFileName = `${fileNameWithoutExt}.avif`;
     const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
     const thumbnailPathRetina = thumbnailPath.replace('.avif', '@2x.avif');
-    const relativeThumbnailPath = path.relative(galleryJsonDir, thumbnailPath);
-    const relativeThumbnailRetinaPath = path.relative(galleryJsonDir, thumbnailPathRetina);
 
     const lastMediaTimestamp = mediaFile.lastMediaTimestamp ? new Date(mediaFile.lastMediaTimestamp) : undefined;
     const verbose = ui.level === LogLevels.debug;
@@ -209,8 +206,8 @@ async function processMediaFile(
 
     updatedMediaFile.filename = mediaFile.filename;
     if (updatedMediaFile.thumbnail) {
-      updatedMediaFile.thumbnail.path = relativeThumbnailPath;
-      updatedMediaFile.thumbnail.pathRetina = relativeThumbnailRetinaPath;
+      updatedMediaFile.thumbnail.path = path.basename(thumbnailPath);
+      updatedMediaFile.thumbnail.pathRetina = path.basename(thumbnailPathRetina);
     }
 
     return updatedMediaFile;

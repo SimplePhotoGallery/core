@@ -175,7 +175,9 @@ program
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .option('-b, --base-url <url>', 'Base URL where the photos are hosted')
-  .option('--no-scan', 'Do not scan for new photos when buildign the gallery', true)
+  .option('-t, --thumbs-base-url <url>', 'Base URL where the thumbnails are hosted')
+  .option('--no-thumbnails', 'Skip creating thumbnails when building the gallery', true)
+  .option('--no-scan', 'Do not scan for new photos when building the gallery', true)
   .action(withCommandContext((options, ui) => build(options, ui)));
 
 program
