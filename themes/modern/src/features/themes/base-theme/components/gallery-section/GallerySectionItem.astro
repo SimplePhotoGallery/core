@@ -1,5 +1,5 @@
 ---
-import { getPhotoPath, getRelativePath } from '@/features/themes/base-theme/utils';
+import { getPhotoPath, getThumbnailPath } from '@/features/themes/base-theme/utils';
 import { renderMarkdown } from '@/lib/markdown';
 
 import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
@@ -7,10 +7,11 @@ import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
 interface Props {
   image: MediaFile;
   mediaBaseUrl?: string;
+  thumbsBaseUrl?: string;
   blurHash?: string;
 }
 
-const { image, mediaBaseUrl, blurHash } = Astro.props;
+const { image, mediaBaseUrl, thumbsBaseUrl, blurHash } = Astro.props;
 
 // Parse caption as Markdown if it exists
 const parsedCaption = image.alt ? await renderMarkdown(image.alt) : '';
@@ -31,8 +32,8 @@ const captionHtml = parsedCaption ? `<div class="image-caption markdown-content"
   {
     image.thumbnail && (
       <img
-        src={getRelativePath(image.thumbnail.path)}
-        srcset={`${getRelativePath(image.thumbnail.path)} 1x, ${getRelativePath(image.thumbnail.pathRetina)} 2x`}
+        src={getThumbnailPath(image.thumbnail.path, thumbsBaseUrl)}
+        srcset={`${getThumbnailPath(image.thumbnail.path, thumbsBaseUrl)} 1x, ${getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl)} 2x`}
         alt={image.alt}
         loading="lazy"
         width={image.thumbnail.width}

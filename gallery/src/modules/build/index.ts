@@ -109,15 +109,19 @@ async function scanAndAppendNewFiles(
  * @param galleryDir - Directory containing the gallery
  * @param templateDir - Directory containing the Astro template
  * @param scan - Whether to scan for new media files
+ * @param shouldCreateThumbnails - Whether to create thumbnails
  * @param ui - ConsolaInstance for logging
  * @param baseUrl - Optional base URL for hosting photos
+ * @param thumbsBaseUrl - Optional base URL for hosting thumbnails
  */
 async function buildGallery(
   galleryDir: string,
   templateDir: string,
   scan: boolean,
+  shouldCreateThumbnails: boolean,
   ui: ConsolaInstance,
   baseUrl?: string,
+  thumbsBaseUrl?: string,
 ): Promise<void> {
   ui.start(`Building gallery ${galleryDir}`);
 
@@ -140,41 +144,40 @@ async function buildGallery(
   const imagesFolder = path.join(galleryDir, 'gallery', 'images');
   const currentHeaderBasename = path.basename(headerImagePath, path.extname(headerImagePath));
 
-  // Create the images folder if it doesn't exist
-  if (!fs.existsSync(imagesFolder)) {
-    fs.mkdirSync(imagesFolder, { recursive: true });
-  }
-
-  // Check if header image has changed by looking for old header images
-  const headerImageChanged = hasOldHeaderImages(imagesFolder, currentHeaderBasename);
-
-  if (headerImageChanged) {
-    ui.info('Header image changed, cleaning up old assets');
-
-    // Clean up old header images
-    cleanupOldHeaderImages(imagesFolder, currentHeaderBasename, ui);
-
-    // Delete old social media card since header image changed
-    if (fs.existsSync(socialMediaCardImagePath)) {
-      fs.unlinkSync(socialMediaCardImagePath);
-      ui.debug('Deleted old social media card');
+  if (shouldCreateThumbnails) {
+    // Create the images folder if it doesn't exist
+    if (!fs.existsSync(imagesFolder)) {
+      fs.mkdirSync(imagesFolder, { recursive: true });
     }
-  }
 
-  // Create the gallery social media card image
-  await createGallerySocialMediaCardImage(headerImagePath, galleryData.title, socialMediaCardImagePath, ui);
-  galleryData.metadata.image =
-    galleryData.metadata.image || `${galleryData.url || ''}/${path.relative(galleryDir, socialMediaCardImagePath)}`;
-  fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    // Check if header image has changed by looking for old header images
+    const headerImageChanged = hasOldHeaderImages(imagesFolder, currentHeaderBasename);
 
-  // Create optimized header image and generate blurhash
-  const { blurHash } = await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
+    if (headerImageChanged) {
+      ui.info('Header image changed, cleaning up old assets');
 
-  // Save the blurhash to gallery.json if it changed
-  if (galleryData.headerImageBlurHash !== blurHash) {
-    ui.debug('Updating gallery.json with header image blurhash');
-    galleryData.headerImageBlurHash = blurHash;
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+      // Clean up old header images
+      cleanupOldHeaderImages(imagesFolder, currentHeaderBasename, ui);
+
+      // Delete old social media card since header image changed
+      if (fs.existsSync(socialMediaCardImagePath)) {
+        fs.unlinkSync(socialMediaCardImagePath);
+        ui.debug('Deleted old social media card');
+      }
+    }
+
+    // Create the gallery social media card image
+    await createGallerySocialMediaCardImage(headerImagePath, galleryData.title, socialMediaCardImagePath, ui);
+
+    // Create optimized header image and generate blurhash
+    const { blurHash } = await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
+
+    // Save the blurhash to gallery.json if it changed
+    if (galleryData.headerImageBlurHash !== blurHash) {
+      ui.debug('Updating gallery.json with header image blurhash');
+      galleryData.headerImageBlurHash = blurHash;
+      fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    }
   }
 
   // Ask the user if the photos should be copied if there is not baseUrl and mediaBasePath is set
@@ -196,8 +199,28 @@ async function buildGallery(
     fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
   }
 
+  // If the thumbsBaseUrl is provided, update the gallery.json file if needed
+  if (thumbsBaseUrl && galleryData.thumbsBaseUrl !== thumbsBaseUrl) {
+    ui.debug('Updating gallery.json with thumbsBaseUrl');
+    galleryData.thumbsBaseUrl = thumbsBaseUrl;
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  }
+
+  // Set the social media card URL if changed
+
+  if (!galleryData.metadata.image) {
+    ui.debug('Updating gallery.json with social media card URL');
+
+    galleryData.metadata.image = thumbsBaseUrl
+      ? `${thumbsBaseUrl}/${path.basename(socialMediaCardImagePath)}`
+      : `${galleryData.url || ''}/${path.relative(galleryDir, socialMediaCardImagePath)}`;
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  }
+
   // Generate the thumbnails if needed
-  await processGalleryThumbnails(galleryDir, ui);
+  if (shouldCreateThumbnails) {
+    await processGalleryThumbnails(galleryDir, ui);
+  }
 
   // Build the template
   ui.debug('Building gallery from template');
@@ -236,7 +259,6 @@ async function buildGallery(
  * @param ui - ConsolaInstance for logging
  */
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
-  console.log('DBG: options', options);
   try {
     // Find all gallery directories
     const galleryDirs = findGalleries(options.gallery, options.recursive);
@@ -253,7 +275,11 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     let totalGalleries = 0;
     for (const dir of galleryDirs) {
       const baseUrl = options.baseUrl ? `${options.baseUrl}${path.relative(options.gallery, dir)}` : undefined;
-      await buildGallery(path.resolve(dir), themeDir, options.scan, ui, baseUrl);
+      const thumbsBaseUrl = options.thumbsBaseUrl
+        ? `${options.thumbsBaseUrl}${path.relative(options.gallery, dir)}`
+        : undefined;
+
+      await buildGallery(path.resolve(dir), themeDir, options.scan, options.thumbnails, ui, baseUrl, thumbsBaseUrl);
 
       ++totalGalleries;
     }

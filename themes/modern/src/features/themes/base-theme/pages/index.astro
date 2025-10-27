@@ -16,7 +16,19 @@ const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 
 const gallery = galleryData as GalleryData;
 
-const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url, analyticsScript, headerImage, headerImageBlurHash } = gallery;
+const {
+  title,
+  description,
+  metadata,
+  sections,
+  subGalleries,
+  mediaBaseUrl,
+  thumbsBaseUrl,
+  url,
+  analyticsScript,
+  headerImage,
+  headerImageBlurHash,
+} = gallery;
 ---
 
 <script>
@@ -39,8 +51,21 @@ const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url,
   }
 </script>
 
-<MainLayout title={title} description={description} metadata={metadata} url={url} analyticsScript={analyticsScript} headerImage={headerImage}>
-  <Hero title={title} description={description} headerImage={headerImage} headerImageBlurHash={headerImageBlurHash} />
+<MainLayout
+  title={title}
+  description={description}
+  metadata={metadata}
+  url={url}
+  thumbsBaseUrl={thumbsBaseUrl}
+  analyticsScript={analyticsScript}
+  headerImage={headerImage}>
+  <Hero
+    title={title}
+    description={description}
+    headerImage={headerImage}
+    headerImageBlurHash={headerImageBlurHash}
+    thumbsBaseUrl={thumbsBaseUrl}
+  />
 
   {
     subGalleries && subGalleries.galleries.length > 0 && (
@@ -49,7 +74,12 @@ const { title, description, metadata, sections, subGalleries, mediaBaseUrl, url,
   }
   {
     sections.map((section, sectionIndex) => (
-      <GallerySection section={section} sectionIndex={sectionIndex} mediaBaseUrl={mediaBaseUrl} />
+      <GallerySection
+        section={section}
+        sectionIndex={sectionIndex}
+        mediaBaseUrl={mediaBaseUrl}
+        thumbsBaseUrl={thumbsBaseUrl}
+      />
     ))
   }
 
