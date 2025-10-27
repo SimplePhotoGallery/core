@@ -27,3 +27,5 @@ For larger galleries, you'll typically want to deploy the photos and the gallery
 - [DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)
 
 You should initialize the gallery in a different folder from the photos folder using the `-g` or `--gallery` option in the [`init` command](./commands/init.md). After you have uploaded all the photos and videos, you can use the [`build` command](./commands/build.md) with the `-b` or `--base-url` option to tell the gallery where to find the photos and videos. The created gallery site files can then be hosted using any of the providers mentioned above, as they are very small and will link to the separately uploaded photos and videos.
+
+If you also want to host the thumbnails separately, you can use the `-t` or `--thumbs-base-url` option in the [`build` command](./commands/build.md) to specify the base URL for the thumbnails. This is useful if you wnat to host all image and video files separately from the gallery.
