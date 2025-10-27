@@ -24,7 +24,7 @@ export const getRelativePath = (resourcePath: string) => {
  * @returns The normalized path relative to the gallery root directory or the thumbnails base URL
  */
 export const getThumbnailPath = (resourcePath: string, thumbsBaseUrl?: string) => {
-  return thumbsBaseUrl ? `${thumbsBaseUrl}/${resourcePath}` : getRelativePath(resourcePath);
+  return thumbsBaseUrl ? `${thumbsBaseUrl}/${resourcePath}` : `gallery/images/${resourcePath}`;
 };
 
 /**
