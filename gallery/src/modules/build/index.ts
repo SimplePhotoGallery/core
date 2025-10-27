@@ -236,7 +236,6 @@ async function buildGallery(
  * @param ui - ConsolaInstance for logging
  */
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
-  console.log('DBG: options', options);
   try {
     // Find all gallery directories
     const galleryDirs = findGalleries(options.gallery, options.recursive);
