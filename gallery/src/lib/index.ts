@@ -7,7 +7,7 @@ export type {
   MediaFileWithPath,
   SubGallery,
   Thumbnail,
-} from '@simple-photo-gallery/common/src/gallery';
+} from '@simple-photo-gallery/common';
 
 // Re-export utility functions from the CLI
 export { generateBlurHash } from '../utils/blurhash';

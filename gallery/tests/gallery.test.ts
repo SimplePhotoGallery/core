@@ -3,7 +3,7 @@ import { existsSync, rmSync, readFileSync, readdirSync, writeFileSync } from 'no
 import path from 'node:path';
 import process from 'node:process';
 
-import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '@simple-photo-gallery/common/src/gallery';
+import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '@simple-photo-gallery/common';
 import { copySync } from 'fs-extra';
 
 import { init } from '../src/modules/init';
