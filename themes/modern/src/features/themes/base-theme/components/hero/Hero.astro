@@ -1,6 +1,8 @@
 ---
 import path from 'node:path';
 
+import { getPhotoPath } from '../../utils';
+
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
 import { renderMarkdown } from '@/lib/markdown';
 
@@ -10,9 +12,10 @@ interface Props {
   thumbsBaseUrl?: string;
   headerImage?: string;
   headerImageBlurHash?: string;
+  mediaBaseUrl?: string;
 }
 
-const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash } = Astro.props;
+const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash, mediaBaseUrl } = Astro.props;
 
 // Parse description as Markdown if it exists
 const parsedDescription: string = description ? await renderMarkdown(description) : '';
@@ -22,12 +25,15 @@ const imgBasename = headerImage ? path.basename(headerImage, path.extname(header
 
 // Get the base path for the thumbnails
 const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
+
+// Original header photo
+const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
 ---
 
 <section class="hero">
   <div class="hero__bg-wrapper">
     {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
-    <picture class="hero__bg">
+    <picture class="hero__bg" id="hero-bg-picture">
       <!-- Portrait -->
       <source
         type="image/avif"
@@ -75,8 +81,37 @@ const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
       />
 
       <!-- Fallback -->
-      <img src={`${thumbnailBasePath}/${imgBasename}_landscape_1920.jpg`} class="hero__bg-img" />
+      <img src={headerPhotoPath} class="hero__bg-img" />
     </picture>
+    <script is:inline>
+      (function () {
+        const picture = document.querySelector('#hero-bg-picture');
+        const img = picture?.querySelector('img.hero__bg-img');
+        if (!img) return;
+
+        const fallbackSrc = img.getAttribute('src') || '';
+        let didFallback = false;
+
+        img.addEventListener(
+          'error',
+          () => {
+            if (didFallback) return;
+            didFallback = true;
+
+            // Remove all <source> elements so the browser does not retry them
+            for (const sourceEl of picture.querySelectorAll('source')) {
+              sourceEl.remove();
+            }
+
+            // Force reload using the <img> src as the final fallback
+            const current = img.getAttribute('src') || '';
+            img.setAttribute('src', '');
+            img.setAttribute('src', fallbackSrc || current);
+          },
+          { once: true }
+        );
+      })();
+    </script>
   </div>
   <div class="hero__overlay"></div>
   <div class="hero__content">
