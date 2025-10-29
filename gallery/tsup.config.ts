@@ -11,5 +11,14 @@ export default defineConfig({
   target: 'node20',
   outDir: 'dist',
   treeshake: true,
-  external: ['@simple-photo-gallery/theme-modern', 'blurhash', 'commander', 'exifreader', 'node-ffprobe', 'sharp', 'zod'],
+  external: [
+    '@simple-photo-gallery/theme-modern',
+    '@simple-photo-gallery/common',
+    'blurhash',
+    'commander',
+    'exifreader',
+    'node-ffprobe',
+    'sharp',
+    'zod',
+  ],
 });

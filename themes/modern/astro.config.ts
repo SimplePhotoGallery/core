@@ -21,8 +21,5 @@ export default defineConfig({
     define: {
       'process.env.GALLERY_JSON_PATH': JSON.stringify(sourceGalleryPath),
     },
-    ssr: {
-      noExternal: ['@simple-photo-gallery/common'],
-    },
   },
 });
