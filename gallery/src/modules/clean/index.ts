@@ -12,7 +12,7 @@ import type { ConsolaInstance } from 'consola';
  * @param galleryDir - Directory containing a gallery
  * @param ui - Consola instance for logging
  */
-async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<CommandResultSummary> {
+async function cleanGallery(galleryDir: string, ui?: ConsolaInstance): Promise<CommandResultSummary> {
   let filesRemoved = 0;
 
   // Remove index.html file from the gallery directory
@@ -20,10 +20,10 @@ async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<Co
   if (fs.existsSync(indexHtmlPath)) {
     try {
       fs.rmSync(indexHtmlPath);
-      ui.debug(`Removed: ${indexHtmlPath}`);
+      ui?.debug(`Removed: ${indexHtmlPath}`);
       filesRemoved++;
     } catch (error) {
-      ui.warn(`Failed to remove index.html: ${error}`);
+      ui?.warn(`Failed to remove index.html: ${error}`);
     }
   }
 
@@ -32,17 +32,17 @@ async function cleanGallery(galleryDir: string, ui: ConsolaInstance): Promise<Co
   if (fs.existsSync(galleryPath)) {
     try {
       fs.rmSync(galleryPath, { recursive: true, force: true });
-      ui.debug(`Removed directory: ${galleryPath}`);
+      ui?.debug(`Removed directory: ${galleryPath}`);
       filesRemoved++;
     } catch (error) {
-      ui.warn(`Failed to remove gallery directory: ${error}`);
+      ui?.warn(`Failed to remove gallery directory: ${error}`);
     }
   }
 
   if (filesRemoved > 0) {
-    ui.success(`Cleaned gallery at: ${galleryDir}`);
+    ui?.success(`Cleaned gallery at: ${galleryDir}`);
   } else {
-    ui.info(`No gallery files found at: ${galleryDir}`);
+    ui?.info(`No gallery files found at: ${galleryDir}`);
   }
 
   return { processedGalleryCount: filesRemoved };
