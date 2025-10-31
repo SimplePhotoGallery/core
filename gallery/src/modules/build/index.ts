@@ -19,7 +19,7 @@ import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryData } from '@simple-photo-gallery/common';
 
 /**
  * Copies photos from gallery subdirectory to main directory when needed

@@ -2,12 +2,12 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import path from 'node:path';
 import process from 'node:process';
 
-import { GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
+import { GalleryDataSchema } from '@simple-photo-gallery/common';
 import { copySync } from 'fs-extra';
 
 import { parseGalleryJson, migrateGalleryJson } from '../src/utils/gallery';
 
-import type { GalleryDataDeprecated } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryDataDeprecated } from '@simple-photo-gallery/common';
 import type { ConsolaInstance } from 'consola';
 
 const testDir = process.cwd();

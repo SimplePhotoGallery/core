@@ -1,4 +1,4 @@
-import { GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
+import { GalleryDataSchema } from '@simple-photo-gallery/common';
 
 describe('Analytics Script', () => {
   test('should allow optional analyticsScript field in gallery.json', () => {

@@ -1,6 +1,6 @@
 {
   "name": "@simple-photo-gallery/common",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Shared utilities and types for Simple Photo Gallery",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -9,13 +9,28 @@
     "url": "https://github.com/SimplePhotoGallery/core"
   },
   "type": "module",
+  "main": "./dist/gallery.js",
+  "types": "./dist/gallery.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/gallery.d.ts",
+      "import": "./dist/gallery.js",
+      "require": "./dist/gallery.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "yarn clean && tsup",
+    "clean": "rm -rf dist",
     "compile": "tsc --noEmit",
     "check": "tsc --noEmit && eslint . && prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "prepublish": "yarn build"
   },
   "dependencies": {
     "zod": "^4.0.14"
@@ -34,6 +49,7 @@
     "eslint-plugin-prettier": "^5.5.1",
     "eslint-plugin-unicorn": "^59.0.1",
     "prettier": "^3.4.2",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.38.0"
