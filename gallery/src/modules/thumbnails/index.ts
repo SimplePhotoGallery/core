@@ -8,8 +8,9 @@ import { getFileMtime } from './utils';
 import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
+import { getImageDescription } from '../../utils/descriptions';
 import { parseGalleryJson } from '../../utils/gallery';
-import { getImageDescription, createImageThumbnails, loadImageWithMetadata } from '../../utils/image';
+import { createImageThumbnails, loadImageWithMetadata } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';

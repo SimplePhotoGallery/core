@@ -11,14 +11,7 @@ export type {
 
 // Re-export utility functions from the CLI
 export { generateBlurHash } from '../utils/blurhash';
-export {
-  loadImage,
-  loadImageWithMetadata,
-  resizeImage,
-  cropAndResizeImage,
-  getImageDescription,
-  createImageThumbnails,
-} from '../utils/image';
+export { loadImage, loadImageWithMetadata, resizeImage, cropAndResizeImage, createImageThumbnails } from '../utils/image';
 export { getVideoDimensions, createVideoThumbnails } from '../utils/video';
 export type { Dimensions, ImageWithMetadata } from '../types';
 

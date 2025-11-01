@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "2.0.11-rc.6",
+  "version": "2.0.11-rc.11",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -26,6 +26,10 @@
     "./lib": {
       "types": "./dist/lib/index.d.ts",
       "default": "./dist/lib/index.js"
+    },
+    "./lib/browser": {
+      "types": "./dist/lib/browser.d.ts",
+      "default": "./dist/lib/browser.js"
     }
   },
   "scripts": {
