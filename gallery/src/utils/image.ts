@@ -82,12 +82,12 @@ export async function cropAndResizeImage(
 
 /**
  * Extracts description from image EXIF data
- * @param metadata - Sharp metadata object containing EXIF data
+ * @param image - Image path or File object
  * @returns Promise resolving to image description or undefined if not found
  */
-export async function getImageDescription(imagePath: string): Promise<string | undefined> {
+export async function getImageDescription(image: string | File): Promise<string | undefined> {
   try {
-    const tags = await ExifReader.load(imagePath);
+    const tags = await ExifReader.load(image);
 
     // Description
     if (tags.description?.description) return tags.description.description;
