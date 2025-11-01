@@ -5,7 +5,7 @@ import { capitalizeTitle, getMediaFileType } from './utils';
 
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
+import type { MediaFile } from '@simple-photo-gallery/common';
 import type { ConsolaInstance } from 'consola';
 
 /**

@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { GalleryDataDeprecatedSchema, GalleryDataSchema } from '@simple-photo-gallery/common/src/gallery';
+import { GalleryDataDeprecatedSchema, GalleryDataSchema } from '@simple-photo-gallery/common';
 
-import type { GalleryData, GalleryDataDeprecated } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryData, GalleryDataDeprecated } from '@simple-photo-gallery/common';
 import type { ConsolaInstance } from 'consola';
 
 /**

@@ -1652,7 +1652,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simple-photo-gallery/common@workspace:*, @simple-photo-gallery/common@workspace:common":
+"@simple-photo-gallery/common@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@simple-photo-gallery/common@npm:1.0.1"
+  dependencies:
+    zod: "npm:^4.0.14"
+  checksum: 10c0/c81425989e7c436e8b014d94dc941503ffe33d72a22511d53d878b86db2f7a5c86098a054cb4710de9d0ca4d8c95dd274e052991369f1cef4e89ed64196ded6a
+  languageName: node
+  linkType: hard
+
+"@simple-photo-gallery/common@npm:1.0.2, @simple-photo-gallery/common@workspace:common":
   version: 0.0.0-use.local
   resolution: "@simple-photo-gallery/common@workspace:common"
   dependencies:
@@ -1669,6 +1678,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.5.1"
     eslint-plugin-unicorn: "npm:^59.0.1"
     prettier: "npm:^3.4.2"
+    tsup: "npm:^8.5.0"
     tsx: "npm:^4.20.3"
     typescript: "npm:^5.9.0"
     typescript-eslint: "npm:^8.38.0"
@@ -1676,13 +1686,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@simple-photo-gallery/theme-modern@npm:2.0.11-rc.1, @simple-photo-gallery/theme-modern@workspace:themes/modern":
+"@simple-photo-gallery/theme-modern@npm:2.0.11-rc.4, @simple-photo-gallery/theme-modern@workspace:themes/modern":
   version: 0.0.0-use.local
   resolution: "@simple-photo-gallery/theme-modern@workspace:themes/modern"
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:^9.30.1"
-    "@simple-photo-gallery/common": "workspace:*"
+    "@simple-photo-gallery/common": "npm:1.0.1"
     "@types/photoswipe": "npm:^4.1.6"
     "@typescript-eslint/eslint-plugin": "npm:^8.35.1"
     "@typescript-eslint/parser": "npm:^8.35.1"
@@ -8560,8 +8570,8 @@ __metadata:
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:^9.30.1"
-    "@simple-photo-gallery/common": "workspace:*"
-    "@simple-photo-gallery/theme-modern": "npm:2.0.11-rc.1"
+    "@simple-photo-gallery/common": "npm:1.0.2"
+    "@simple-photo-gallery/theme-modern": "npm:2.0.11-rc.4"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^30.0.0"
     "@types/node": "npm:^24.0.10"

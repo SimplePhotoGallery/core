@@ -14,7 +14,7 @@ import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-import type { MediaFile } from '@simple-photo-gallery/common/src/gallery';
+import type { MediaFile } from '@simple-photo-gallery/common';
 
 /**
  * Processes an image file to create thumbnail and extract metadata
