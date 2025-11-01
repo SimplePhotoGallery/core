@@ -158,7 +158,6 @@ async function processVideo(
 async function processMediaFile(
   mediaFile: MediaFile,
   mediaBasePath: string,
-  galleryDir: string,
   thumbnailsPath: string,
   thumbnailSize: number,
   ui: ConsolaInstance,
@@ -246,14 +245,7 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(
-          mediaFile,
-          mediaBasePath,
-          galleryDir,
-          thumbnailsPath,
-          thumbnailSize,
-          ui,
-        );
+        section.images[index] = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailSize, ui);
       }
 
       processedCount += section.images.length;

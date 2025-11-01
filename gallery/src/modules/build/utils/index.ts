@@ -34,14 +34,14 @@ export async function createGallerySocialMediaCardImage(
   headerPhotoPath: string,
   title: string,
   ouputPath: string,
-  ui: ConsolaInstance,
+  ui?: ConsolaInstance,
 ): Promise<string> {
-  ui.start(`Creating social media card image`);
+  ui?.start(`Creating social media card image`);
 
   const headerBasename = path.basename(headerPhotoPath, path.extname(headerPhotoPath));
 
   if (fs.existsSync(ouputPath)) {
-    ui.success(`Social media card image already exists`);
+    ui?.success(`Social media card image already exists`);
     return headerBasename;
   }
 
@@ -74,7 +74,7 @@ export async function createGallerySocialMediaCardImage(
   // Save the final image with text overlay
   await sharp(finalImageBuffer).toFile(outputPath);
 
-  ui.success(`Created social media card image successfully`);
+  ui?.success(`Created social media card image successfully`);
   return headerBasename;
 }
 
@@ -88,28 +88,28 @@ export async function createGallerySocialMediaCardImage(
 export async function createOptimizedHeaderImage(
   headerPhotoPath: string,
   outputFolder: string,
-  ui: ConsolaInstance,
+  ui?: ConsolaInstance,
 ): Promise<{ headerBasename: string; generatedFiles: string[]; blurHash: string }> {
-  ui.start(`Creating optimized header images`);
+  ui?.start(`Creating optimized header images`);
 
   const image = await loadImage(headerPhotoPath);
   const headerBasename = path.basename(headerPhotoPath, path.extname(headerPhotoPath));
   const generatedFiles: string[] = [];
 
   // Generate blurhash for the header image
-  ui.debug('Generating blurhash for header image');
+  ui?.debug('Generating blurhash for header image');
   const blurHash = await generateBlurHash(headerPhotoPath);
 
   // Create landscape header images
   const landscapeYFactor = 3 / 4;
   for (const width of HEADER_IMAGE_LANDSCAPE_WIDTHS) {
-    ui.debug(`Creating landscape header image ${width}`);
+    ui?.debug(`Creating landscape header image ${width}`);
 
     const avifFilename = `${headerBasename}_landscape_${width}.avif`;
     const jpgFilename = `${headerBasename}_landscape_${width}.jpg`;
 
     if (fs.existsSync(path.join(outputFolder, avifFilename))) {
-      ui.debug(`Landscape header image ${width} AVIF already exists`);
+      ui?.debug(`Landscape header image ${width} AVIF already exists`);
     } else {
       await cropAndResizeImage(
         image.clone(),
@@ -122,7 +122,7 @@ export async function createOptimizedHeaderImage(
     generatedFiles.push(avifFilename);
 
     if (fs.existsSync(path.join(outputFolder, jpgFilename))) {
-      ui.debug(`Landscape header image ${width} JPG already exists`);
+      ui?.debug(`Landscape header image ${width} JPG already exists`);
     } else {
       await cropAndResizeImage(image.clone(), path.join(outputFolder, jpgFilename), width, width * landscapeYFactor, 'jpg');
     }
@@ -132,27 +132,27 @@ export async function createOptimizedHeaderImage(
   // Create portrait header images
   const portraitYFactor = 4 / 3;
   for (const width of HEADER_IMAGE_PORTRAIT_WIDTHS) {
-    ui.debug(`Creating portrait header image ${width}`);
+    ui?.debug(`Creating portrait header image ${width}`);
 
     const avifFilename = `${headerBasename}_portrait_${width}.avif`;
     const jpgFilename = `${headerBasename}_portrait_${width}.jpg`;
 
     if (fs.existsSync(path.join(outputFolder, avifFilename))) {
-      ui.debug(`Portrait header image ${width} AVIF already exists`);
+      ui?.debug(`Portrait header image ${width} AVIF already exists`);
     } else {
       await cropAndResizeImage(image.clone(), path.join(outputFolder, avifFilename), width, width * portraitYFactor, 'avif');
     }
     generatedFiles.push(avifFilename);
 
     if (fs.existsSync(path.join(outputFolder, jpgFilename))) {
-      ui.debug(`Portrait header image ${width} JPG already exists`);
+      ui?.debug(`Portrait header image ${width} JPG already exists`);
     } else {
       await cropAndResizeImage(image.clone(), path.join(outputFolder, jpgFilename), width, width * portraitYFactor, 'jpg');
     }
     generatedFiles.push(jpgFilename);
   }
 
-  ui.success(`Created optimized header image successfully`);
+  ui?.success(`Created optimized header image successfully`);
   return { headerBasename, generatedFiles, blurHash };
 }
 
@@ -191,11 +191,11 @@ export function hasOldHeaderImages(outputFolder: string, currentHeaderBasename: 
  * @param currentHeaderBasename - Basename of the current header image
  * @param ui - ConsolaInstance for logging
  */
-export function cleanupOldHeaderImages(outputFolder: string, currentHeaderBasename: string, ui: ConsolaInstance): void {
-  ui.start(`Cleaning up old header images`);
+export function cleanupOldHeaderImages(outputFolder: string, currentHeaderBasename: string, ui?: ConsolaInstance): void {
+  ui?.start(`Cleaning up old header images`);
 
   if (!fs.existsSync(outputFolder)) {
-    ui.debug(`Output folder ${outputFolder} does not exist, skipping cleanup`);
+    ui?.debug(`Output folder ${outputFolder} does not exist, skipping cleanup`);
     return;
   }
 
@@ -209,20 +209,20 @@ export function cleanupOldHeaderImages(outputFolder: string, currentHeaderBasena
 
     if (landscapeMatch && landscapeMatch[1] !== currentHeaderBasename) {
       const filePath = path.join(outputFolder, file);
-      ui.debug(`Deleting old landscape header image: ${file}`);
+      ui?.debug(`Deleting old landscape header image: ${file}`);
       fs.unlinkSync(filePath);
       deletedCount++;
     } else if (portraitMatch && portraitMatch[1] !== currentHeaderBasename) {
       const filePath = path.join(outputFolder, file);
-      ui.debug(`Deleting old portrait header image: ${file}`);
+      ui?.debug(`Deleting old portrait header image: ${file}`);
       fs.unlinkSync(filePath);
       deletedCount++;
     }
   }
 
   if (deletedCount > 0) {
-    ui.success(`Deleted ${deletedCount} old header image(s)`);
+    ui?.success(`Deleted ${deletedCount} old header image(s)`);
   } else {
-    ui.debug(`No old header images to clean up`);
+    ui?.debug(`No old header images to clean up`);
   }
 }
