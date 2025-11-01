@@ -17,6 +17,17 @@ export const getRelativePath = (resourcePath: string) => {
 };
 
 /**
+ * Get the path to a thumbnail that is relative to the gallery root directory or the thumbnails base URL.
+ *
+ * @param resourcePath - The resource path (file or directory), typically relative to the gallery.json file
+ * @param thumbsBaseUrl - The base URL for the thumbnails
+ * @returns The normalized path relative to the gallery root directory or the thumbnails base URL
+ */
+export const getThumbnailPath = (resourcePath: string, thumbsBaseUrl?: string) => {
+  return thumbsBaseUrl ? `${thumbsBaseUrl}/${resourcePath}` : `gallery/images/${path.basename(resourcePath)}`;
+};
+
+/**
  * Get the path to a photo that is always in the gallery root directory.
  *
  * @param filename - The filename to get the path for
