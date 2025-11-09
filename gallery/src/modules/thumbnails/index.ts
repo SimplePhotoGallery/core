@@ -210,6 +210,10 @@ async function processMediaFile(
       updatedMediaFile.thumbnail.pathRetina = path.basename(thumbnailPathRetina);
     }
 
+    if (mediaFile.url) {
+      updatedMediaFile.url = mediaFile.url;
+    }
+
     return updatedMediaFile;
   } catch (error) {
     handleFileProcessingError(error, mediaFile.filename, ui);
