@@ -208,6 +208,14 @@ async function processMediaFile(
     if (updatedMediaFile.thumbnail) {
       updatedMediaFile.thumbnail.path = path.basename(thumbnailPath);
       updatedMediaFile.thumbnail.pathRetina = path.basename(thumbnailPathRetina);
+      // Preserve baseUrl from existing thumbnail if it exists
+      if (mediaFile.thumbnail?.baseUrl) {
+        updatedMediaFile.thumbnail.baseUrl = mediaFile.thumbnail.baseUrl;
+      }
+    }
+
+    if (mediaFile.url) {
+      updatedMediaFile.url = mediaFile.url;
     }
 
     return updatedMediaFile;

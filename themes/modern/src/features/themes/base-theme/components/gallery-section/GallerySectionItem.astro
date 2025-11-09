@@ -20,8 +20,8 @@ const captionHtml = parsedCaption ? `<div class="image-caption markdown-content"
 
 <a
   class="gallery-section__item"
-  href={getPhotoPath(image.filename, mediaBaseUrl)}
-  data-pswp-src={getPhotoPath(image.filename, mediaBaseUrl)}
+  href={getPhotoPath(image.filename, mediaBaseUrl, image.url)}
+  data-pswp-src={getPhotoPath(image.filename, mediaBaseUrl, image.url)}
   data-pswp-width={image.width}
   data-pswp-height={image.height}
   data-pswp-type={image.type}
@@ -32,8 +32,8 @@ const captionHtml = parsedCaption ? `<div class="image-caption markdown-content"
   {
     image.thumbnail && (
       <img
-        src={getThumbnailPath(image.thumbnail.path, thumbsBaseUrl)}
-        srcset={`${getThumbnailPath(image.thumbnail.path, thumbsBaseUrl)} 1x, ${getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl)} 2x`}
+        src={getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)}
+        srcset={`${getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)} 1x, ${getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl, image.thumbnail.baseUrl)} 2x`}
         alt={image.alt}
         loading="lazy"
         width={image.thumbnail.width}

@@ -41,6 +41,127 @@ The `sections` array can be used to define the sections of the gallery. Each sec
 
 You will usually initialize the gallery with the `init` command to scan all the photos and then split them into sections manually in the `gallery.json` file.
 
+## Media files
+
+Each item in the `images` array of a section represents a media file (image or video). Media files have the following properties:
+
+### Required properties
+
+- `type` - The type of media: `"image"` or `"video"`
+- `filename` - The filename of the media file (e.g., `"photo-001.jpg"`)
+- `width` - The width of the media in pixels
+- `height` - The height of the media in pixels
+
+### Optional properties
+
+- `url` - A custom URL for the media file. If provided, this URL will be used directly as the source, regardless of the `mediaBaseUrl` setting or base path configuration. This is useful when you want to host specific images on different CDNs or use external URLs.
+- `alt` - A caption/description for the media (supports Markdown formatting)
+- `thumbnail` - Thumbnail metadata object with `path`, `pathRetina`, `width`, `height`, optional `blurHash`, and optional `baseUrl`
+- `lastMediaTimestamp` - Timestamp metadata (automatically generated)
+
+### URL resolution
+
+By default, the full image URL is constructed by combining the `mediaBaseUrl` (if set) with the `filename`. However, if a `url` field is present, it will always be used instead, ignoring any base URL or path settings.
+
+**Example without custom URL:**
+
+```json
+{
+  "type": "image",
+  "filename": "photo-001.jpg",
+  "width": 1920,
+  "height": 1080
+}
+```
+
+If `mediaBaseUrl` is set to `"https://cdn.example.com/images"`, the final URL will be `"https://cdn.example.com/images/photo-001.jpg"`.
+
+**Example with custom URL:**
+
+```json
+{
+  "type": "image",
+  "filename": "photo-001.jpg",
+  "url": "https://special-cdn.example.com/custom-path/photo-001.jpg",
+  "width": 1920,
+  "height": 1080
+}
+```
+
+The final URL will always be `"https://special-cdn.example.com/custom-path/photo-001.jpg"`, regardless of the `mediaBaseUrl` setting.
+
+### Thumbnail URL resolution
+
+By default, thumbnail URLs are constructed by combining the `thumbsBaseUrl` (if set at the gallery level) with the thumbnail `path` or `pathRetina`. However, you can override this for individual thumbnails by setting a `baseUrl` property directly on the thumbnail object.
+
+**Priority order for thumbnail URLs:**
+1. If a thumbnail has a `baseUrl` property, it will be used to construct the URL: `${thumbnail.baseUrl}/${path}` or `${thumbnail.baseUrl}/${pathRetina}`
+2. Otherwise, if `thumbsBaseUrl` is set at the gallery level, it will be used: `${thumbsBaseUrl}/${path}` or `${thumbsBaseUrl}/${pathRetina}`
+3. Otherwise, thumbnails will use the default relative path: `gallery/images/${path}`
+
+**Example with gallery-level thumbsBaseUrl:**
+```json
+{
+  "thumbsBaseUrl": "https://cdn.example.com/thumbs",
+  "sections": [
+    {
+      "images": [
+        {
+          "type": "image",
+          "filename": "photo-001.jpg",
+          "width": 1920,
+          "height": 1080,
+          "thumbnail": {
+            "path": "photo-001.avif",
+            "pathRetina": "photo-001@2x.avif",
+            "width": 300,
+            "height": 200
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+The thumbnail URLs will be:
+- Regular: `https://cdn.example.com/thumbs/photo-001.avif`
+- Retina: `https://cdn.example.com/thumbs/photo-001@2x.avif`
+
+**Example with thumbnail-specific baseUrl:**
+```json
+{
+  "thumbsBaseUrl": "https://cdn.example.com/thumbs",
+  "sections": [
+    {
+      "images": [
+        {
+          "type": "image",
+          "filename": "photo-001.jpg",
+          "width": 1920,
+          "height": 1080,
+          "thumbnail": {
+            "baseUrl": "https://special-cdn.example.com/custom-thumbs",
+            "path": "photo-001.avif",
+            "pathRetina": "photo-001@2x.avif",
+            "width": 300,
+            "height": 200
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+The thumbnail URLs will be:
+- Regular: `https://special-cdn.example.com/custom-thumbs/photo-001.avif`
+- Retina: `https://special-cdn.example.com/custom-thumbs/photo-001@2x.avif`
+
+The thumbnail-specific `baseUrl` overrides the gallery-level `thumbsBaseUrl`, allowing you to host specific thumbnails on different CDNs or use external URLs.
+
+> **Note:** When building galleries with the CLI, thumbnail-specific `baseUrl` values are preserved and will not be overwritten by the `--thumbs-base-url` option.
+
 ## Sub-galleries
 
 Sub-galleries are links to other galleries, typically located in subdirectories of the photos folder. They are used to create navigation between galleries and sub-galleries.
@@ -92,7 +213,10 @@ Markdown formatting is available in:
       "description": "Photos from *Japan* featuring:\n\n- Cherry blossoms\n- Street photography\n- `Fujifilm X-T5`",
       "images": [
         {
-          "path": "tokyo-001.jpg",
+          "type": "image",
+          "filename": "tokyo-001.jpg",
+          "width": 1920,
+          "height": 1080,
           "alt": "Sunset at **Mount Fuji** - taken with `50mm f/1.8`"
         }
       ]

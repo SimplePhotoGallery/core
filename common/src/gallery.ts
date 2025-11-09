@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 /** Zod schema for thumbnail metadata including path and dimensions */
 export const ThumbnailSchema = z.object({
+  baseUrl: z.string().optional(),
   path: z.string(),
   pathRetina: z.string(),
   width: z.number(),
@@ -13,6 +14,7 @@ export const ThumbnailSchema = z.object({
 export const MediaFileSchema = z.object({
   type: z.enum(['image', 'video']),
   filename: z.string(),
+  url: z.string().optional(),
   alt: z.string().optional(),
   width: z.number(),
   height: z.number(),
