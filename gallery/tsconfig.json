@@ -6,7 +6,11 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "removeComments": false
+    "removeComments": false,
+    "baseUrl": ".",
+    "paths": {
+      "@simple-photo-gallery/common": ["../common/src/gallery.ts"]
+    }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts", "tsup.config.ts"],
   "exclude": ["dist"]
