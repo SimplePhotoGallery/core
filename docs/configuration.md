@@ -41,6 +41,55 @@ The `sections` array can be used to define the sections of the gallery. Each sec
 
 You will usually initialize the gallery with the `init` command to scan all the photos and then split them into sections manually in the `gallery.json` file.
 
+## Media files
+
+Each item in the `images` array of a section represents a media file (image or video). Media files have the following properties:
+
+### Required properties
+
+- `type` - The type of media: `"image"` or `"video"`
+- `filename` - The filename of the media file (e.g., `"photo-001.jpg"`)
+- `width` - The width of the media in pixels
+- `height` - The height of the media in pixels
+
+### Optional properties
+
+- `url` - A custom URL for the media file. If provided, this URL will be used directly as the source, regardless of the `mediaBaseUrl` setting or base path configuration. This is useful when you want to host specific images on different CDNs or use external URLs.
+- `alt` - A caption/description for the media (supports Markdown formatting)
+- `thumbnail` - Thumbnail metadata object with `path`, `pathRetina`, `width`, `height`, and optional `blurHash`
+- `lastMediaTimestamp` - Timestamp metadata (automatically generated)
+
+### URL resolution
+
+By default, the full image URL is constructed by combining the `mediaBaseUrl` (if set) with the `filename`. However, if a `url` field is present, it will always be used instead, ignoring any base URL or path settings.
+
+**Example without custom URL:**
+
+```json
+{
+  "type": "image",
+  "filename": "photo-001.jpg",
+  "width": 1920,
+  "height": 1080
+}
+```
+
+If `mediaBaseUrl` is set to `"https://cdn.example.com/images"`, the final URL will be `"https://cdn.example.com/images/photo-001.jpg"`.
+
+**Example with custom URL:**
+
+```json
+{
+  "type": "image",
+  "filename": "photo-001.jpg",
+  "url": "https://special-cdn.example.com/custom-path/photo-001.jpg",
+  "width": 1920,
+  "height": 1080
+}
+```
+
+The final URL will always be `"https://special-cdn.example.com/custom-path/photo-001.jpg"`, regardless of the `mediaBaseUrl` setting.
+
 ## Sub-galleries
 
 Sub-galleries are links to other galleries, typically located in subdirectories of the photos folder. They are used to create navigation between galleries and sub-galleries.
@@ -92,7 +141,10 @@ Markdown formatting is available in:
       "description": "Photos from *Japan* featuring:\n\n- Cherry blossoms\n- Street photography\n- `Fujifilm X-T5`",
       "images": [
         {
-          "path": "tokyo-001.jpg",
+          "type": "image",
+          "filename": "tokyo-001.jpg",
+          "width": 1920,
+          "height": 1080,
           "alt": "Sunset at **Mount Fuji** - taken with `50mm f/1.8`"
         }
       ]
