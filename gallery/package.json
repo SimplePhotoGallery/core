@@ -47,7 +47,7 @@
     "prepublish": "yarn build"
   },
   "dependencies": {
-    "@simple-photo-gallery/common": "1.0.2",
+    "@simple-photo-gallery/common": "1.0.3",
     "@simple-photo-gallery/theme-modern": "2.0.11-rc.4",
     "axios": "^1.12.2",
     "blurhash": "^2.0.5",

@@ -13,6 +13,7 @@ export const ThumbnailSchema = z.object({
 export const MediaFileSchema = z.object({
   type: z.enum(['image', 'video']),
   filename: z.string(),
+  url: z.string().optional(),
   alt: z.string().optional(),
   width: z.number(),
   height: z.number(),
