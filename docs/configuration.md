@@ -56,7 +56,7 @@ Each item in the `images` array of a section represents a media file (image or v
 
 - `url` - A custom URL for the media file. If provided, this URL will be used directly as the source, regardless of the `mediaBaseUrl` setting or base path configuration. This is useful when you want to host specific images on different CDNs or use external URLs.
 - `alt` - A caption/description for the media (supports Markdown formatting)
-- `thumbnail` - Thumbnail metadata object with `path`, `pathRetina`, `width`, `height`, and optional `blurHash`
+- `thumbnail` - Thumbnail metadata object with `path`, `pathRetina`, `width`, `height`, optional `blurHash`, and optional `baseUrl`
 - `lastMediaTimestamp` - Timestamp metadata (automatically generated)
 
 ### URL resolution
@@ -89,6 +89,78 @@ If `mediaBaseUrl` is set to `"https://cdn.example.com/images"`, the final URL wi
 ```
 
 The final URL will always be `"https://special-cdn.example.com/custom-path/photo-001.jpg"`, regardless of the `mediaBaseUrl` setting.
+
+### Thumbnail URL resolution
+
+By default, thumbnail URLs are constructed by combining the `thumbsBaseUrl` (if set at the gallery level) with the thumbnail `path` or `pathRetina`. However, you can override this for individual thumbnails by setting a `baseUrl` property directly on the thumbnail object.
+
+**Priority order for thumbnail URLs:**
+1. If a thumbnail has a `baseUrl` property, it will be used to construct the URL: `${thumbnail.baseUrl}/${path}` or `${thumbnail.baseUrl}/${pathRetina}`
+2. Otherwise, if `thumbsBaseUrl` is set at the gallery level, it will be used: `${thumbsBaseUrl}/${path}` or `${thumbsBaseUrl}/${pathRetina}`
+3. Otherwise, thumbnails will use the default relative path: `gallery/images/${path}`
+
+**Example with gallery-level thumbsBaseUrl:**
+```json
+{
+  "thumbsBaseUrl": "https://cdn.example.com/thumbs",
+  "sections": [
+    {
+      "images": [
+        {
+          "type": "image",
+          "filename": "photo-001.jpg",
+          "width": 1920,
+          "height": 1080,
+          "thumbnail": {
+            "path": "photo-001.avif",
+            "pathRetina": "photo-001@2x.avif",
+            "width": 300,
+            "height": 200
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+The thumbnail URLs will be:
+- Regular: `https://cdn.example.com/thumbs/photo-001.avif`
+- Retina: `https://cdn.example.com/thumbs/photo-001@2x.avif`
+
+**Example with thumbnail-specific baseUrl:**
+```json
+{
+  "thumbsBaseUrl": "https://cdn.example.com/thumbs",
+  "sections": [
+    {
+      "images": [
+        {
+          "type": "image",
+          "filename": "photo-001.jpg",
+          "width": 1920,
+          "height": 1080,
+          "thumbnail": {
+            "baseUrl": "https://special-cdn.example.com/custom-thumbs",
+            "path": "photo-001.avif",
+            "pathRetina": "photo-001@2x.avif",
+            "width": 300,
+            "height": 200
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+The thumbnail URLs will be:
+- Regular: `https://special-cdn.example.com/custom-thumbs/photo-001.avif`
+- Retina: `https://special-cdn.example.com/custom-thumbs/photo-001@2x.avif`
+
+The thumbnail-specific `baseUrl` overrides the gallery-level `thumbsBaseUrl`, allowing you to host specific thumbnails on different CDNs or use external URLs.
+
+> **Note:** When building galleries with the CLI, thumbnail-specific `baseUrl` values are preserved and will not be overwritten by the `--thumbs-base-url` option.
 
 ## Sub-galleries
 

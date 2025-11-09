@@ -10,7 +10,7 @@ spg build [options]
 
 The command will generate the static HTML gallery from the `gallery.json` file and the linked photos and videos. It will also generate thumbnails for the photos and videos, as well as a social media image for the gallery.
 
-If you have created the gallery in a different folder from the photos folder, the command will copy the photos and videos to the gallery folder. If you have set the `-b` or `--base-url` option, the command will link to the photos and videos from the external URL instead of copying them. Addionally, you can also set the `-t` or `--thumbs-base-url` option to specify the base URL for the thumbnails.
+If you have created the gallery in a different folder from the photos folder, the command will copy the photos and videos to the gallery folder. If you have set the `-b` or `--base-url` option, the command will link to the photos and videos from the external URL instead of copying them. Additionally, you can also set the `-t` or `--thumbs-base-url` option to specify the base URL for the thumbnails.
 
 ## Options
 
