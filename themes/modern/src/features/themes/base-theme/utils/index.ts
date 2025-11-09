@@ -32,9 +32,15 @@ export const getThumbnailPath = (resourcePath: string, thumbsBaseUrl?: string) =
  *
  * @param filename - The filename to get the path for
  * @param mediaBaseUrl - The base URL for the media
- * @returns The normalized path relative to the gallery root directory
+ * @param url - Optional URL that, if provided, will be used directly regardless of base URL or path
+ * @returns The normalized path relative to the gallery root directory, or the provided URL
  */
-export const getPhotoPath = (filename: string, mediaBaseUrl?: string) => {
+export const getPhotoPath = (filename: string, mediaBaseUrl?: string, url?: string) => {
+  // If url is provided, always use it regardless of base URL or path
+  if (url) {
+    return url;
+  }
+
   return mediaBaseUrl ? `${mediaBaseUrl}/${filename}` : filename;
 };
 
