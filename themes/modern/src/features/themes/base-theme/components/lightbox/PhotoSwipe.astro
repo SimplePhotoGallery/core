@@ -12,6 +12,7 @@
     showAnimationDuration: 300,
     hideAnimationDuration: 300,
     wheelToZoom: true,
+    loop: false,
     bgOpacity: 1,
   });
 
@@ -19,12 +20,66 @@
     // options
   });
 
+  // Function to update URL with image ID
+  function updateURL(imageId: string | null) {
+    const url = new URL(globalThis.location.href);
+    if (imageId) {
+      url.searchParams.set('image', imageId);
+    } else {
+      url.searchParams.delete('image');
+    }
+    globalThis.history.replaceState({}, '', url.toString());
+  }
+
+  // Function to get image ID from URL
+  function getImageIdFromURL(): string | null {
+    const params = new URLSearchParams(globalThis.location.search);
+    return params.get('image');
+  }
+
+  // Function to find and open image by ID
+  function openImageById(imageId: string) {
+    const decodedId = decodeURIComponent(imageId);
+    // Use the same selector logic as PhotoSwipeLightbox: find all galleries, then all 'a' children
+    const galleries = document.querySelectorAll('.gallery-section__gallery');
+    const allItems: HTMLAnchorElement[] = [];
+    
+    for (const gallery of galleries) {
+      const items = gallery.querySelectorAll<HTMLAnchorElement>('a');
+      allItems.push(...items);
+    }
+    
+    // Find the item with matching image ID
+    for (const [i, item] of allItems.entries()) {
+      const itemId = decodeURIComponent(item.dataset.imageId || '');
+      if (itemId === decodedId) {
+        lightbox.loadAndOpen(i);
+        return true;
+      }
+    }
+    return false;
+  }
+
   lightbox.on('contentDeactivate', ({ content }) => {
     content.element?.classList.remove('pswp__img--in-viewport');
   });
 
   lightbox.on('contentActivate', ({ content }) => {
     content.element?.classList.add('pswp__img--in-viewport');
+  });
+
+  // Update URL when image changes
+  lightbox.on('change', () => {
+    if (lightbox.pswp) {
+      const currSlideElement = lightbox.pswp.currSlide?.data.element as HTMLAnchorElement | undefined;
+      const imageId = currSlideElement?.dataset.imageId ?? null;
+      updateURL(imageId);
+    }
+  });
+
+  // Clear URL parameter when lightbox closes
+  lightbox.on('close', () => {
+    updateURL(null);
   });
 
   lightbox.on('uiRegister', function () {
@@ -48,6 +103,19 @@
   });
 
   lightbox.init();
+
+  // Check for image parameter in URL on page load
+  const imageIdFromURL = getImageIdFromURL();
+  if (imageIdFromURL) {
+    // Wait for DOM to be ready and then open the image
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => openImageById(imageIdFromURL), 100);
+      });
+    } else {
+      setTimeout(() => openImageById(imageIdFromURL), 100);
+    }
+  }
 </script>
 
 <style is:global>
