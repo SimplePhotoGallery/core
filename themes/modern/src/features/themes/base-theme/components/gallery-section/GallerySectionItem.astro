@@ -26,7 +26,7 @@ const captionHtml = parsedCaption ? `<div class="image-caption markdown-content"
   data-pswp-height={image.height}
   data-pswp-type={image.type}
   data-pswp-caption={captionHtml}
-  data-image-id={encodeURIComponent(image.filename)}
+  data-image-id={image.filename}
   style={`--w: ${image.thumbnail?.width}; --h: ${image.thumbnail?.height}`}>
   <canvas data-blur-hash={blurHash} width={32} height={32}></canvas>
 

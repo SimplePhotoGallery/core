@@ -39,7 +39,7 @@
 
   // Function to find and open image by ID
   function openImageById(imageId: string) {
-    const decodedId = decodeURIComponent(imageId);
+    // URLSearchParams.get() already decodes the value, so imageId is the raw filename
     // Use the same selector logic as PhotoSwipeLightbox: find all galleries, then all 'a' children
     const galleries = document.querySelectorAll('.gallery-section__gallery');
     const allItems: HTMLAnchorElement[] = [];
@@ -51,8 +51,8 @@
     
     // Find the item with matching image ID
     for (const [i, item] of allItems.entries()) {
-      const itemId = decodeURIComponent(item.dataset.imageId || '');
-      if (itemId === decodedId) {
+      const itemId = item.dataset.imageId || '';
+      if (itemId === imageId) {
         lightbox.loadAndOpen(i);
         return true;
       }
