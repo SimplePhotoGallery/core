@@ -87,11 +87,42 @@ const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
       (function () {
         const picture = document.querySelector('#hero-bg-picture');
         const img = picture?.querySelector('img.hero__bg-img');
+        const canvas = document.querySelector('canvas[data-blur-hash]');
         if (!img) return;
 
         const fallbackSrc = img.getAttribute('src') || '';
         let didFallback = false;
 
+        // Hide blurhash when image loads successfully
+        const hideBlurhash = () => {
+          if (canvas) {
+            canvas.style.display = 'none';
+          }
+        };
+
+        // Check if image already loaded or failed before script runs
+        if (img.complete) {
+          if (img.naturalWidth === 0) {
+            // Image failed to load
+            if (!didFallback) {
+              didFallback = true;
+              for (const sourceEl of picture.querySelectorAll('source')) {
+                sourceEl.remove();
+              }
+              const current = img.getAttribute('src') || '';
+              img.setAttribute('src', '');
+              img.setAttribute('src', fallbackSrc || current);
+            }
+          } else {
+            // Image loaded successfully
+            hideBlurhash();
+          }
+        } else {
+          // Image is still loading, wait for load or error
+          img.addEventListener('load', hideBlurhash, { once: true });
+        }
+
+        // Handle error event
         img.addEventListener(
           'error',
           () => {
@@ -107,6 +138,18 @@ const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
             const current = img.getAttribute('src') || '';
             img.setAttribute('src', '');
             img.setAttribute('src', fallbackSrc || current);
+
+            // If fallback also fails, keep blurhash visible
+            img.addEventListener(
+              'error',
+              () => {
+                // Final fallback failed, blurhash stays visible
+              },
+              { once: true }
+            );
+
+            // If fallback succeeds, hide blurhash
+            img.addEventListener('load', hideBlurhash, { once: true });
           },
           { once: true }
         );
