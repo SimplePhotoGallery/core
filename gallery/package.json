@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "2.0.11-rc.17",
+  "version": "2.0.11",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -48,8 +48,8 @@
     "prepublish": "yarn build"
   },
   "dependencies": {
-    "@simple-photo-gallery/common": "1.0.4",
-    "@simple-photo-gallery/theme-modern": "2.0.11-rc.17",
+    "@simple-photo-gallery/common": "1.0.5",
+    "@simple-photo-gallery/theme-modern": "2.0.11",
     "axios": "^1.12.2",
     "blurhash": "^2.0.5",
     "commander": "^12.0.0",
