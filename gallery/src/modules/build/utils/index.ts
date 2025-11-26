@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 import sharp from 'sharp';
 
@@ -12,7 +13,7 @@ import { cropAndResizeImage, loadImage } from '../../../utils/image';
 import type { ConsolaInstance } from 'consola';
 
 /** __dirname workaround for ESM modules */
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** Relative path to the bundled font used for social cards */
 const SOCIAL_CARD_FONT_RELATIVE_PATH = path.join('assets', 'fonts', 'dejavu', 'DejaVuSans-Bold.ttf');
