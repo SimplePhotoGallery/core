@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SOCIAL_CARD_FONT_RELATIVE_PATH = path.join('assets', 'fonts', 'dejavu', 'DejaVuSans-Bold.ttf');
 
 /** Cached base64 font data to avoid repeated disk reads */
-let socialCardFontBase64: string | undefined;
+let socialCardFontBase64: string | null | undefined;
 
 /**
  * Helper function to resolve paths relative to current file
@@ -33,12 +33,15 @@ export function resolveFromCurrentDir(...segments: string[]): string {
 /**
  * Locate the font used for rendering social media card text.
  * Tries multiple candidate paths to support both source and built distributions.
+ * @returns Font path if found, null otherwise
  */
-function findSocialCardFontPath(): string {
+function findSocialCardFontPath(): string | null {
   const fontCandidates = [
     resolveFromCurrentDir('../../../../', SOCIAL_CARD_FONT_RELATIVE_PATH),
     path.resolve(__dirname, '../', SOCIAL_CARD_FONT_RELATIVE_PATH),
+    path.resolve(__dirname, '../../', SOCIAL_CARD_FONT_RELATIVE_PATH),
     path.resolve(process.cwd(), SOCIAL_CARD_FONT_RELATIVE_PATH),
+    path.resolve(process.cwd(), '../', SOCIAL_CARD_FONT_RELATIVE_PATH),
   ];
 
   for (const candidate of fontCandidates) {
@@ -47,19 +50,25 @@ function findSocialCardFontPath(): string {
     }
   }
 
-  throw new Error('Social media card font file not found');
+  return null;
 }
 
 /**
  * Loads the social media card font and returns its base64 representation.
  * The data is cached to avoid repeated disk access within the same process.
+ * @returns Base64 font data if font file is found, null otherwise
  */
-function getSocialCardFontBase64(): string {
-  if (socialCardFontBase64) {
+function getSocialCardFontBase64(): string | null {
+  if (socialCardFontBase64 !== undefined) {
     return socialCardFontBase64;
   }
 
   const fontPath = findSocialCardFontPath();
+  if (!fontPath) {
+    socialCardFontBase64 = null;
+    return null;
+  }
+
   socialCardFontBase64 = fs.readFileSync(fontPath).toString('base64');
   return socialCardFontBase64;
 }
@@ -97,17 +106,22 @@ export async function createGallerySocialMediaCardImage(
 
   // Create SVG with title and description
   const fontBase64 = getSocialCardFontBase64();
-  const svgText = `
-    <svg width="1200" height="631" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <style>
+  const fontFace = fontBase64
+    ? `
           @font-face {
             font-family: 'DejaVu Sans';
             src: url('data:font/ttf;base64,${fontBase64}') format('truetype');
             font-weight: 700;
             font-style: normal;
-          }
-          .title { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 96px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
+          }`
+    : '';
+  const fontFamily = fontBase64 ? "'DejaVu Sans', Arial, sans-serif" : 'Arial, sans-serif';
+  const svgText = `
+    <svg width="1200" height="631" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          ${fontFace}
+          .title { font-family: ${fontFamily}; font-size: 96px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
         </style>
       </defs>
       <text x="600" y="250" class="title">${title}</text>
