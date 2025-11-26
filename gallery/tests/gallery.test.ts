@@ -25,6 +25,13 @@ const MediaFileWithThumbnailSchema = MediaFileSchema.extend({
   thumbnail: ThumbnailSchema,
 });
 
+// Helper function to run CLI commands with telemetry disabled
+function runCliCommand(command: string): void {
+  execSync(command, {
+    env: { ...process.env, SPG_TELEMETRY_PROVIDER: 'none' },
+  });
+}
+
 // Helper functions for gallery validation
 function validateGalleryStructure(galleryPath: string, expectedImageCount: number, expectedSubGalleryCount: number = 0) {
   // Check that gallery.json exists
@@ -203,7 +210,7 @@ describe('Single-folder gallery', () => {
       const galleryPath = path.resolve(singleTestPath, 'gallery');
 
       // Run init command with default settings
-      execSync(`${tsxPath} ${cliPath} init --photos ${singleTestPath} -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${singleTestPath} -d`);
 
       // Validate gallery structure
       validateGalleryStructure(galleryPath, 3, 0);
@@ -259,7 +266,7 @@ describe('Single-folder gallery', () => {
       const galleryPath = path.resolve(singleTestPath, 'gallery');
 
       // Run thumbnails command (init should have been run by previous test)
-      execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${singleTestPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${singleTestPath}`);
 
       // Validate thumbnails using helper (expecting 6: 3 regular + 3 retina @2x)
       validateThumbnails(galleryPath, 6);
@@ -271,7 +278,7 @@ describe('Single-folder gallery', () => {
       const galleryPath = path.resolve(singleTestPath, 'gallery');
 
       // Run build command (init and thumbnails should have been run by previous tests)
-      execSync(`${tsxPath} ${cliPath} build --gallery ${singleTestPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} build --gallery ${singleTestPath}`);
 
       // Validate build output using helper
       validateBuildOutput(singleTestPath, galleryPath);
@@ -296,7 +303,7 @@ describe('Multi-folder gallery', () => {
   describe('init command with recursive option', () => {
     test('should create gallery.json files with subgalleries for multi-folder structure', () => {
       // Run init command with recursive option and default settings
-      execSync(`${tsxPath} ${cliPath} init --photos ${multiTestPath} -r -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${multiTestPath} -r -d`);
 
       // Validate main gallery (3 root images + 2 subgalleries)
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
@@ -391,7 +398,7 @@ describe('Multi-folder gallery', () => {
   describe('thumbnails command with recursive option', () => {
     test('should create thumbnails for all galleries recursively', () => {
       // Run thumbnails command with recursive option
-      execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${multiTestPath} -r`);
+      runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${multiTestPath} -r`);
 
       // Validate thumbnails for main gallery (expecting 6: 3 regular + 3 retina @2x)
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
@@ -410,7 +417,7 @@ describe('Multi-folder gallery', () => {
   describe('build command with recursive option', () => {
     test('should build static files for all galleries recursively', () => {
       // Run build command with recursive option
-      execSync(`${tsxPath} ${cliPath} build --gallery ${multiTestPath} -r`);
+      runCliCommand(`${tsxPath} ${cliPath} build --gallery ${multiTestPath} -r`);
 
       // Validate build output for main gallery
       const mainGalleryPath = path.resolve(multiTestPath, 'gallery');
@@ -458,7 +465,7 @@ describe('Separate gallery directory', () => {
   describe('init command with separate directories', () => {
     test('should create gallery in different folder with relative paths back to photos', () => {
       // Run init command with separate gallery directory and default settings
-      execSync(`${tsxPath} ${cliPath} init --photos ${separatePhotosPath} --gallery ${separateGalleryPath} -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${separatePhotosPath} --gallery ${separateGalleryPath} -d`);
 
       // Validate gallery structure with separate paths
       validateSeparateGalleryStructure(separatePhotosPath, separateGalleryPath, 3);
@@ -530,7 +537,7 @@ describe('Separate gallery directory', () => {
   describe('thumbnails command with separate directories', () => {
     test('should create thumbnails in gallery directory for photos in separate directory', () => {
       // Run thumbnails command (init should have been run by previous test)
-      execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
 
       // Validate thumbnails using helper (expecting 6: 3 regular + 3 retina @2x)
       const galleryPath = path.resolve(separateGalleryPath, 'gallery');
@@ -543,16 +550,16 @@ describe('Separate gallery directory', () => {
       // Ensure prerequisites are met (init and thumbnails should have been run by previous tests)
       // If running this test in isolation, run the prerequisites
       if (!existsSync(separateGalleryPath)) {
-        execSync(`${tsxPath} ${cliPath} init --photos ${separatePhotosPath} --gallery ${separateGalleryPath} -d`);
+        runCliCommand(`${tsxPath} ${cliPath} init --photos ${separatePhotosPath} --gallery ${separateGalleryPath} -d`);
       }
 
       const galleryPath = path.resolve(separateGalleryPath, 'gallery');
       if (!existsSync(path.resolve(galleryPath, 'images'))) {
-        execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
+        runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
       }
 
       // Run build command (automatically answer 'y' to photo copy confirmation)
-      execSync(`echo "y" | ${tsxPath} ${cliPath} build --gallery ${separateGalleryPath}`);
+      runCliCommand(`echo "y" | ${tsxPath} ${cliPath} build --gallery ${separateGalleryPath}`);
 
       // Validate build output using separate gallery helper
       validateSeparateBuildOutput(separateGalleryPath, galleryPath);
@@ -591,7 +598,7 @@ describe('Gallery with base URL (no photo copying)', () => {
   describe('init command with base URL setup', () => {
     test('should create gallery in separate directory', () => {
       // Run init command with separate gallery directory and default settings (same as separate gallery test)
-      execSync(`${tsxPath} ${cliPath} init --photos ${baseUrlPhotosPath} --gallery ${baseUrlGalleryPath} -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${baseUrlPhotosPath} --gallery ${baseUrlGalleryPath} -d`);
 
       // Validate gallery structure with separate paths
       validateSeparateGalleryStructure(baseUrlPhotosPath, baseUrlGalleryPath, 3);
@@ -601,7 +608,7 @@ describe('Gallery with base URL (no photo copying)', () => {
   describe('thumbnails command with base URL setup', () => {
     test('should create thumbnails in gallery directory', () => {
       // Run thumbnails command (init should have been run by previous test)
-      execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${baseUrlGalleryPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${baseUrlGalleryPath}`);
 
       // Validate thumbnails using helper (expecting 6: 3 regular + 3 retina @2x)
       const galleryPath = path.resolve(baseUrlGalleryPath, 'gallery');
@@ -612,7 +619,7 @@ describe('Gallery with base URL (no photo copying)', () => {
   describe('build command with base URL', () => {
     test('should set mediaBaseUrl and not copy photos to gallery directory', () => {
       // Run build command with base URL
-      execSync(`${tsxPath} ${cliPath} build --gallery ${baseUrlGalleryPath} --base-url ${testBaseUrl}`);
+      runCliCommand(`${tsxPath} ${cliPath} build --gallery ${baseUrlGalleryPath} --base-url ${testBaseUrl}`);
 
       // Validate that mediaBaseUrl is set and photos are not copied
       validateBaseUrlGallery(baseUrlGalleryPath, testBaseUrl, 3);
@@ -646,9 +653,9 @@ describe('Header image change detection', () => {
 
   test('should generate header images with filename in the name', () => {
     // Initialize gallery with default settings (img_1.jpg as header)
-    execSync(`${tsxPath} ${cliPath} init --photos ${headerChangeTestPath} -d`);
-    execSync(`${tsxPath} ${cliPath} thumbnails --gallery ${headerChangeTestPath}`);
-    execSync(`${tsxPath} ${cliPath} build --gallery ${headerChangeTestPath}`);
+    runCliCommand(`${tsxPath} ${cliPath} init --photos ${headerChangeTestPath} -d`);
+    runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${headerChangeTestPath}`);
+    runCliCommand(`${tsxPath} ${cliPath} build --gallery ${headerChangeTestPath}`);
 
     const imagesPath = path.resolve(headerChangeTestPath, 'gallery', 'images');
     const files = readdirSync(imagesPath);
@@ -675,7 +682,7 @@ describe('Header image change detection', () => {
     writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
 
     // Rebuild gallery
-    execSync(`${tsxPath} ${cliPath} build --gallery ${headerChangeTestPath}`);
+    runCliCommand(`${tsxPath} ${cliPath} build --gallery ${headerChangeTestPath}`);
 
     // Get the list of files after changing header
     const filesAfter = readdirSync(imagesPath);
@@ -748,7 +755,7 @@ describe('Clean command', () => {
     test('should remove index.html and gallery directory while preserving photos', () => {
       // Copy fixture and initialize gallery
       copySync(singleFixturePath, cleanTestPath);
-      execSync(`${tsxPath} ${cliPath} init --photos ${cleanTestPath} -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${cleanTestPath} -d`);
 
       // Create an index.html file to simulate build output
       const indexPath = path.resolve(cleanTestPath, 'index.html');
@@ -763,7 +770,7 @@ describe('Clean command', () => {
       expect(existsSync(indexPath)).toBe(true);
 
       // Run clean command
-      execSync(`${tsxPath} ${cliPath} clean --gallery ${cleanTestPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanTestPath}`);
 
       // Verify gallery files are removed
       expect(existsSync(indexPath)).toBe(false);
@@ -782,7 +789,7 @@ describe('Clean command', () => {
       copySync(singleFixturePath, cleanTestPath);
 
       // Run clean command without initializing gallery first
-      execSync(`${tsxPath} ${cliPath} clean --gallery ${cleanTestPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanTestPath}`);
 
       // Should complete without errors and photos should still be there
       const photoFiles = readdirSync(cleanTestPath).filter((file) => file.endsWith('.jpg'));
@@ -794,7 +801,7 @@ describe('Clean command', () => {
     test('should clean all galleries recursively when -r flag is used', () => {
       // Copy fixture and initialize galleries
       copySync(multiFixturePath, cleanMultiTestPath);
-      execSync(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r -d`);
 
       // Create index.html files in all directories
       writeFileSync(path.resolve(cleanMultiTestPath, 'index.html'), '<html>Main</html>');
@@ -807,7 +814,7 @@ describe('Clean command', () => {
       expect(existsSync(path.resolve(cleanMultiTestPath, 'second', 'gallery'))).toBe(true);
 
       // Run recursive clean
-      execSync(`${tsxPath} ${cliPath} clean --gallery ${cleanMultiTestPath} -r`);
+      runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanMultiTestPath} -r`);
 
       // Verify all gallery files and directories are removed
       expect(existsSync(path.resolve(cleanMultiTestPath, 'index.html'))).toBe(false);
@@ -833,7 +840,7 @@ describe('Clean command', () => {
         rmSync(cleanMultiTestPath, { recursive: true, force: true });
       }
       copySync(multiFixturePath, cleanMultiTestPath);
-      execSync(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r -d`);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${cleanMultiTestPath} -r -d`);
 
       // Create index.html files in all directories
       writeFileSync(path.resolve(cleanMultiTestPath, 'index.html'), '<html>Main</html>');
@@ -841,7 +848,7 @@ describe('Clean command', () => {
       writeFileSync(path.resolve(cleanMultiTestPath, 'second', 'index.html'), '<html>Second</html>');
 
       // Run non-recursive clean
-      execSync(`${tsxPath} ${cliPath} clean --gallery ${cleanMultiTestPath}`);
+      runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanMultiTestPath}`);
 
       // Verify only root gallery is cleaned
       expect(existsSync(path.resolve(cleanMultiTestPath, 'index.html'))).toBe(false);
