@@ -10,7 +10,8 @@
   },
   "homepage": "https://simple.photo",
   "files": [
-    "dist"
+    "dist",
+    "assets"
   ],
   "bin": {
     "simple-photo-gallery": "./dist/index.js",
