@@ -1,0 +1,101 @@
+---
+import Container from '@/features/themes/base-theme/components/container/Container.astro';
+---
+
+<section class="cta" aria-label="Create your own gallery">
+  <Container>
+    <div class="cta__content">
+      <div>
+        <p class="cta__eyebrow">Share your memories</p>
+        <h2 class="cta__title">Build your own gallery with Simple Photo Gallery</h2>
+        <p class="cta__description">
+          Turn your photos into a fast, beautiful gallery in minutes. Generate and host it yourself, or learn more about
+          what you can create with Simple Photo Gallery.
+        </p>
+      </div>
+      <a
+        class="cta__button"
+        href="https://simple.photo"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Create your gallery
+      </a>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .cta {
+    margin: 4rem 0 3rem;
+    padding: 0 1.5rem;
+  }
+
+  .cta__content {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    color: #f8fafc;
+    display: grid;
+    gap: 1.25rem;
+    align-items: center;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .cta__eyebrow {
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(248, 250, 252, 0.8);
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .cta__title {
+    font-size: clamp(1.5rem, 2vw, 1.75rem);
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .cta__description {
+    margin: 0;
+    color: rgba(248, 250, 252, 0.92);
+    max-width: 70ch;
+  }
+
+  .cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.5rem;
+    background: #f8fafc;
+    color: #0f172a;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+  }
+
+  .cta__button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.28);
+    border-color: rgba(15, 23, 42, 0.05);
+  }
+
+  .cta__button:focus-visible {
+    outline: 3px solid rgba(248, 250, 252, 0.9);
+    outline-offset: 3px;
+  }
+
+  @media (min-width: 768px) {
+    .cta__content {
+      grid-template-columns: 1fr auto;
+      padding: 3rem 3rem;
+    }
+  }
+</style>

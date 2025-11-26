@@ -23,6 +23,7 @@ After that, the command will create a `gallery` folder and a `gallery.json` file
 | `-r, --recursive`      | Create galleries from subdirectories             | `false`               |
 | `-d, --default`        | Use default settings (skip prompts)              | `false`               |
 | `-f, --force`          | Force override existing galleries without asking | `false`               |
+| `--cta-banner`         | Add a Simple Photo Gallery CTA banner to the gallery | `false`           |
 | `-v, --verbose`        | Show detailed output                             |                       |
 | `-q, --quiet`          | Only show warnings/errors                        |                       |
 | `-h, --help`           | Show command help                                |                       |

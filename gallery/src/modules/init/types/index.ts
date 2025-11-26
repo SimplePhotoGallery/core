@@ -15,6 +15,8 @@ export interface ScanOptions {
   default: boolean;
   /** Whether to force override existing galleries without prompting */
   force: boolean;
+  /** Whether to add a Simple Photo Gallery call-to-action banner */
+  ctaBanner?: boolean;
 }
 
 /** Metadata for a sub-gallery */
