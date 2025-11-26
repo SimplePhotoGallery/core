@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "2.0.13",
+  "version": "2.0.15",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -10,8 +10,7 @@
   },
   "homepage": "https://simple.photo",
   "files": [
-    "dist",
-    "assets"
+    "dist"
   ],
   "bin": {
     "simple-photo-gallery": "./dist/index.js",
@@ -49,7 +48,7 @@
   },
   "dependencies": {
     "@simple-photo-gallery/common": "1.0.5",
-    "@simple-photo-gallery/theme-modern": "2.0.13",
+    "@simple-photo-gallery/theme-modern": "2.0.15",
     "axios": "^1.12.2",
     "blurhash": "^2.0.5",
     "commander": "^12.0.0",
