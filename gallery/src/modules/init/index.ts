@@ -95,6 +95,7 @@ async function getGallerySettingsFromUser(
  * @param scanPath - Path to the directory that was scanned
  * @param subGalleries - Array of sub-galleries to include
  * @param useDefaultSettings - Whether to use default settings or prompt user
+ * @param ctaBanner - Whether to add a Simple Photo Gallery call-to-action banner
  * @param ui - ConsolaInstance for prompting and logging
  */
 async function createGalleryJson(
@@ -103,6 +104,7 @@ async function createGalleryJson(
   scanPath: string,
   subGalleries: SubGallery[] = [],
   useDefaultSettings: boolean,
+  ctaBanner: boolean | undefined,
   ui: ConsolaInstance,
 ): Promise<void> {
   const galleryDir = path.dirname(galleryJsonPath);
@@ -132,6 +134,7 @@ async function createGalleryJson(
       title: 'Sub Galleries',
       galleries: relativeSubGalleries,
     },
+    ...(ctaBanner !== undefined && { ctaBanner }),
   };
 
   if (!useDefaultSettings) {
@@ -172,6 +175,7 @@ async function galleryExists(outputPath: string): Promise<boolean> {
  * @param recursive - Whether to process subdirectories recursively
  * @param useDefaultSettings - Whether to use default settings or prompt user
  * @param force - Whether to force override existing galleries without prompting
+ * @param ctaBanner - Whether to add a Simple Photo Gallery call-to-action banner
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to processing results
  */
@@ -181,6 +185,7 @@ async function processDirectory(
   recursive: boolean,
   useDefaultSettings: boolean,
   force: boolean,
+  ctaBanner: boolean | undefined,
   ui: ConsolaInstance,
 ): Promise<ProcessDirectoryResult> {
   ui.start(`Scanning ${scanPath}`);
@@ -202,6 +207,7 @@ async function processDirectory(
         recursive,
         useDefaultSettings,
         force,
+        ctaBanner,
         ui,
       );
 
@@ -241,7 +247,7 @@ async function processDirectory(
       await fs.mkdir(galleryPath, { recursive: true });
 
       // Create gallery.json for this directory
-      await createGalleryJson(mediaFiles, galleryJsonPath, scanPath, subGalleries, useDefaultSettings, ui);
+      await createGalleryJson(mediaFiles, galleryJsonPath, scanPath, subGalleries, useDefaultSettings, ctaBanner, ui);
 
       ui.success(
         `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
@@ -279,7 +285,15 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<C
     const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
 
     // Process the directory tree with the specified recursion setting
-    const result = await processDirectory(scanPath, outputPath, options.recursive, options.default, options.force, ui);
+    const result = await processDirectory(
+      scanPath,
+      outputPath,
+      options.recursive,
+      options.default,
+      options.force,
+      options.ctaBanner,
+      ui,
+    );
 
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,

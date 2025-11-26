@@ -160,6 +160,7 @@ program
   .option('-r, --recursive', 'Recursively create galleries from all photos subdirectories', false)
   .option('-d, --default', 'Use default gallery settings instead of asking the user', false)
   .option('-f, --force', 'Force override existing galleries without asking', false)
+  .option('--cta-banner', 'Add a Simple Photo Gallery call-to-action banner to the end of the gallery', false)
   .action(withCommandContext((options, ui) => init(options, ui)));
 
 program
