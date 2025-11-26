@@ -42,6 +42,7 @@ function findSocialCardFontPath(): string | null {
     path.resolve(__dirname, '../../', SOCIAL_CARD_FONT_RELATIVE_PATH),
     path.resolve(process.cwd(), SOCIAL_CARD_FONT_RELATIVE_PATH),
     path.resolve(process.cwd(), '../', SOCIAL_CARD_FONT_RELATIVE_PATH),
+    path.resolve(process.cwd(), '../simple-photo-gallery/', SOCIAL_CARD_FONT_RELATIVE_PATH),
   ];
 
   for (const candidate of fontCandidates) {
