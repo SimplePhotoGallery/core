@@ -285,7 +285,15 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<C
     const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
 
     // Process the directory tree with the specified recursion setting
-    const result = await processDirectory(scanPath, outputPath, options.recursive, options.default, options.force, options.ctaBanner, ui);
+    const result = await processDirectory(
+      scanPath,
+      outputPath,
+      options.recursive,
+      options.default,
+      options.force,
+      options.ctaBanner,
+      ui,
+    );
 
     ui.box(
       `Created ${result.totalGalleries} ${result.totalGalleries === 1 ? 'gallery' : 'galleries'} with ${result.totalFiles} media ${result.totalFiles === 1 ? 'file' : 'files'}`,
