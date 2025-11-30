@@ -229,6 +229,14 @@ async function buildGallery(
     process.env.GALLERY_JSON_PATH = galleryJsonPath;
     process.env.GALLERY_OUTPUT_DIR = path.join(galleryDir, 'gallery');
 
+    // Set the assets base URL if specified in the gallery data
+    if (galleryData.assetsBaseUrl) {
+      process.env.GALLERY_ASSETS_BASE_URL = galleryData.assetsBaseUrl;
+    } else {
+      // Clear the environment variable to use the default value
+      delete process.env.GALLERY_ASSETS_BASE_URL;
+    }
+
     execSync('npx astro build', { cwd: templateDir, stdio: ui.level === LogLevels.debug ? 'inherit' : 'ignore' });
   } catch (error) {
     ui.error(`Build failed for ${galleryDir}`);
