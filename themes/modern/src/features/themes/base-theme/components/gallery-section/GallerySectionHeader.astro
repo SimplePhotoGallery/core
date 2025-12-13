@@ -27,13 +27,13 @@ const parsedDescription = section.description ? await renderMarkdown(section.des
     font-size: clamp(1.5rem, 3vw, 2.5rem);
     font-weight: 700;
     margin-bottom: 1.5rem;
-    color: #111827;
+    color: var(--typography-color-title, var(--gallery-section-title-color, #111827));
     text-align: center;
   }
 
   .gallery-section__header-description {
     font-size: 1.125rem;
-    color: #6b7280;
+    color: var(--typography-color-description, var(--gallery-section-description-color, #6b7280));
     max-width: 42rem;
     margin: 0 auto;
     line-height: 1.6;

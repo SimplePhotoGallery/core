@@ -38,6 +38,8 @@ const showCtaBanner = ctaBanner === true;
 <script>
   import { decode } from 'blurhash';
 
+  import { applyQueryParams } from '@/features/themes/base-theme/utils/queryParams';
+
   const blurHashCanvases = document.querySelectorAll<HTMLCanvasElement>('canvas[data-blur-hash]');
 
   for (const canvas of blurHashCanvases) {
@@ -53,6 +55,9 @@ const showCtaBanner = ctaBanner === true;
       }
     }
   }
+
+  // Apply query params on page load
+  applyQueryParams();
 </script>
 
 <MainLayout
