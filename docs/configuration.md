@@ -236,6 +236,46 @@ Markdown formatting is available in:
 
 Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
 
+## Static assets (CSS and JavaScript)
+
+By default, each gallery includes its own copy of the static asset files (CSS and JavaScript) in the `gallery/assets/` folder. However, if you're hosting multiple galleries built with the same version of Simple Photo Gallery, you can share these assets between all galleries to reduce storage and improve caching.
+
+Use the `assetsBaseUrl` option to specify the base URL where the shared static assets are hosted:
+
+```json
+{
+  "title": "My Gallery",
+  "description": "...",
+  "assetsBaseUrl": "https://cdn.example.com/simple-photo-gallery/v1.0.0"
+}
+```
+
+When set, the generated HTML will load CSS and JavaScript files from the specified URL instead of the local `gallery/assets/` folder:
+
+```html
+<link rel="stylesheet" href="https://cdn.example.com/simple-photo-gallery/v1.0.0/assets/style.xxx.css">
+<script type="module" src="https://cdn.example.com/simple-photo-gallery/v1.0.0/assets/PhotoSwipe.xxx.js">
+```
+
+### Shared assets setup
+
+To use shared assets across multiple galleries:
+
+1. **Build one gallery** to generate the asset files in `gallery/assets/`
+2. **Upload the assets folder** to your CDN or static hosting (e.g., `https://cdn.example.com/simple-photo-gallery/v1.0.0/assets/`)
+3. **Set `assetsBaseUrl`** in each gallery's `gallery.json` to point to the shared location
+4. **Rebuild the galleries** to update the HTML references
+
+> **Tip:** Include the version number in your assets URL path. This ensures that when you upgrade Simple Photo Gallery and rebuild your galleries, the new assets won't conflict with cached versions from older builds.
+
+### Benefits
+
+- **Reduced storage**: Asset files are stored once instead of duplicated in every gallery
+- **Better caching**: Browsers cache the shared assets, so visitors loading multiple galleries only download them once
+- **Faster deployments**: Only upload gallery-specific files (images, thumbnails, `gallery.json`) when updating content
+
+If `assetsBaseUrl` is not specified, the default behavior is to use local assets from the `gallery/` folder.
+
 ## Analytics script
 
 You can add custom analytics scripts (such as Google Analytics, Plausible, or other tracking services) to your gallery by including an `analyticsScript` field in your `gallery.json` file. The script will be embedded at the end of the HTML body tag.
