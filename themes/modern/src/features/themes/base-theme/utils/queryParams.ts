@@ -42,54 +42,70 @@ const deriveDescriptionColor = (titleColor: string): string => {
   return titleColor;
 };
 
-export const applyQueryParams = (): void => {
-  const params = new URLSearchParams(globalThis.location.search);
+const applyHeaderImageVisibility = (params: URLSearchParams): void => {
+  const heroSection = document.querySelector<HTMLElement>('.hero');
+  if (!heroSection) return;
+
+  const headerImage = params.get('headerImage');
+  heroSection.style.display = headerImage === 'false' || headerImage === '0' ? 'none' : '';
+};
+
+const applyTransparentBackground = (params: URLSearchParams): void => {
   const root = document.documentElement;
   const body = document.body;
-
-  // Header image visibility
-  const heroSection = document.querySelector<HTMLElement>('.hero');
-  if (heroSection) {
-    const headerImage = params.get('headerImage');
-    heroSection.style.display = headerImage === 'false' || headerImage === '0' ? 'none' : '';
-  }
-
-  // Transparent background
   const isTransparent = params.get('background') === 'transparent';
+
   body.classList.toggle('embed-transparent', isTransparent);
   const bgValue = isTransparent ? 'transparent' : '';
   root.style.background = bgValue;
   body.style.background = bgValue;
+
   for (const section of document.querySelectorAll('.gallery-section')) {
     section.classList.toggle('gallery-section--transparent', isTransparent);
   }
+};
 
-  // Typography colors
+const applyTypographyColors = (params: URLSearchParams): void => {
+  const root = document.documentElement;
   const typographyParam = params.get('typographyColor');
-  if (typographyParam) {
-    const normalized = typographyParam.toLowerCase().trim();
-    const preset = TYPOGRAPHY_PRESETS[normalized];
 
-    if (preset) {
-      setCSSVar(root, '--typography-color-title', preset.title);
-      setCSSVar(root, '--typography-color-description', preset.description);
-    } else {
-      const color = parseColor(typographyParam);
-      if (color) {
-        setCSSVar(root, '--typography-color-title', color);
-        setCSSVar(root, '--typography-color-description', deriveDescriptionColor(color));
-      } else {
-        setCSSVar(root, '--typography-color-title', null);
-        setCSSVar(root, '--typography-color-description', null);
-      }
-    }
+  if (!typographyParam) {
+    setCSSVar(root, '--typography-color-title', null);
+    setCSSVar(root, '--typography-color-description', null);
+    return;
+  }
+
+  const normalized = typographyParam.toLowerCase().trim();
+  const preset = TYPOGRAPHY_PRESETS[normalized];
+
+  if (preset) {
+    setCSSVar(root, '--typography-color-title', preset.title);
+    setCSSVar(root, '--typography-color-description', preset.description);
+    return;
+  }
+
+  const color = parseColor(typographyParam);
+  if (color) {
+    setCSSVar(root, '--typography-color-title', color);
+    setCSSVar(root, '--typography-color-description', deriveDescriptionColor(color));
   } else {
     setCSSVar(root, '--typography-color-title', null);
     setCSSVar(root, '--typography-color-description', null);
   }
+};
 
-  // Section background colors
+const applySectionBackgroundColors = (params: URLSearchParams): void => {
+  const root = document.documentElement;
   setCSSVar(root, '--section-bg-color', parseColor(params.get('sectionBgColor')));
   setCSSVar(root, '--section-bg-color-even', parseColor(params.get('sectionBgColorEven')));
   setCSSVar(root, '--section-bg-color-odd', parseColor(params.get('sectionBgColorOdd')));
+};
+
+export const applyQueryParams = (): void => {
+  const params = new URLSearchParams(globalThis.location.search);
+
+  applyHeaderImageVisibility(params);
+  applyTransparentBackground(params);
+  applyTypographyColors(params);
+  applySectionBackgroundColors(params);
 };
