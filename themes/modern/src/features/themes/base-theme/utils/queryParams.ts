@@ -5,17 +5,29 @@ function normalizeHex(hex: string): string | null {
   return hex.length === 6 && /^[0-9A-Fa-f]{6}$/.test(hex) ? `#${hex}` : null;
 }
 
-// Parse color param (transparent keyword or hex)
+// Check if string is a valid CSS color
+function isValidColor(color: string): boolean {
+  const testEl = document.createElement('div');
+  testEl.style.color = color;
+  return !!testEl.style.color;
+}
+
+// Parse color param (transparent keyword, rgba/rgb, or hex)
 function parseColor(colorParam: string | null): string | null {
   if (!colorParam) return null;
-  const normalized = colorParam.toLowerCase();
-  return normalized === 'transparent' ? 'transparent' : normalizeHex(colorParam);
+  const normalized = colorParam.toLowerCase().trim();
+  if (normalized === 'transparent') return 'transparent';
+  if (isValidColor(normalized)) return normalized;
+  return normalizeHex(colorParam);
 }
 
 // Set or remove CSS custom property
 function setCSSVar(root: HTMLElement, name: string, value: string | null): void {
-  if (value) root.style.setProperty(name, value);
-  else root.style.removeProperty(name);
+  if (value) {
+    root.style.setProperty(name, value);
+  } else {
+    root.style.removeProperty(name);
+  }
 }
 
 // Main function to apply all query params
@@ -32,11 +44,11 @@ export function applyQueryParams(): void {
   }
 
   // Transparent background
-  const backgroundParam = params.get('background');
-  const isTransparent = backgroundParam === 'transparent';
+  const isTransparent = params.get('background') === 'transparent';
   body.classList.toggle('embed-transparent', isTransparent);
-  root.style.background = isTransparent ? 'transparent' : '';
-  body.style.background = isTransparent ? 'transparent' : '';
+  const bgValue = isTransparent ? 'transparent' : '';
+  root.style.background = bgValue;
+  body.style.background = bgValue;
   for (const section of document.querySelectorAll('.gallery-section')) {
     section.classList.toggle('gallery-section--transparent', isTransparent);
   }
@@ -44,7 +56,7 @@ export function applyQueryParams(): void {
   // Typography color
   const typographyColorParam = params.get('typographyColor');
   if (typographyColorParam) {
-    const normalized = typographyColorParam.toLowerCase();
+    const normalized = typographyColorParam.toLowerCase().trim();
     if (normalized === 'light' || normalized === 'white') {
       setCSSVar(root, '--typography-color-title', 'rgba(255, 255, 255, 0.95)');
       setCSSVar(root, '--typography-color-description', 'rgba(255, 255, 255, 0.75)');
@@ -52,14 +64,17 @@ export function applyQueryParams(): void {
       setCSSVar(root, '--typography-color-title', '#111827');
       setCSSVar(root, '--typography-color-description', '#6b7280');
     } else {
-      // Try hex color
-      const hex = normalizeHex(typographyColorParam);
-      if (hex) {
-        const r = Number.parseInt(hex.slice(1, 3), 16);
-        const g = Number.parseInt(hex.slice(3, 5), 16);
-        const b = Number.parseInt(hex.slice(5, 7), 16);
-        setCSSVar(root, '--typography-color-title', `rgb(${r}, ${g}, ${b})`);
-        setCSSVar(root, '--typography-color-description', `rgba(${r}, ${g}, ${b}, 0.8)`);
+      const color = parseColor(typographyColorParam);
+      if (color) {
+        setCSSVar(root, '--typography-color-title', color);
+        // Create description color: if rgba, adjust opacity; if rgb, convert to rgba; otherwise use as-is
+        let descColor = color;
+        if (color.startsWith('rgba')) {
+          descColor = color.replace(/,\s*[\d.]+\)$/, ', 0.8)');
+        } else if (color.startsWith('rgb')) {
+          descColor = color.replace('rgb', 'rgba').replace(')', ', 0.8)');
+        }
+        setCSSVar(root, '--typography-color-description', descColor);
       } else {
         setCSSVar(root, '--typography-color-title', null);
         setCSSVar(root, '--typography-color-description', null);
