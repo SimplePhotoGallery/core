@@ -40,10 +40,20 @@ const validImages = section.images.filter(
 <style>
   .gallery-section {
     padding: 1rem 1rem;
+    background-color: var(--section-bg-color-odd, var(--section-bg-color, transparent));
   }
 
   .gallery-section:nth-child(even) {
-    background-color: #f9fafb;
+    background-color: var(--section-bg-color-even, var(--section-bg-color, #f9fafb));
+  }
+
+  /* Opt-in embed mode: transparent backgrounds for iframe embedding */
+  .gallery-section--transparent {
+    background-color: var(--section-bg-color-odd, var(--section-bg-color, transparent));
+  }
+
+  .gallery-section--transparent:nth-child(even) {
+    background-color: var(--section-bg-color-even, var(--section-bg-color, transparent));
   }
 
   .gallery-section__container {
