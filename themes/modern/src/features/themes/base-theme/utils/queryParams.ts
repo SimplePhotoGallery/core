@@ -135,6 +135,16 @@ const applySectionBackgroundColors = (params: URLSearchParams): void => {
 };
 
 /**
+ * Applies hero height from the 'heroHeight' query parameter.
+ * Accepts a number (e.g., '100' for 100vh, '50' for 50vh).
+ */
+const applyHeroHeight = (params: URLSearchParams): void => {
+  const value = params.get('heroHeight')?.trim();
+  const height = value && /^\d+(\.\d+)?$/.test(value) ? `${value}vh` : null;
+  setCSSVar(document.documentElement, '--hero-height', height);
+};
+
+/**
  * Main function that applies all query parameter configurations to the page.
  * Reads URL search params and applies header visibility, background, typography, and section colors.
  */
@@ -145,4 +155,5 @@ export const applyQueryParams = (): void => {
   applyTransparentBackground(params);
   applyTypographyColors(params);
   applySectionBackgroundColors(params);
+  applyHeroHeight(params);
 };

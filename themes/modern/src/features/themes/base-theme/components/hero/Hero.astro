@@ -145,13 +145,13 @@ const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
               () => {
                 // Final fallback failed, blurhash stays visible
               },
-              { once: true }
+              { once: true },
             );
 
             // If fallback succeeds, hide blurhash
             img.addEventListener('load', hideBlurhash, { once: true });
           },
-          { once: true }
+          { once: true },
         );
       })();
     </script>
@@ -168,7 +168,7 @@ const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
   .hero {
     position: relative;
     min-height: 450px;
-    height: 100vh;
+    height: var(--hero-height, 100vh);
     display: flex;
     align-items: center;
     justify-content: center;
