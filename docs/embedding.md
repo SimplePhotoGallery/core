@@ -1,14 +1,95 @@
 # Embedding
 
-When embedding the Simple Photo Gallery in another website (e.g., via an `iframe` tag), you can customize its appearance using URL query string parameters. This allows the gallery to blend seamlessly with your host site's design.
+Simple Photo Gallery supports URL query parameters to customize gallery appearance at runtime. This enables dynamic styling for embedding and customization without rebuilding the gallery.
+
+## Overview
+
+URL query parameters allow you to customize the gallery's appearance dynamically by adding parameters to the gallery URL. This is particularly useful when:
+
+- **Embedding galleries** in other websites with transparent backgrounds
+- **Dynamically adjusting colors** to match parent page themes
+- **Hiding header images** when embedding in constrained spaces
+- **Customizing appearance** without rebuilding the gallery
+
+All parameters are applied at runtime, so you can create multiple variations of the same gallery by simply changing the URL.
+
+## Features
+
+The query parameter system supports the following customization options:
+
+- **Header visibility**: `?headerImage=false` to hide the hero section
+- **Transparent background**: `?background=transparent` for embedding scenarios
+- **Typography colors**: `?typographyColor=light|dark` or custom hex/rgba colors
+- **Section backgrounds**: `?sectionBgColor`, `?sectionBgColorEven`, `?sectionBgColorOdd` for custom section colors
+- **Hero height**: `?heroHeight=50` to adjust the hero section height
 
 ## Basic Embedding
 
 To embed the gallery, use an iframe pointing to your gallery URL:
 
 ```html
-<iframe src="https://your-gallery-url.com/" width="100%" height="800" frameborder="0" allowfullscreen></iframe>
+<iframe
+  src="https://your-gallery-url.com/"
+  width="100%"
+  height="800"
+  frameborder="0"
+  allowfullscreen
+></iframe>
 ```
+
+## Usage Example
+
+Here's a complete example showing how to embed a gallery with custom styling:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Website with Embedded Gallery</title>
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        font-family: system-ui, sans-serif;
+      }
+      .gallery-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+      }
+      iframe {
+        border-radius: 8px;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gallery-container">
+      <h1>My Photo Gallery</h1>
+      <iframe
+        src="https://gallery.example.com/?background=transparent&headerImage=false&typographyColor=light&sectionBgColor=transparent"
+        width="100%"
+        height="1200"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </body>
+</html>
+```
+
+In this example:
+
+- `background=transparent` makes the gallery background transparent so the parent page's gradient shows through
+- `headerImage=false` hides the hero section to save vertical space
+- `typographyColor=light` sets white text that contrasts well with the dark gradient background
+- `sectionBgColor=transparent` ensures section backgrounds are also transparent
+
+The result is a gallery that seamlessly blends into the parent page's design.
 
 ## Query String Parameters
 
@@ -100,11 +181,10 @@ Sets the color of section titles and descriptions. Accepts preset names or custo
 
 #### Custom Colors
 
-You can also use any valid CSS color value:
+You can also use custom color values in the following formats:
 
-- Hex: `ff5500`, `#ff5500`, `abc`, `#abc`
-- CSS color names: `red`, `coral`, `steelblue`
-- RGB/RGBA: `rgb(255,85,0)`, `rgba(255,85,0,0.9)`
+- **Hex colors**: `ff5500`, `abc` (without `#` prefix, 6-digit or 3-digit format)
+- **RGB/RGBA**: `rgb(255,85,0)`, `rgba(255,85,0,0.9)`
 
 When using a custom color, the description color is automatically derived with 80% opacity.
 
@@ -113,7 +193,7 @@ When using a custom color, the description color is automatically derived with 8
 ```
 ?typographyColor=dark
 ?typographyColor=ff5500
-?typographyColor=steelblue
+?typographyColor=rgba(255,85,0,0.9)
 ```
 
 ---
@@ -122,12 +202,17 @@ When using a custom color, the description color is automatically derived with 8
 
 Sets the background color for all gallery sections. This is the base color that applies to all sections unless overridden by `sectionBgColorEven` or `sectionBgColorOdd`.
 
-**Accepted values:** Any valid CSS color (hex, color names, rgb/rgba, `transparent`)
+**Accepted values:**
+
+- Hex colors: `f5f5f5`, `abc` (without `#` prefix)
+- RGB/RGBA: `rgb(245,245,245)`, `rgba(245,245,245,0.9)`
+- `transparent`
 
 **Example:**
 
 ```
 ?sectionBgColor=f5f5f5
+?sectionBgColor=rgba(245,245,245,0.9)
 ```
 
 ---
@@ -136,12 +221,19 @@ Sets the background color for all gallery sections. This is the base color that 
 
 Sets the background color specifically for even-numbered sections (2nd, 4th, 6th, etc.). Overrides `sectionBgColor` for even sections.
 
-**Default:** `#f9fafb` (light gray)
+**Default:** `f9fafb` (light gray)
+
+**Accepted values:**
+
+- Hex colors: `ffffff`, `abc` (without `#` prefix)
+- RGB/RGBA: `rgb(255,255,255)`, `rgba(255,255,255,0.9)`
+- `transparent`
 
 **Example:** White background for even sections
 
 ```
 ?sectionBgColorEven=ffffff
+?sectionBgColorEven=rgba(255,255,255,0.9)
 ```
 
 ---
@@ -152,49 +244,70 @@ Sets the background color specifically for odd-numbered sections (1st, 3rd, 5th,
 
 **Default:** `transparent`
 
+**Accepted values:**
+
+- Hex colors: `e0f2fe`, `abc` (without `#` prefix)
+- RGB/RGBA: `rgb(224,242,254)`, `rgba(224,242,254,0.9)`
+- `transparent`
+
 **Example:** Light blue background for odd sections
 
 ```
 ?sectionBgColorOdd=e0f2fe
+?sectionBgColorOdd=rgba(224,242,254,0.9)
 ```
 
 ---
 
 ## Common Embedding Scenarios
 
-### Minimal Embed (No Hero, Transparent Background)
+### Embed in Other Websites with Transparent Backgrounds
 
-Perfect for embedding as a component within another page:
+Perfect for embedding galleries in other websites where you want the parent page's background to show through:
 
 ```
-?headerImage=false&background=transparent
+?background=transparent&headerImage=false
 ```
 
-### Dark Theme Integration
+### Dynamically Adjust Colors to Match Parent Page Themes
 
-For embedding in a dark-themed website:
+Match your host site's color scheme by adjusting typography and section colors:
+
+**For dark-themed websites:**
 
 ```
 ?background=transparent&typographyColor=light&sectionBgColor=transparent
 ```
 
-### Custom Brand Colors
+**For light-themed websites:**
 
-Match your brand colors:
+```
+?background=transparent&typographyColor=dark&sectionBgColor=ffffff
+```
+
+**Match custom brand colors:**
 
 ```
 ?typographyColor=1e3a5f&sectionBgColorOdd=ffffff&sectionBgColorEven=f0f4f8
 ```
 
-### Compact Header
+### Hide Header Images in Constrained Spaces
 
-Show hero but at reduced height:
+When embedding in limited vertical space, hide the hero section entirely:
 
 ```
-?heroHeight=50
+?headerImage=false&background=transparent
+```
+
+Or reduce the hero height for a more compact view:
+
+```
+?heroHeight=50&background=transparent
 ```
 
 ### Full Customization Example
+
+Combine multiple parameters for complete control:
 
 ```
 ?headerImage=false&background=transparent&typographyColor=dark&sectionBgColor=transparent
@@ -204,7 +317,8 @@ Show hero but at reduced height:
 
 ## Notes
 
-- All color values can be specified with or without the `#` prefix (e.g., `ff5500` or `#ff5500`)
+- **Hex colors** must be specified without the `#` prefix (e.g., `ff5500`, not `#ff5500`)
+- **RGB/RGBA colors** are supported for typography and section background colors (e.g., `rgba(255,85,0,0.9)`)
 - Invalid parameter values are ignored, and defaults are used instead
 - Parameters are case-sensitive for values (e.g., `transparent`, not `Transparent`)
 - Multiple parameters are joined with `&`
