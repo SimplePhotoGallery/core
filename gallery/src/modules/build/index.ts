@@ -267,9 +267,14 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
       return { processedGalleryCount: 0 };
     }
 
-    // Get the astro theme directory from the default one
-    const themePath = await import.meta.resolve('@simple-photo-gallery/theme-modern/package.json');
+    // Get the theme package name (default to the modern theme)
+    const themePackage = options.theme || '@simple-photo-gallery/theme-modern';
+
+    // Get the astro theme directory from the specified theme package
+    const themePath = await import.meta.resolve(`${themePackage}/package.json`);
     const themeDir = path.dirname(new URL(themePath).pathname);
+
+    ui.debug(`Using theme: ${themePackage} (${themeDir})`);
 
     // Process each gallery directory
     let totalGalleries = 0;
@@ -289,7 +294,9 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     return { processedGalleryCount: totalGalleries };
   } catch (error) {
     if (error instanceof Error && error.message.includes('Cannot find package')) {
-      ui.error('Theme package not found: @simple-photo-gallery/theme-modern/package.json');
+      ui.error(
+        `Theme package not found: ${options.theme || '@simple-photo-gallery/theme-modern'}. Make sure it's installed.`,
+      );
     } else {
       ui.error('Error building gallery');
     }
