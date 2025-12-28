@@ -124,7 +124,8 @@ export function getTsConfig(): string {
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@simple-photo-gallery/common/src/*": ["../../common/src/*"]
     }
   }
 }
@@ -236,16 +237,16 @@ A custom theme for Simple Photo Gallery built with Astro.
 
 \`\`\`bash
 # Install dependencies
-npm install
+yarn install
 
 # Start development server
-npm run dev
+yarn dev
 
 # Build for production
-npm run build
+yarn build
 
 # Preview production build
-npm run preview
+yarn preview
 \`\`\`
 
 ## Customization
@@ -257,11 +258,17 @@ Edit \`src/pages/index.astro\` to customize your theme. This is the main entry p
 To use this theme when building a gallery:
 
 \`\`\`bash
-# Using local path
-spg build --theme ./themes/${themeName}
+# 1. Initialize a gallery from your images folder
+spg init -p <path-to-images-folder> -g <gallery-output-folder>
+
+# 2. Generate thumbnails (optional but recommended)
+spg thumbnails -g <gallery-output-folder>
+
+# 3. Build the gallery with your theme
+spg build --theme ./themes/${themeName} -g <gallery-output-folder>
 
 # Or if published to npm
-spg build --theme @your-org/theme-${themeName}
+spg build --theme @your-org/theme-${themeName} -g <gallery-output-folder>
 \`\`\`
 
 ## Structure
@@ -319,7 +326,7 @@ const { title, description, url, thumbsBaseUrl, metadata } = Astro.props;
 
 export function getMainLayout(): string {
   return `---
-import MainHead from '@/layouts/MainHead';
+import MainHead from '@/layouts/MainHead.astro';
 
 import type { GalleryMetadata } from '@simple-photo-gallery/common/src/gallery';
 
@@ -367,7 +374,7 @@ export function getIndexPage(): string {
   return `---
 import fs from 'node:fs';
 
-import MainLayout from '@/layouts/MainLayout';
+import MainLayout from '@/layouts/MainLayout.astro';
 import { getPhotoPath, getThumbnailPath } from '@/utils';
 import { renderMarkdown } from '@/lib/markdown';
 
@@ -378,7 +385,7 @@ const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
 const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 const gallery = galleryData as GalleryData;
 
-const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, headerImageBlurHash } = gallery;
+const { title, description, sections, mediaBaseUrl, thumbsBaseUrl } = gallery;
 
 // Render description markdown if present
 const descriptionHtml = description ? await renderMarkdown(description) : '';
@@ -400,11 +407,16 @@ const descriptionHtml = description ? await renderMarkdown(description) : '';
         <div class="gallery-grid">
           {section.images.map((image) => {
             const imagePath = getPhotoPath(image.filename, mediaBaseUrl, image.url);
-            const thumbnailPath = getThumbnailPath(
-              image.thumbnail?.filename || image.filename,
-              thumbsBaseUrl,
-              image.thumbnail?.baseUrl,
-            );
+            const thumbnailPath = image.thumbnail
+              ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)
+              : imagePath;
+
+            const thumbnailSrcSet = image.thumbnail
+              ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl) +
+                ' 1x, ' +
+                getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl, image.thumbnail.baseUrl) +
+                ' 2x'
+              : undefined;
 
             return (
               <a
@@ -412,10 +424,17 @@ const descriptionHtml = description ? await renderMarkdown(description) : '';
                 data-pswp-width={image.width}
                 data-pswp-height={image.height}
                 data-pswp-type={image.type}
-                data-pswp-caption={image.caption || ''}
+                data-pswp-caption={image.alt || ''}
                 class="gallery-item">
-                <img src={thumbnailPath} alt={image.caption || ''} loading="lazy" />
-                {image.caption && <span class="caption">{image.caption}</span>}
+                <img
+                  src={thumbnailPath}
+                  srcset={thumbnailSrcSet}
+                  alt={image.alt || ''}
+                  loading="lazy"
+                  width={image.thumbnail?.width}
+                  height={image.thumbnail?.height}
+                />
+                {image.alt && <span class="caption">{image.alt}</span>}
               </a>
             );
           })}

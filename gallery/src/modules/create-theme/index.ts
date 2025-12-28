@@ -163,9 +163,10 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
     ui.success(`Theme created successfully at: ${themeDir}`);
     ui.info(`\nNext steps:`);
     ui.info(`1. cd ${themeDir}`);
-    ui.info(`2. npm install`);
+    ui.info(`2. yarn install`);
     ui.info(`3. Customize your theme in src/pages/index.astro`);
-    ui.info(`4. Build a gallery with: spg build --theme ${themeDir}`);
+    ui.info(`4. Initialize a gallery (run from directory with your images): spg init -p <images-folder>`);
+    ui.info(`5. Build a gallery with your theme: spg build --theme ${themeDir} -g <gallery-folder>`);
 
     return { processedGalleryCount: 0 };
   } catch (error) {
