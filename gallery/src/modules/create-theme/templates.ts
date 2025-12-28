@@ -4,7 +4,7 @@
 
 export function getPackageJson(themeName: string): string {
   return `{
-  "name": "@your-org/theme-${themeName}",
+  "name": "${themeName}",
   "version": "1.0.0",
   "description": "Custom theme for Simple Photo Gallery",
   "license": "MIT",
@@ -25,6 +25,9 @@ export function getPackageJson(themeName: string): string {
     "blurhash": "^2.0.5",
     "marked": "^16.4.0",
     "photoswipe": "^5.4.4"
+  },
+  "peerDependencies": {
+    "@simple-photo-gallery/common": "^1.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
