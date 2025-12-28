@@ -4,7 +4,11 @@ Simple Photo Gallery supports custom themes, allowing you to create your own vis
 
 ## Using Custom Themes
 
-To use a custom theme, install it as a dependency and specify it when building:
+You can use custom themes in two ways:
+
+### Using npm Packages
+
+Install the theme as a dependency and use the package name:
 
 ```bash
 # Install your custom theme package
@@ -13,6 +17,20 @@ npm install @your-org/your-private-theme
 # Build with the custom theme
 spg build --theme @your-org/your-private-theme
 ```
+
+### Using Local Themes
+
+You can also use a local theme directory without publishing to npm:
+
+```bash
+# Build with a local theme (relative path)
+spg build --theme ./themes/my-local-theme
+
+# Build with a local theme (absolute path)
+spg build --theme /path/to/my-theme
+```
+
+The local theme directory must contain a `package.json` file and follow the same structure as an npm theme package.
 
 If you don't specify `--theme`, the default `@simple-photo-gallery/theme-modern` theme will be used.
 
@@ -251,20 +269,31 @@ Your theme must output an `index.html` file in the build directory.
 
 You can use `@simple-photo-gallery/theme-modern` as a reference implementation. The source code is available in the [themes/modern](../themes/modern) directory of this repository.
 
-### Publishing Your Theme
+### Using Your Theme
 
-Once your theme is ready:
+Once your theme is ready, you can use it in two ways:
 
+**Option 1: Local Development (No Publishing Required)**
+```bash
+# Use the local theme directly
+spg build --theme ./themes/my-theme
+```
+
+**Option 2: Publish to npm**
 1. Publish it to npm (or your private registry)
 2. Install it in your project: `npm install @your-org/your-theme-name`
 3. Use it when building: `spg build --theme @your-org/your-theme-name`
 
+Local themes are perfect for development and private projects, while npm packages are ideal for sharing themes with others or using across multiple projects.
+
 ### Troubleshooting
 
-**Theme package not found**
+**Theme not found**
 
-- Ensure the theme package is installed: `npm install @your-org/your-theme-name`
-- Verify the package name matches exactly (including scope)
+- For npm packages: Ensure the theme package is installed: `npm install @your-org/your-theme-name`
+- For npm packages: Verify the package name matches exactly (including scope)
+- For local paths: Verify the path is correct and the directory contains a `package.json` file
+- For local paths: Use an absolute path or a path relative to your current working directory
 
 **Build errors**
 

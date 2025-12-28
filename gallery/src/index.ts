@@ -180,8 +180,8 @@ program
   .option('--no-thumbnails', 'Skip creating thumbnails when building the gallery', true)
   .option('--no-scan', 'Do not scan for new photos when building the gallery', true)
   .option(
-    '--theme <package>',
-    'Theme package to use (e.g., @simple-photo-gallery/theme-modern or @your-org/your-private-theme)',
+    '--theme <package|path>',
+    'Theme package name (e.g., @simple-photo-gallery/theme-modern) or local path (e.g., ./themes/my-theme)',
     '@simple-photo-gallery/theme-modern',
   )
   .action(withCommandContext((options, ui) => build(options, ui)));

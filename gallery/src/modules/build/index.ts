@@ -254,10 +254,42 @@ async function buildGallery(
 }
 
 /**
- * Main build command implementation - builds HTML galleries from gallery.json files
- * @param options - Options specifying gallery path, recursion, and base URL
- * @param ui - ConsolaInstance for logging
+ * Determines if a theme identifier is a local path or an npm package name
+ * @param theme - Theme identifier (path or package name)
+ * @returns true if it's a path, false if it's a package name
  */
+function isLocalThemePath(theme: string): boolean {
+  // Check if it starts with ./ or ../ or / or contains path separators
+  return theme.startsWith('./') || theme.startsWith('../') || theme.startsWith('/') || theme.includes(path.sep);
+}
+
+/**
+ * Resolves the theme directory from either a local path or npm package name
+ * @param theme - Theme identifier (path or package name)
+ * @param ui - ConsolaInstance for logging
+ * @returns Promise resolving to the theme directory path
+ */
+async function resolveThemeDir(theme: string, ui: ConsolaInstance): Promise<string> {
+  if (isLocalThemePath(theme)) {
+    // Resolve local path
+    const themeDir = path.resolve(theme);
+    const packageJsonPath = path.join(themeDir, 'package.json');
+
+    if (!fs.existsSync(packageJsonPath)) {
+      throw new Error(`Theme directory not found or invalid: ${themeDir}. package.json not found.`);
+    }
+
+    ui.debug(`Using local theme: ${themeDir}`);
+    return themeDir;
+  } else {
+    // Resolve npm package
+    const themePath = await import.meta.resolve(`${theme}/package.json`);
+    const themeDir = path.dirname(new URL(themePath).pathname);
+    ui.debug(`Using npm theme package: ${theme} (${themeDir})`);
+    return themeDir;
+  }
+}
+
 export async function build(options: BuildOptions, ui: ConsolaInstance): Promise<CommandResultSummary> {
   try {
     // Find all gallery directories
@@ -267,14 +299,11 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
       return { processedGalleryCount: 0 };
     }
 
-    // Get the theme package name (default to the modern theme)
-    const themePackage = options.theme || '@simple-photo-gallery/theme-modern';
+    // Get the theme identifier (default to the modern theme)
+    const themeIdentifier = options.theme || '@simple-photo-gallery/theme-modern';
 
-    // Get the astro theme directory from the specified theme package
-    const themePath = await import.meta.resolve(`${themePackage}/package.json`);
-    const themeDir = path.dirname(new URL(themePath).pathname);
-
-    ui.debug(`Using theme: ${themePackage} (${themeDir})`);
+    // Resolve the theme directory (supports both local paths and npm packages)
+    const themeDir = await resolveThemeDir(themeIdentifier, ui);
 
     // Process each gallery directory
     let totalGalleries = 0;
@@ -293,10 +322,16 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
 
     return { processedGalleryCount: totalGalleries };
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Cannot find package')) {
-      ui.error(
-        `Theme package not found: ${options.theme || '@simple-photo-gallery/theme-modern'}. Make sure it's installed.`,
-      );
+    if (error instanceof Error) {
+      if (error.message.includes('Cannot find package')) {
+        ui.error(
+          `Theme package not found: ${options.theme || '@simple-photo-gallery/theme-modern'}. Make sure it's installed.`,
+        );
+      } else if (error.message.includes('Theme directory not found') || error.message.includes('package.json not found')) {
+        ui.error(error.message);
+      } else {
+        ui.error('Error building gallery');
+      }
     } else {
       ui.error('Error building gallery');
     }
