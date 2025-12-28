@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 
 import * as templates from './templates';
 
@@ -64,11 +65,24 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
     validateThemeName(options.name);
 
     // Determine theme directory path
-    const themeDir = options.path || path.resolve(process.cwd(), 'themes', options.name);
+    let themeDir: string;
+    if (options.path) {
+      // If a custom path is provided, use it as-is
+      themeDir = path.resolve(options.path);
+    } else {
+      // Default: create in ./themes/<name> directory
+      const themesBaseDir = path.resolve(process.cwd(), 'themes');
+      themeDir = path.join(themesBaseDir, options.name);
 
-    // Check if directory already exists
+      // Ensure the themes base directory exists (but don't overwrite anything)
+      if (!fs.existsSync(themesBaseDir)) {
+        await ensureDirectory(themesBaseDir, ui);
+      }
+    }
+
+    // Check if directory already exists - prevent overwriting existing themes
     if (fs.existsSync(themeDir)) {
-      throw new Error(`Theme directory already exists: ${themeDir}`);
+      throw new Error(`Theme directory already exists: ${themeDir}. Cannot overwrite existing theme.`);
     }
 
     ui.start(`Creating theme: ${options.name}`);
