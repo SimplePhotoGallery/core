@@ -291,9 +291,16 @@ interface Props {
   url?: string;
   thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
+  headerImageBasename?: string;
 }
 
-const { title, description, url, thumbsBaseUrl, metadata } = Astro.props;
+const { title, description, url, thumbsBaseUrl, metadata, headerImageBasename } = Astro.props;
+
+// Use headerImageBasename for dynamic image paths, fallback to generic name
+const imgBasename = headerImageBasename || 'header';
+
+// Get the base path for the thumbnails
+const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
 ---
 
 <head>
@@ -320,12 +327,37 @@ const { title, description, url, thumbsBaseUrl, metadata } = Astro.props;
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   {metadata?.image && <meta name="twitter:image" content={metadata.image} />}
+
+  {headerImageBasename && (
+    <>
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        media="(max-aspect-ratio: 3/4)"
+        imagesrcset={\`\${thumbnailBasePath}/\${imgBasename}_portrait_360.avif 360w, \${thumbnailBasePath}/\${imgBasename}_portrait_480.avif 480w, \${thumbnailBasePath}/\${imgBasename}_portrait_720.avif 720w, \${thumbnailBasePath}/\${imgBasename}_portrait_1080.avif 1080w\`}
+        imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        fetchpriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        media="(min-aspect-ratio: 3/4)"
+        imagesrcset={\`\${thumbnailBasePath}/\${imgBasename}_landscape_640.avif 640w, \${thumbnailBasePath}/\${imgBasename}_landscape_960.avif 960w, \${thumbnailBasePath}/\${imgBasename}_landscape_1280.avif 1280w, \${thumbnailBasePath}/\${imgBasename}_landscape_1920.avif 1920w, \${thumbnailBasePath}/\${imgBasename}_landscape_2560.avif 2560w, \${thumbnailBasePath}/\${imgBasename}_landscape_3840.avif 3840w\`}
+        imagesizes="100vw"
+        fetchpriority="high"
+      />
+    </>
+  )}
 </head>
 `;
 }
 
 export function getMainLayout(): string {
   return `---
+import path from 'node:path';
+
 import MainHead from '@/layouts/MainHead.astro';
 
 import type { GalleryMetadata } from '@simple-photo-gallery/common/src/gallery';
@@ -337,14 +369,18 @@ interface Props {
   thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
   analyticsScript?: string;
+  headerImage?: string;
 }
 
-const { title, description, metadata, url, thumbsBaseUrl, analyticsScript } = Astro.props;
+const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage } = Astro.props;
+
+// Extract basename from headerImage filename
+const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;
 ---
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead title={title} description={description} metadata={metadata} url={url} thumbsBaseUrl={thumbsBaseUrl} />
+  <MainHead title={title} description={description} metadata={metadata} url={url} thumbsBaseUrl={thumbsBaseUrl} headerImageBasename={headerImageBasename} />
   <body>
     <slot />
 
@@ -385,18 +421,36 @@ const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
 const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 const gallery = galleryData as GalleryData;
 
-const { title, description, sections, mediaBaseUrl, thumbsBaseUrl } = gallery;
+const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, headerImageBlurHash } = gallery;
 
 // Render description markdown if present
 const descriptionHtml = description ? await renderMarkdown(description) : '';
+
+// Get header image path if present
+const headerImagePath = headerImage ? getPhotoPath(headerImage, mediaBaseUrl) : undefined;
 ---
 
-<MainLayout title={title} description={description} metadata={gallery.metadata} url={gallery.url} thumbsBaseUrl={thumbsBaseUrl} analyticsScript={gallery.analyticsScript}>
-  <main>
-    <header>
-      <h1>{title}</h1>
-      {descriptionHtml && <div class="description" set:html={descriptionHtml} />}
+<MainLayout title={title} description={description} metadata={gallery.metadata} url={gallery.url} thumbsBaseUrl={thumbsBaseUrl} analyticsScript={gallery.analyticsScript} headerImage={headerImage}>
+  {headerImagePath ? (
+    <header class="hero">
+      <div class="hero__bg-wrapper">
+        {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
+        <img src={headerImagePath} alt={title} class="hero__bg-img" />
+      </div>
+      <div class="hero__overlay"></div>
+      <div class="hero__content">
+        <h1 class="hero__title">{title}</h1>
+        {descriptionHtml && <div class="hero__description markdown-content" set:html={descriptionHtml} />}
+      </div>
     </header>
+  ) : (
+    <header class="header">
+      <h1>{title}</h1>
+      {descriptionHtml && <div class="description markdown-content" set:html={descriptionHtml} />}
+    </header>
+  )}
+
+  <main>
 
     {/* Render gallery sections */}
     {sections.map((section) => (
@@ -443,6 +497,39 @@ const descriptionHtml = description ? await renderMarkdown(description) : '';
     ))}
   </main>
 </MainLayout>
+
+{headerImageBlurHash && (
+  <script>
+    import { decode } from 'blurhash';
+
+    const blurHashCanvas = document.querySelector<HTMLCanvasElement>('canvas[data-blur-hash]');
+    if (blurHashCanvas) {
+      const blurHashValue = blurHashCanvas.dataset.blurHash;
+      if (blurHashValue) {
+        const pixels = decode(blurHashValue, 32, 32);
+        const ctx = blurHashCanvas.getContext('2d');
+        if (pixels && ctx) {
+          const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
+          ctx.putImageData(imageData, 0, 0);
+        }
+      }
+
+      // Hide blurhash when hero image loads
+      const heroImg = document.querySelector('.hero__bg-img');
+      if (heroImg) {
+        const hideBlurhash = () => {
+          blurHashCanvas.style.display = 'none';
+        };
+
+        if (heroImg.complete) {
+          hideBlurhash();
+        } else {
+          heroImg.addEventListener('load', hideBlurhash, { once: true });
+        }
+      }
+    }
+  </script>
+)}
 
 <script>
   import PhotoSwipe from 'photoswipe';
@@ -539,6 +626,105 @@ const descriptionHtml = description ? await renderMarkdown(description) : '';
     color: white;
     padding: 1rem;
     font-size: 0.9rem;
+  }
+
+  /* Hero/Header Image Styles */
+  .hero {
+    position: relative;
+    min-height: 400px;
+    height: 60vh;
+    max-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero__bg-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__bg-wrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+  }
+
+  .hero__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 3;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    color: white;
+    max-width: 64rem;
+    padding: 0 1.5rem;
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .hero__description {
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    opacity: 0.95;
+    line-height: 1.6;
+    color: white;
+  }
+
+  .hero__description.markdown-content a {
+    color: #e5e7eb;
+    text-decoration: underline;
+  }
+
+  .hero__description.markdown-content a:hover {
+    color: #f9fafb;
+  }
+
+  /* Simple header (when no header image) */
+  .header {
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .header .description {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 800px;
+    margin: 0 auto;
   }
 
   /* TODO: Customize styles to match your design */
