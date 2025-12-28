@@ -9,6 +9,37 @@ import type { CommandResultSummary } from '../telemetry/types';
 import type { ConsolaInstance } from 'consola';
 
 /**
+ * Find the nearest ancestor directory (including the starting directory) that looks like a monorepo root
+ * by checking for a package.json with a "workspaces" field.
+ *
+ * This avoids surprising behavior when the CLI is executed from within a workspace package (e.g. ./gallery),
+ * but the user expects themes to be created under the monorepo root (e.g. ./themes).
+ */
+function findMonorepoRoot(startDir: string): string | undefined {
+  let dir = path.resolve(startDir);
+
+  while (true) {
+    const pkgPath = path.join(dir, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as { workspaces?: unknown };
+        if (pkg && typeof pkg === 'object' && 'workspaces' in pkg) {
+          return dir;
+        }
+      } catch {
+        // Ignore JSON parse errors and continue searching upwards
+      }
+    }
+
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      return undefined;
+    }
+    dir = parent;
+  }
+}
+
+/**
  * Validates the theme name
  * @param name - Theme name to validate
  * @returns true if valid, throws error if invalid
@@ -71,7 +102,9 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
       themeDir = path.resolve(options.path);
     } else {
       // Default: create in ./themes/<name> directory
-      const themesBaseDir = path.resolve(process.cwd(), 'themes');
+      const monorepoRoot = findMonorepoRoot(process.cwd());
+      const baseDir = monorepoRoot ?? process.cwd();
+      const themesBaseDir = path.resolve(baseDir, 'themes');
       themeDir = path.join(themesBaseDir, options.name);
 
       // Ensure the themes base directory exists (but don't overwrite anything)
