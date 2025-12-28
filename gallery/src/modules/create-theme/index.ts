@@ -125,6 +125,7 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
     await ensureDirectory(path.join(themeDir, 'src'), ui);
     await ensureDirectory(path.join(themeDir, 'src', 'pages'), ui);
     await ensureDirectory(path.join(themeDir, 'src', 'layouts'), ui);
+    await ensureDirectory(path.join(themeDir, 'src', 'components'), ui);
     await ensureDirectory(path.join(themeDir, 'src', 'lib'), ui);
     await ensureDirectory(path.join(themeDir, 'src', 'utils'), ui);
     await ensureDirectory(path.join(themeDir, 'public'), ui);
@@ -145,6 +146,9 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
     // Layout files
     await writeFile(path.join(themeDir, 'src', 'layouts', 'MainHead.astro'), templates.getMainHead(), ui);
     await writeFile(path.join(themeDir, 'src', 'layouts', 'MainLayout.astro'), templates.getMainLayout(), ui);
+
+    // Component files
+    await writeFile(path.join(themeDir, 'src', 'components', 'Hero.astro'), templates.getHeroComponent(), ui);
 
     // Page files
     await writeFile(path.join(themeDir, 'src', 'pages', 'index.astro'), templates.getIndexPage(), ui);

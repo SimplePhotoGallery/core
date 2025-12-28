@@ -259,8 +259,10 @@ async function buildGallery(
  * @returns true if it's a path, false if it's a package name
  */
 function isLocalThemePath(theme: string): boolean {
-  // Check if it starts with ./ or ../ or / or contains path separators
-  return theme.startsWith('./') || theme.startsWith('../') || theme.startsWith('/') || theme.includes(path.sep);
+  // Check if it starts with ./ or ../ or / (absolute path)
+  // Note: We don't check for path.sep in the middle because scoped npm packages
+  // like @scope/package contain / but should be treated as npm packages
+  return theme.startsWith('./') || theme.startsWith('../') || theme.startsWith('/');
 }
 
 /**

@@ -275,6 +275,7 @@ spg build --theme @your-org/theme-${themeName} -g <gallery-output-folder>
 
 - \`src/pages/index.astro\` - Main gallery page
 - \`src/layouts/\` - Layout components (MainHead, MainLayout)
+- \`src/components/\` - Reusable components (Hero)
 - \`src/lib/\` - Utility libraries (markdown, photoswipe-video-plugin)
 - \`src/utils/\` - Helper functions for paths and resources
 - \`public/\` - Static assets
@@ -406,13 +407,277 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
 `;
 }
 
+export function getHeroComponent(): string {
+  return `---
+import path from 'node:path';
+
+import { getPhotoPath } from '@/utils';
+import { renderMarkdown } from '@/lib/markdown';
+
+interface Props {
+  title: string;
+  description?: string;
+  thumbsBaseUrl?: string;
+  headerImage?: string;
+  headerImageBlurHash?: string;
+  mediaBaseUrl?: string;
+}
+
+const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash, mediaBaseUrl } = Astro.props;
+
+// Parse description as Markdown if it exists
+const parsedDescription: string = description ? await renderMarkdown(description) : '';
+
+// Extract basename from headerImage filename, fallback to generic name
+const imgBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : 'header';
+
+// Get the base path for the thumbnails
+const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
+
+// Original header photo (fallback)
+const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
+
+const portraitWidths = [360, 480, 720, 1080] as const;
+const landscapeWidths = [640, 960, 1280, 1920, 2560, 3840] as const;
+
+const portraitAvifSrcset = portraitWidths
+  .map((w) => thumbnailBasePath + '/' + imgBasename + '_portrait_' + w + '.avif ' + w + 'w')
+  .join(', ');
+const portraitJpgSrcset = portraitWidths
+  .map((w) => thumbnailBasePath + '/' + imgBasename + '_portrait_' + w + '.jpg ' + w + 'w')
+  .join(', ');
+
+const landscapeAvifSrcset = landscapeWidths
+  .map((w) => thumbnailBasePath + '/' + imgBasename + '_landscape_' + w + '.avif ' + w + 'w')
+  .join(', ');
+const landscapeJpgSrcset = landscapeWidths
+  .map((w) => thumbnailBasePath + '/' + imgBasename + '_landscape_' + w + '.jpg ' + w + 'w')
+  .join(', ');
+---
+
+{
+  headerImage ? (
+  <section class="hero">
+    <div class="hero__bg-wrapper">
+      {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
+      <picture class="hero__bg" id="hero-bg-picture">
+        {/* Portrait */}
+        <source
+          type="image/avif"
+          media="(max-aspect-ratio: 3/4)"
+          srcset={portraitAvifSrcset}
+          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        />
+        <source
+          type="image/jpeg"
+          media="(max-aspect-ratio: 3/4)"
+          srcset={portraitJpgSrcset}
+          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        />
+
+        {/* Landscape */}
+        <source type="image/avif" srcset={landscapeAvifSrcset} sizes="100vw" />
+        <source type="image/jpeg" srcset={landscapeJpgSrcset} sizes="100vw" />
+
+        {/* Fallback */}
+        <img src={headerPhotoPath} class="hero__bg-img" alt="" />
+      </picture>
+    </div>
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+      <h1 class="hero__title">{title}</h1>
+      {parsedDescription && <div class="hero__description markdown-content" set:html={parsedDescription} />}
+    </div>
+  </section>
+  ) : (
+  <header class="header">
+    <h1>{title}</h1>
+    {parsedDescription && <div class="description markdown-content" set:html={parsedDescription} />}
+  </header>
+  )
+}
+
+<script>
+  import { decode } from 'blurhash';
+
+  const picture = document.querySelector('#hero-bg-picture');
+  const img = picture?.querySelector<HTMLImageElement>('img.hero__bg-img');
+  const canvas = document.querySelector<HTMLCanvasElement>('canvas[data-blur-hash]');
+
+  // Decode blurhash (if present)
+  if (canvas) {
+    const blurHashValue = canvas.dataset.blurHash;
+    if (blurHashValue) {
+      const pixels = decode(blurHashValue, 32, 32);
+      const ctx = canvas.getContext('2d');
+      if (pixels && ctx) {
+        const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
+        ctx.putImageData(imageData, 0, 0);
+      }
+    }
+  }
+
+  if (!img) {
+    // No hero image element found
+  } else {
+    const fallbackSrc = img.getAttribute('src') || '';
+    let didFallback = false;
+
+    const hideBlurhash = () => {
+      if (canvas) {
+        canvas.style.display = 'none';
+      }
+    };
+
+    const doFallback = () => {
+      if (didFallback) return;
+      didFallback = true;
+
+      if (picture) {
+        // Remove all <source> elements so the browser does not retry them
+        for (const sourceEl of picture.querySelectorAll('source')) {
+          sourceEl.remove();
+        }
+      }
+
+      // Force reload using the <img> src as the final fallback
+      const current = img.getAttribute('src') || '';
+      img.setAttribute('src', '');
+      img.setAttribute('src', fallbackSrc || current);
+    };
+
+    // Check if image already loaded or failed before script runs
+    if (img.complete) {
+      if (img.naturalWidth === 0) {
+        doFallback();
+      } else {
+        hideBlurhash();
+      }
+    } else {
+      img.addEventListener('load', hideBlurhash, { once: true });
+    }
+
+    img.addEventListener('error', doFallback, { once: true });
+  }
+</script>
+
+<style>
+  /* Hero/Header Image Styles */
+  .hero {
+    position: relative;
+    min-height: 400px;
+    height: 60vh;
+    max-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero__bg-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__bg-wrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+    transition: transform 0.5s ease;
+  }
+
+  .hero__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 5;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    color: white;
+    max-width: 64rem;
+    padding: 0 1.5rem;
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .hero__description {
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    opacity: 0.95;
+    line-height: 1.6;
+    color: white;
+  }
+
+  .hero__description.markdown-content a {
+    color: #e5e7eb;
+    text-decoration: underline;
+  }
+
+  .hero__description.markdown-content a:hover {
+    color: #f9fafb;
+  }
+
+  /* Simple header (when no header image) */
+  .header {
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .header .description {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>
+`;
+}
+
 export function getIndexPage(): string {
   return `---
 import fs from 'node:fs';
 
 import MainLayout from '@/layouts/MainLayout.astro';
+import Hero from '@/components/Hero.astro';
 import { getPhotoPath, getThumbnailPath } from '@/utils';
-import { renderMarkdown } from '@/lib/markdown';
 
 import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
 
@@ -422,33 +687,17 @@ const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 const gallery = galleryData as GalleryData;
 
 const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, headerImageBlurHash } = gallery;
-
-// Render description markdown if present
-const descriptionHtml = description ? await renderMarkdown(description) : '';
-
-// Get header image path if present
-const headerImagePath = headerImage ? getPhotoPath(headerImage, mediaBaseUrl) : undefined;
 ---
 
 <MainLayout title={title} description={description} metadata={gallery.metadata} url={gallery.url} thumbsBaseUrl={thumbsBaseUrl} analyticsScript={gallery.analyticsScript} headerImage={headerImage}>
-  {headerImagePath ? (
-    <header class="hero">
-      <div class="hero__bg-wrapper">
-        {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
-        <img src={headerImagePath} alt={title} class="hero__bg-img" />
-      </div>
-      <div class="hero__overlay"></div>
-      <div class="hero__content">
-        <h1 class="hero__title">{title}</h1>
-        {descriptionHtml && <div class="hero__description markdown-content" set:html={descriptionHtml} />}
-      </div>
-    </header>
-  ) : (
-    <header class="header">
-      <h1>{title}</h1>
-      {descriptionHtml && <div class="description markdown-content" set:html={descriptionHtml} />}
-    </header>
-  )}
+  <Hero
+    title={title}
+    description={description}
+    thumbsBaseUrl={thumbsBaseUrl}
+    headerImage={headerImage}
+    headerImageBlurHash={headerImageBlurHash}
+    mediaBaseUrl={mediaBaseUrl}
+  />
 
   <main>
 
@@ -497,39 +746,6 @@ const headerImagePath = headerImage ? getPhotoPath(headerImage, mediaBaseUrl) : 
     ))}
   </main>
 </MainLayout>
-
-{headerImageBlurHash && (
-  <script>
-    import { decode } from 'blurhash';
-
-    const blurHashCanvas = document.querySelector<HTMLCanvasElement>('canvas[data-blur-hash]');
-    if (blurHashCanvas) {
-      const blurHashValue = blurHashCanvas.dataset.blurHash;
-      if (blurHashValue) {
-        const pixels = decode(blurHashValue, 32, 32);
-        const ctx = blurHashCanvas.getContext('2d');
-        if (pixels && ctx) {
-          const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
-          ctx.putImageData(imageData, 0, 0);
-        }
-      }
-
-      // Hide blurhash when hero image loads
-      const heroImg = document.querySelector('.hero__bg-img');
-      if (heroImg) {
-        const hideBlurhash = () => {
-          blurHashCanvas.style.display = 'none';
-        };
-
-        if (heroImg.complete) {
-          hideBlurhash();
-        } else {
-          heroImg.addEventListener('load', hideBlurhash, { once: true });
-        }
-      }
-    }
-  </script>
-)}
 
 <script>
   import PhotoSwipe from 'photoswipe';
@@ -626,105 +842,6 @@ const headerImagePath = headerImage ? getPhotoPath(headerImage, mediaBaseUrl) : 
     color: white;
     padding: 1rem;
     font-size: 0.9rem;
-  }
-
-  /* Hero/Header Image Styles */
-  .hero {
-    position: relative;
-    min-height: 400px;
-    height: 60vh;
-    max-height: 600px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .hero__bg-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .hero__bg-wrapper canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    z-index: 1;
-  }
-
-  .hero__bg-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 3;
-  }
-
-  .hero__content {
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    color: white;
-    max-width: 64rem;
-    padding: 0 1.5rem;
-  }
-
-  .hero__title {
-    font-size: clamp(2rem, 5vw, 4rem);
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-
-  .hero__description {
-    font-size: clamp(1rem, 2vw, 1.5rem);
-    opacity: 0.95;
-    line-height: 1.6;
-    color: white;
-  }
-
-  .hero__description.markdown-content a {
-    color: #e5e7eb;
-    text-decoration: underline;
-  }
-
-  .hero__description.markdown-content a:hover {
-    color: #f9fafb;
-  }
-
-  /* Simple header (when no header image) */
-  .header {
-    text-align: center;
-    padding: 3rem 2rem;
-  }
-
-  .header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .header .description {
-    font-size: 1.1rem;
-    color: #666;
-    max-width: 800px;
-    margin: 0 auto;
   }
 
   /* TODO: Customize styles to match your design */
