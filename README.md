@@ -14,9 +14,9 @@ This is a free, open-source tool that you can use to generate galleries and self
 
 ### More examples
 
-- [California Road Trip](https://simple.photo/haltakov/california)
-- [Visiting Australia](https://simple.photo/haltakov/australia)
-- [Discovering Japan](https://simple.photo/haltakov/japan)
+- [California Road Trip](https://simple.photo/haltakov/california-trip/)
+- [Visiting Australia](https://simple.photo/haltakov/australia/)
+- [Discovering Japan](https://simple.photo/haltakov/japan-trip/)
 
 ## Features
 
