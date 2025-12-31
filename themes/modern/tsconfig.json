@@ -5,8 +5,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@simple-photo-gallery/common/src/*": ["../../common/src/*"]
+      "@/*": ["src/*"]
     }
   }
 }
