@@ -124,8 +124,7 @@ export function getTsConfig(): string {
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@simple-photo-gallery/common/src/*": ["../../common/src/*"]
+      "@/*": ["src/*"]
     }
   }
 }
@@ -235,12 +234,33 @@ A custom theme for Simple Photo Gallery built with Astro.
 
 ## Development
 
+\`GALLERY_JSON_PATH\` is required. The theme reads your \`gallery.json\` from this path.
+
+First, create a gallery once (you can reuse this during theme development):
+
+\`\`\`bash
+spg init -p <path-to-photos> -g <path-to-gallery>
+\`\`\`
+
+Then run the theme dev server with the required environment variables:
+
+\`\`\`bash
+# macOS / Linux
+export GALLERY_JSON_PATH="<path-to-gallery>/gallery.json"
+export GALLERY_OUTPUT_DIR="<path-to-gallery>"
+yarn dev
+\`\`\`
+
+\`\`\`bash
+# Windows (PowerShell)
+$env:GALLERY_JSON_PATH="C:\\path\\to\\gallery\\gallery.json"
+$env:GALLERY_OUTPUT_DIR="C:\\path\\to\\gallery"
+yarn dev
+\`\`\`
+
 \`\`\`bash
 # Install dependencies
 yarn install
-
-# Start development server
-yarn dev
 
 # Build for production
 yarn build
@@ -284,7 +304,7 @@ spg build --theme @your-org/theme-${themeName} -g <gallery-output-folder>
 
 export function getMainHead(): string {
   return `---
-import type { GalleryMetadata } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryMetadata } from '@simple-photo-gallery/common';
 
 interface Props {
   title: string;
@@ -361,7 +381,7 @@ import path from 'node:path';
 
 import MainHead from '@/layouts/MainHead.astro';
 
-import type { GalleryMetadata } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryMetadata } from '@simple-photo-gallery/common';
 
 interface Props {
   title: string;
@@ -679,7 +699,7 @@ import MainLayout from '@/layouts/MainLayout.astro';
 import Hero from '@/components/Hero.astro';
 import { getPhotoPath, getThumbnailPath } from '@/utils';
 
-import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryData } from '@simple-photo-gallery/common';
 
 // Read gallery.json from the path provided by the build process
 const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
