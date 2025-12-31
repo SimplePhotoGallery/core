@@ -62,6 +62,49 @@ This will:
   - Ubuntu/Debian: `sudo apt install ffmpeg`
   - Windows: [Download from ffmpeg.org](https://ffmpeg.org/download.html)
 
+## Development
+
+This is a monorepo using Yarn workspaces. To set up the development environment:
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/SimplePhotoGallery/core.git
+   cd spg-core
+   ```
+
+2. **Install dependencies**
+   ```bash
+   yarn install
+   ```
+
+3. **Build the `common` package** (required for TypeScript/ESLint to resolve `@simple-photo-gallery/common`)
+   ```bash
+   yarn workspace @simple-photo-gallery/common build
+   ```
+
+4. **Build the gallery package** (optional, for testing CLI changes)
+   ```bash
+   yarn workspace simple-photo-gallery build
+   ```
+
+5. **Run the CLI in development mode**
+   ```bash
+   yarn workspace simple-photo-gallery gallery
+   ```
+
+### Workspace Packages
+
+- `common/` - Shared types and utilities (must be built first)
+- `gallery/` - CLI tool (`simple-photo-gallery`)
+- `themes/modern/` - Default theme package
+
+### Building Packages
+
+Each workspace package can be built individually:
+- `yarn workspace @simple-photo-gallery/common build`
+- `yarn workspace simple-photo-gallery build`
+- `yarn workspace @simple-photo-gallery/theme-modern build`
+
 ## Supported Formats
 
 **Images:** JPEG, PNG, WebP, GIF, TIFF  
@@ -76,8 +119,8 @@ For advanced usage, customization, and deployment options, see the comprehensive
   - [`build`](./docs/commands/build.md) - Generate static HTML galleries
   - [`thumbnails`](./docs/commands/thumbnails.md) - Generate optimized thumbnails
   - [`clean`](./docs/commands/clean.md) - Remove gallery files
-- - [`create-theme`](./docs/commands/create-theme.md) - Scaffold a new theme package
-- - [`telemetry`](./docs/commands/telemetry.md) - Manage anonymous telemetry preferences
+  - [`create-theme`](./docs/commands/create-theme.md) - Scaffold a new theme package
+  - [`telemetry`](./docs/commands/telemetry.md) - Manage anonymous telemetry preferences
 - **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
 - **[Custom Themes](./docs/themes.md)** - Create and use custom themes
 - **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
