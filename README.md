@@ -76,8 +76,8 @@ For advanced usage, customization, and deployment options, see the comprehensive
   - [`build`](./docs/commands/build.md) - Generate static HTML galleries
   - [`thumbnails`](./docs/commands/thumbnails.md) - Generate optimized thumbnails
   - [`clean`](./docs/commands/clean.md) - Remove gallery files
--  - [`create-theme`](./docs/commands/create-theme.md) - Scaffold a new theme package
--  - [`telemetry`](./docs/commands/telemetry.md) - Manage anonymous telemetry preferences
+- - [`create-theme`](./docs/commands/create-theme.md) - Scaffold a new theme package
+- - [`telemetry`](./docs/commands/telemetry.md) - Manage anonymous telemetry preferences
 - **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
 - **[Custom Themes](./docs/themes.md)** - Create and use custom themes
 - **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
