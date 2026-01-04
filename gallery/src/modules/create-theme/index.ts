@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-
-import * as templates from './templates';
+import { fileURLToPath } from 'node:url';
 
 import type { CreateThemeOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
@@ -74,14 +73,117 @@ async function ensureDirectory(dirPath: string, ui: ConsolaInstance): Promise<vo
 }
 
 /**
- * Writes a file with content
- * @param filePath - Path to the file
- * @param content - Content to write
+ * Files and directories to exclude when copying the base theme
+ */
+const EXCLUDE_PATTERNS = ['node_modules', '.astro', 'dist', '_build', '.git', '*.log', '.DS_Store'];
+
+/**
+ * Check if a file or directory should be excluded
+ */
+function shouldExclude(name: string): boolean {
+  return EXCLUDE_PATTERNS.some((pattern) => {
+    if (pattern.includes('*')) {
+      const regexPattern = pattern.split('*').join('.*');
+      const regex = new RegExp(regexPattern);
+      return regex.test(name);
+    }
+    return name === pattern;
+  });
+}
+
+/**
+ * Copy a directory recursively, excluding certain files and directories
+ * @param src - Source directory path
+ * @param dest - Destination directory path
  * @param ui - ConsolaInstance for logging
  */
-async function writeFile(filePath: string, content: string, ui: ConsolaInstance): Promise<void> {
-  await fs.promises.writeFile(filePath, content, 'utf8');
-  ui.debug(`Created file: ${filePath}`);
+async function copyDirectory(src: string, dest: string, ui: ConsolaInstance): Promise<void> {
+  await fs.promises.mkdir(dest, { recursive: true });
+  const entries = await fs.promises.readdir(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (shouldExclude(entry.name)) {
+      ui.debug(`Skipping excluded file/directory: ${entry.name}`);
+      continue;
+    }
+
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, destPath, ui);
+    } else {
+      await fs.promises.copyFile(srcPath, destPath);
+      ui.debug(`Copied file: ${destPath}`);
+    }
+  }
+}
+
+/**
+ * Find the base theme directory path
+ * Tries to find themes/base relative to the workspace root or module location
+ */
+function findBaseThemePath(): string {
+  // Try to find from workspace root (monorepo root or current working directory)
+  const monorepoRoot = findMonorepoRoot(process.cwd());
+  const workspaceRoot = monorepoRoot ?? process.cwd();
+  const baseThemePath = path.join(workspaceRoot, 'themes', 'base');
+
+  if (fs.existsSync(baseThemePath)) {
+    return baseThemePath;
+  }
+
+  // Fallback: try relative to the module location
+  // This handles the case when running from a built/compiled version
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  const relativeBaseThemePath = path.resolve(moduleDir, '../../../themes/base');
+
+  if (fs.existsSync(relativeBaseThemePath)) {
+    return relativeBaseThemePath;
+  }
+
+  throw new Error(
+    `Base theme not found. Tried:\n  - ${baseThemePath}\n  - ${relativeBaseThemePath}\n\nPlease ensure themes/base exists in the workspace.`,
+  );
+}
+
+/**
+ * Update package.json with the new theme name
+ * @param themeDir - Theme directory path
+ * @param themeName - New theme name
+ * @param ui - ConsolaInstance for logging
+ */
+async function updatePackageJson(themeDir: string, themeName: string, ui: ConsolaInstance): Promise<void> {
+  const packageJsonPath = path.join(themeDir, 'package.json');
+  const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
+  const packageJson = JSON.parse(packageJsonContent) as { name?: string };
+  packageJson.name = themeName;
+  await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
+  ui.debug(`Updated package.json with theme name: ${themeName}`);
+}
+
+/**
+ * Update README.md with the new theme name
+ * @param themeDir - Theme directory path
+ * @param themeName - New theme name
+ * @param ui - ConsolaInstance for logging
+ */
+async function updateReadme(themeDir: string, themeName: string, ui: ConsolaInstance): Promise<void> {
+  const readmePath = path.join(themeDir, 'README.md');
+  let readme = await fs.promises.readFile(readmePath, 'utf8');
+
+  // Replace theme name references
+  // Replace "# base Theme" with "# {themeName} Theme"
+  readme = readme.replace(/^# base Theme$/m, `# ${themeName} Theme`);
+
+  // Replace "./themes/base" with "./themes/{themeName}"
+  readme = readme.split('./themes/base').join(`./themes/${themeName}`);
+
+  // Replace "theme-base" with "theme-{themeName}"
+  readme = readme.split('theme-base').join(`theme-${themeName}`);
+
+  await fs.promises.writeFile(readmePath, readme, 'utf8');
+  ui.debug(`Updated README.md with theme name: ${themeName}`);
 }
 
 /**
@@ -120,49 +222,18 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
 
     ui.start(`Creating theme: ${options.name}`);
 
-    // Create directory structure
-    await ensureDirectory(themeDir, ui);
-    await ensureDirectory(path.join(themeDir, 'src'), ui);
-    await ensureDirectory(path.join(themeDir, 'src', 'pages'), ui);
-    await ensureDirectory(path.join(themeDir, 'src', 'layouts'), ui);
-    await ensureDirectory(path.join(themeDir, 'src', 'components'), ui);
-    await ensureDirectory(path.join(themeDir, 'src', 'lib'), ui);
-    await ensureDirectory(path.join(themeDir, 'src', 'utils'), ui);
-    await ensureDirectory(path.join(themeDir, 'public'), ui);
+    // Find the base theme directory
+    const baseThemePath = findBaseThemePath();
+    ui.debug(`Using base theme from: ${baseThemePath}`);
 
-    // Generate all files
-    ui.debug('Generating theme files...');
+    // Copy entire base theme directory
+    ui.debug('Copying base theme files...');
+    await copyDirectory(baseThemePath, themeDir, ui);
 
-    // Root files
-    await writeFile(path.join(themeDir, 'package.json'), templates.getPackageJson(options.name), ui);
-    await writeFile(path.join(themeDir, 'astro.config.ts'), templates.getAstroConfig(), ui);
-    await writeFile(path.join(themeDir, 'tsconfig.json'), templates.getTsConfig(), ui);
-    await writeFile(path.join(themeDir, 'eslint.config.mjs'), templates.getEslintConfig(), ui);
-    await writeFile(path.join(themeDir, '.prettierrc.mjs'), templates.getPrettierConfig(), ui);
-    await writeFile(path.join(themeDir, '.prettierignore'), templates.getPrettierIgnore(), ui);
-    await writeFile(path.join(themeDir, '.gitignore'), templates.getGitIgnore(), ui);
-    await writeFile(path.join(themeDir, 'README.md'), templates.getReadme(options.name), ui);
-
-    // Layout files
-    await writeFile(path.join(themeDir, 'src', 'layouts', 'MainHead.astro'), templates.getMainHead(), ui);
-    await writeFile(path.join(themeDir, 'src', 'layouts', 'MainLayout.astro'), templates.getMainLayout(), ui);
-
-    // Component files
-    await writeFile(path.join(themeDir, 'src', 'components', 'Hero.astro'), templates.getHeroComponent(), ui);
-
-    // Page files
-    await writeFile(path.join(themeDir, 'src', 'pages', 'index.astro'), templates.getIndexPage(), ui);
-
-    // Library files
-    await writeFile(path.join(themeDir, 'src', 'lib', 'markdown.ts'), templates.getMarkdownLib(), ui);
-    await writeFile(
-      path.join(themeDir, 'src', 'lib', 'photoswipe-video-plugin.ts'),
-      templates.getPhotoswipeVideoPlugin(),
-      ui,
-    );
-
-    // Utility files
-    await writeFile(path.join(themeDir, 'src', 'utils', 'index.ts'), templates.getUtilsIndex(), ui);
+    // Update theme-specific files
+    ui.debug('Updating theme-specific files...');
+    await updatePackageJson(themeDir, options.name, ui);
+    await updateReadme(themeDir, options.name, ui);
 
     ui.success(`Theme created successfully at: ${themeDir}`);
     ui.info(`\nNext steps:`);

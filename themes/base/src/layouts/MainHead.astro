@@ -1,0 +1,69 @@
+---
+import type { GalleryMetadata } from '@simple-photo-gallery/common';
+
+interface Props {
+  title: string;
+  description?: string;
+  url?: string;
+  thumbsBaseUrl?: string;
+  metadata?: GalleryMetadata;
+  headerImageBasename?: string;
+}
+
+const { title, description, url, thumbsBaseUrl, metadata, headerImageBasename } = Astro.props;
+
+// Use headerImageBasename for dynamic image paths, fallback to generic name
+const imgBasename = headerImageBasename || 'header';
+
+// Get the base path for the thumbnails
+const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
+---
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+
+  <base href="/" />
+
+  {/* Basic SEO */}
+  <meta name="description" content={description} />
+  {metadata?.keywords && <meta name="keywords" content={metadata.keywords} />}
+  {metadata?.author && <meta name="author" content={metadata.author} />}
+  {metadata?.canonicalUrl || (url && <link rel="canonical" href={metadata?.canonicalUrl || url} />)}
+
+  {/* Open Graph */}
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  {metadata?.image && <meta property="og:image" content={metadata.image} />}
+  {metadata?.ogUrl || (url && <meta property="og:url" content={metadata?.ogUrl || url} />)}
+
+  {/* Twitter */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  {metadata?.image && <meta name="twitter:image" content={metadata.image} />}
+
+  {headerImageBasename && (
+    <>
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        media="(max-aspect-ratio: 3/4)"
+        imagesrcset={`${thumbnailBasePath}/${imgBasename}_portrait_360.avif 360w, ${thumbnailBasePath}/${imgBasename}_portrait_480.avif 480w, ${thumbnailBasePath}/${imgBasename}_portrait_720.avif 720w, ${thumbnailBasePath}/${imgBasename}_portrait_1080.avif 1080w`}
+        imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        fetchpriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        type="image/avif"
+        media="(min-aspect-ratio: 3/4)"
+        imagesrcset={`${thumbnailBasePath}/${imgBasename}_landscape_640.avif 640w, ${thumbnailBasePath}/${imgBasename}_landscape_960.avif 960w, ${thumbnailBasePath}/${imgBasename}_landscape_1280.avif 1280w, ${thumbnailBasePath}/${imgBasename}_landscape_1920.avif 1920w, ${thumbnailBasePath}/${imgBasename}_landscape_2560.avif 2560w, ${thumbnailBasePath}/${imgBasename}_landscape_3840.avif 3840w`}
+        imagesizes="100vw"
+        fetchpriority="high"
+      />
+    </>
+  )}
+</head>

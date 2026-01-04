@@ -1,0 +1,174 @@
+---
+import fs from 'node:fs';
+
+import MainLayout from '@/layouts/MainLayout.astro';
+import Hero from '@/components/Hero.astro';
+import { getPhotoPath, getThumbnailPath } from '@/utils';
+
+import type { GalleryData } from '@simple-photo-gallery/common';
+
+// Read gallery.json from the path provided by the build process
+const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
+const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
+const gallery = galleryData as GalleryData;
+
+const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, headerImageBlurHash } = gallery;
+---
+
+<MainLayout title={title} description={description} metadata={gallery.metadata} url={gallery.url} thumbsBaseUrl={thumbsBaseUrl} analyticsScript={gallery.analyticsScript} headerImage={headerImage}>
+  <Hero
+    title={title}
+    description={description}
+    thumbsBaseUrl={thumbsBaseUrl}
+    headerImage={headerImage}
+    headerImageBlurHash={headerImageBlurHash}
+    mediaBaseUrl={mediaBaseUrl}
+  />
+
+  <main>
+
+    {/* Render gallery sections */}
+    {sections.map((section) => (
+      <section class="gallery-section">
+        {section.title && <h2>{section.title}</h2>}
+        {section.description && <p>{section.description}</p>}
+
+        <div class="gallery-grid">
+          {section.images.map((image) => {
+            const imagePath = getPhotoPath(image.filename, mediaBaseUrl, image.url);
+            const thumbnailPath = image.thumbnail
+              ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)
+              : imagePath;
+
+            const thumbnailSrcSet = image.thumbnail
+              ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl) +
+                ' 1x, ' +
+                getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl, image.thumbnail.baseUrl) +
+                ' 2x'
+              : undefined;
+
+            return (
+              <a
+                href={imagePath}
+                data-pswp-width={image.width}
+                data-pswp-height={image.height}
+                data-pswp-type={image.type}
+                data-pswp-caption={image.alt || ''}
+                class="gallery-item">
+                <img
+                  src={thumbnailPath}
+                  srcset={thumbnailSrcSet}
+                  alt={image.alt || ''}
+                  loading="lazy"
+                  width={image.thumbnail?.width}
+                  height={image.thumbnail?.height}
+                />
+                {image.alt && <span class="caption">{image.alt}</span>}
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+  </main>
+</MainLayout>
+
+<script>
+  import PhotoSwipe from 'photoswipe';
+  import PhotoSwipeLightbox from 'photoswipe/lightbox';
+
+  import PhotoSwipeVideoPlugin from '@/lib/photoswipe-video-plugin';
+  import 'photoswipe/style.css';
+
+  // Initialize PhotoSwipe lightbox
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '.gallery-grid',
+    children: 'a',
+    pswpModule: PhotoSwipe,
+    showAnimationDuration: 300,
+    hideAnimationDuration: 300,
+    wheelToZoom: true,
+    loop: false,
+    bgOpacity: 1,
+  });
+
+  // Add video plugin support
+  new PhotoSwipeVideoPlugin(lightbox);
+
+  // Initialize the lightbox
+  lightbox.init();
+</script>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  header {
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .description {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .gallery-section {
+    margin-bottom: 4rem;
+  }
+
+  .gallery-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .gallery-item {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    aspect-ratio: 1;
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.05);
+  }
+
+  .caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    color: white;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* TODO: Customize styles to match your design */
+</style>
