@@ -1,71 +1,42 @@
 # base Theme
 
-A custom theme for Simple Photo Gallery built with Astro.
+The base theme template for Simple Photo Gallery built with Astro.
 
-## Development
+> **⚠️ Important:** This theme is used as the **source template** for `spg create-theme`. Any changes you make to this theme will be reflected in all **new themes** created with `spg create-theme`. Existing themes created before your changes will not be affected.
 
-`GALLERY_JSON_PATH` is required. The theme reads your `gallery.json` from this path.
+## How it works
 
-First, create a gallery once (you can reuse this during theme development):
+When you run `spg create-theme <name>`, this theme (`themes/base`) is copied to create a new theme. The command:
 
-```bash
-spg init -p <path-to-photos> -g <path-to-gallery>
-```
+1. Copies all files from this directory (excluding build artifacts like `node_modules`, `.astro`, `dist`, etc.)
+2. Updates `package.json` with the new theme name
+3. Updates `README.md` with the new theme name
 
-Then run the theme dev server with the required environment variables:
+This means:
 
-```bash
-# macOS / Linux
-export GALLERY_JSON_PATH="<path-to-gallery>/gallery.json"
-export GALLERY_OUTPUT_DIR="<path-to-gallery>"
-yarn dev
-```
+- **Modifying files here** → Changes will appear in themes created **after** your modifications
+- **Adding new files** → New files will be included in future themes
+- **Removing files** → Files won't be included in future themes
+- **Existing themes** → Already created themes are not affected by changes here
 
-```bash
-# Windows (PowerShell)
-$env:GALLERY_JSON_PATH="C:\path\to\gallery\gallery.json"
-$env:GALLERY_OUTPUT_DIR="C:\path\to\gallery"
-yarn dev
-```
-
-```bash
-# Install dependencies
-yarn install
-
-# Build for production
-yarn build
-
-# Preview production build
-yarn preview
-```
-
-## Customization
-
-Edit `src/pages/index.astro` to customize your theme. This is the main entry point that receives gallery data and renders your gallery.
-
-## Building Galleries
-
-To use this theme when building a gallery:
-
-```bash
-# 1. Initialize a gallery from your images folder
-spg init -p <path-to-images-folder> -g <gallery-output-folder>
-
-# 2. Generate thumbnails (optional but recommended)
-spg thumbnails -g <gallery-output-folder>
-
-# 3. Build the gallery with your theme
-spg build --theme ./themes/base -g <gallery-output-folder>
-
-# Or if published to npm
-spg build --theme @your-org/theme-base -g <gallery-output-folder>
-```
+You can customize this theme to change the default structure, dependencies, or configuration for all new themes created with `spg create-theme`.
 
 ## Structure
 
-- `src/pages/index.astro` - Main gallery page
+This theme includes the following structure that will be copied to new themes:
+
+- `package.json` - Package configuration (name will be updated for new themes)
+- `astro.config.ts` - Astro build configuration
+- `tsconfig.json` - TypeScript configuration
+- `eslint.config.mjs` - ESLint configuration
+- `.prettierrc.mjs` - Prettier configuration
+- `.prettierignore` - Prettier ignore patterns
+- `.gitignore` - Git ignore patterns
+- `src/pages/index.astro` - Main gallery page entry point
 - `src/layouts/` - Layout components (MainHead, MainLayout)
 - `src/components/` - Reusable components (Hero)
 - `src/lib/` - Utility libraries (markdown, photoswipe-video-plugin)
 - `src/utils/` - Helper functions for paths and resources
-- `public/` - Static assets
+- `public/` - Static assets directory
+
+All of these files and directories will be included when creating new themes with `spg create-theme`.

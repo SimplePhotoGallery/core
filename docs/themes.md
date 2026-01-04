@@ -49,14 +49,22 @@ If you prefer a custom output directory:
 spg create-theme my-theme --path ./my-theme
 ```
 
-After that:
+The `create-theme` command works by copying the base theme (`themes/base`) and customizing it with your theme name. This means:
+
+- All files from `themes/base` are copied (excluding build artifacts)
+- The theme name is automatically updated in `package.json` and `README.md`
+- You get a complete, working theme ready to customize
+
+After creating your theme:
 
 ```bash
 cd ./themes/my-theme
 yarn install
 ```
 
-> **Note:** The generated theme requires `GALLERY_JSON_PATH` to be set (it’s how the theme reads your `gallery.json`). When you run `spg build`, the CLI sets it automatically. When you run `astro dev` directly, you need to set it yourself (see “Theme Development” below).
+> **Note:** The generated theme requires `GALLERY_JSON_PATH` to be set (it's how the theme reads your `gallery.json`). When you run `spg build`, the CLI sets it automatically. When you run `astro dev` directly, you need to set it yourself (see "Theme Development" below).
+
+> **Tip:** To customize the default theme structure for all new themes, edit `themes/base` directly. Any changes you make there will be reflected in themes created with `spg create-theme`.
 
 A theme is an npm package built with [Astro](https://astro.build/) that follows a specific structure and interface.
 
@@ -313,9 +321,12 @@ yarn dev
 5. **Test locally**: Use `astro dev` to preview your theme during development
 6. **Follow Astro conventions**: Use Astro components, layouts, and best practices
 
-### Example Theme Package
+### Example Theme Packages
 
-You can use `@simple-photo-gallery/theme-modern` as a reference implementation. The source code is available in the [themes/modern](../themes/modern) directory of this repository.
+- **`themes/base`**: The base theme template used by `spg create-theme`. This is a minimal, functional theme that serves as the starting point for all new themes.
+- **`@simple-photo-gallery/theme-modern`**: A more advanced theme example. The source code is available in the `themes/modern` directory of this repository.
+
+Both themes demonstrate the required structure and can be used as reference implementations.
 
 ### Using Your Theme
 
