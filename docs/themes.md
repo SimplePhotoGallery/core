@@ -64,7 +64,7 @@ yarn install
 
 > **Note:** The generated theme requires `GALLERY_JSON_PATH` to be set (it's how the theme reads your `gallery.json`). When you run `spg build`, the CLI sets it automatically. When you run `astro dev` directly, you need to set it yourself (see "Theme Development" below).
 
-> **Tip:** The base theme template is bundled with the `simple-photo-gallery` package. For local development, if you're working on the CLI itself and want to test template changes, you can modify `themes/base` in the repository workspace - it will be used as a fallback when present.
+> **Tip:** The base theme template is bundled with the `simple-photo-gallery` package. The source is located at `gallery/src/modules/create-theme/templates/base` in the repository. For local development, if you're working on the CLI itself and want to test template changes, you can modify the template files there. Alternatively, you can create `themes/base` in the workspace root as a fallback for testing - it will be used if present.
 
 A theme is an npm package built with [Astro](https://astro.build/) that follows a specific structure and interface.
 

@@ -67,22 +67,26 @@ This will:
 This is a monorepo using Yarn workspaces. To set up the development environment:
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/SimplePhotoGallery/core.git
    cd spg-core
    ```
 
 2. **Install dependencies**
+
    ```bash
    yarn install
    ```
 
 3. **Build the `common` package** (required for TypeScript/ESLint to resolve `@simple-photo-gallery/common`)
+
    ```bash
    yarn workspace @simple-photo-gallery/common build
    ```
 
 4. **Build the gallery package** (optional, for testing CLI changes)
+
    ```bash
    yarn workspace simple-photo-gallery build
    ```
@@ -96,11 +100,13 @@ This is a monorepo using Yarn workspaces. To set up the development environment:
 
 - `common/` - Shared types and utilities (must be built first)
 - `gallery/` - CLI tool (`simple-photo-gallery`)
+  - `gallery/src/modules/create-theme/templates/base/` - Base theme template used by `spg create-theme` (bundled with the package)
 - `themes/modern/` - Default theme package
 
 ### Building Packages
 
 Each workspace package can be built individually:
+
 - `yarn workspace @simple-photo-gallery/common build`
 - `yarn workspace simple-photo-gallery build`
 - `yarn workspace @simple-photo-gallery/theme-modern build`

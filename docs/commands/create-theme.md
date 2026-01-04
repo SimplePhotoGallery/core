@@ -23,7 +23,7 @@ The command:
 
 By default, the theme is created in `./themes/<name>`. If you run the CLI from inside a monorepo workspace, it will prefer creating themes under the **monorepo root** `./themes/<name>`.
 
-> **Note:** The base theme template is bundled with the `simple-photo-gallery` package, so `spg create-theme` works out of the box after installation. For local development, if `themes/base` exists in your workspace, it will be used instead (allowing you to test template changes).
+> **Note:** The base theme template is bundled with the `simple-photo-gallery` package, so `spg create-theme` works out of the box after installation. The template source is located at `gallery/src/modules/create-theme/templates/base` in the repository. For local development, if `themes/base` exists in your workspace root, it will be used as a fallback (allowing you to test template changes without modifying the bundled template).
 
 ## Options
 
