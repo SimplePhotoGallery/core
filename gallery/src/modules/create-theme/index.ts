@@ -121,29 +121,30 @@ async function copyDirectory(src: string, dest: string, ui: ConsolaInstance): Pr
 
 /**
  * Find the base theme directory path
- * Tries to find themes/base relative to the workspace root or module location
+ * Looks for templates/base relative to this module, with fallback to workspace themes/base for development
  */
 function findBaseThemePath(): string {
-  // Try to find from workspace root (monorepo root or current working directory)
-  const monorepoRoot = findMonorepoRoot(process.cwd());
-  const workspaceRoot = monorepoRoot ?? process.cwd();
-  const baseThemePath = path.join(workspaceRoot, 'themes', 'base');
+  // Primary: Look for templates bundled with the package (for npm users)
+  // When installed from npm: dist/modules/create-theme/index.js -> src/modules/create-theme/templates/base
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  const bundledTemplatePath = path.resolve(moduleDir, '../../../src/modules/create-theme/templates/base');
 
-  if (fs.existsSync(baseThemePath)) {
-    return baseThemePath;
+  if (fs.existsSync(bundledTemplatePath)) {
+    return bundledTemplatePath;
   }
 
-  // Fallback: try relative to the module location
-  // This handles the case when running from a built/compiled version
-  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-  const relativeBaseThemePath = path.resolve(moduleDir, '../../../themes/base');
+  // Fallback: Try to find from workspace root (for local development)
+  // This allows developers to modify themes/base and test changes
+  const monorepoRoot = findMonorepoRoot(process.cwd());
+  const workspaceRoot = monorepoRoot ?? process.cwd();
+  const workspaceBaseThemePath = path.join(workspaceRoot, 'themes', 'base');
 
-  if (fs.existsSync(relativeBaseThemePath)) {
-    return relativeBaseThemePath;
+  if (fs.existsSync(workspaceBaseThemePath)) {
+    return workspaceBaseThemePath;
   }
 
   throw new Error(
-    `Base theme not found. Tried:\n  - ${baseThemePath}\n  - ${relativeBaseThemePath}\n\nPlease ensure themes/base exists in the workspace.`,
+    `Base theme template not found. Tried:\n  - ${bundledTemplatePath}\n  - ${workspaceBaseThemePath}\n\nPlease ensure the templates are included in the package or themes/base exists in the workspace.`,
   );
 }
 

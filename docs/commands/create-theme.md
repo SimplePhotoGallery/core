@@ -8,7 +8,7 @@ spg create-theme <name> [options]
 
 ## How it works
 
-The command creates a new theme by copying the base theme (`themes/base`) and customizing it with your theme name. The generated theme includes:
+The command creates a new theme by copying the base theme template (bundled with the package) and customizing it with your theme name. The generated theme includes:
 
 - `package.json`, `astro.config.ts`, `tsconfig.json`
 - `src/pages/index.astro` (main entry point)
@@ -17,13 +17,13 @@ The command creates a new theme by copying the base theme (`themes/base`) and cu
 
 The command:
 
-1. Copies all files from `themes/base` (excluding build artifacts like `node_modules`, `.astro`, `dist`, etc.)
+1. Copies all files from the bundled base theme template (excluding build artifacts like `node_modules`, `.astro`, `dist`, etc.)
 2. Updates `package.json` with your theme name
 3. Updates `README.md` with your theme name
 
 By default, the theme is created in `./themes/<name>`. If you run the CLI from inside a monorepo workspace, it will prefer creating themes under the **monorepo root** `./themes/<name>`.
 
-> **Note:** The command requires `themes/base` to exist in your workspace. This is the source template that gets copied for all new themes.
+> **Note:** The base theme template is bundled with the `simple-photo-gallery` package, so `spg create-theme` works out of the box after installation. For local development, if `themes/base` exists in your workspace, it will be used instead (allowing you to test template changes).
 
 ## Options
 

@@ -2,11 +2,11 @@
 
 The base theme template for Simple Photo Gallery built with Astro.
 
-> **⚠️ Important:** This theme is used as the **source template** for `spg create-theme`. Any changes you make to this theme will be reflected in all **new themes** created with `spg create-theme`. Existing themes created before your changes will not be affected.
+> **⚠️ Important:** This theme is used as the **source template** for `spg create-theme`. This template is bundled with the `simple-photo-gallery` package, so any changes made here will be reflected in all **new themes** created with `spg create-theme` after the package is updated and published. Existing themes created before your changes will not be affected.
 
 ## How it works
 
-When you run `spg create-theme <name>`, this theme (`themes/base`) is copied to create a new theme. The command:
+When you run `spg create-theme <name>`, this template (bundled with the package) is copied to create a new theme. The command:
 
 1. Copies all files from this directory (excluding build artifacts like `node_modules`, `.astro`, `dist`, etc.)
 2. Updates `package.json` with the new theme name

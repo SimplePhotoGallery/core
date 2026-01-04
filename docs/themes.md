@@ -49,9 +49,9 @@ If you prefer a custom output directory:
 spg create-theme my-theme --path ./my-theme
 ```
 
-The `create-theme` command works by copying the base theme (`themes/base`) and customizing it with your theme name. This means:
+The `create-theme` command works by copying the base theme template (bundled with the package) and customizing it with your theme name. This means:
 
-- All files from `themes/base` are copied (excluding build artifacts)
+- All files from the bundled template are copied (excluding build artifacts)
 - The theme name is automatically updated in `package.json` and `README.md`
 - You get a complete, working theme ready to customize
 
@@ -64,7 +64,7 @@ yarn install
 
 > **Note:** The generated theme requires `GALLERY_JSON_PATH` to be set (it's how the theme reads your `gallery.json`). When you run `spg build`, the CLI sets it automatically. When you run `astro dev` directly, you need to set it yourself (see "Theme Development" below).
 
-> **Tip:** To customize the default theme structure for all new themes, edit `themes/base` directly. Any changes you make there will be reflected in themes created with `spg create-theme`.
+> **Tip:** The base theme template is bundled with the `simple-photo-gallery` package. For local development, if you're working on the CLI itself and want to test template changes, you can modify `themes/base` in the repository workspace - it will be used as a fallback when present.
 
 A theme is an npm package built with [Astro](https://astro.build/) that follows a specific structure and interface.
 
@@ -323,7 +323,7 @@ yarn dev
 
 ### Example Theme Packages
 
-- **`themes/base`**: The base theme template used by `spg create-theme`. This is a minimal, functional theme that serves as the starting point for all new themes.
+- **Base theme template**: Bundled with the `simple-photo-gallery` package and used by `spg create-theme`. This is a minimal, functional theme that serves as the starting point for all new themes. The source is in `gallery/src/modules/create-theme/templates/base` (or `themes/base` in the repository for development).
 - **`@simple-photo-gallery/theme-modern`**: A more advanced theme example. The source code is available in the `themes/modern` directory of this repository.
 
 Both themes demonstrate the required structure and can be used as reference implementations.
