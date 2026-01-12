@@ -23,7 +23,7 @@ function wrapText(text: string, maxCharsPerLine: number): string[] {
 
   for (const word of words) {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
-    
+
     // If a single word is longer than max, force it on its own line
     if (word.length > maxCharsPerLine) {
       if (currentLine) {
@@ -39,12 +39,12 @@ function wrapText(text: string, maxCharsPerLine: number): string[] {
       currentLine = testLine;
     }
   }
-  
+
   // Add the last line
   if (currentLine) {
     lines.push(currentLine);
   }
-  
+
   return lines;
 }
 
@@ -83,14 +83,14 @@ export async function createGallerySocialMediaCardImage(
   const CANVAS_WIDTH = 1200;
   const CANVAS_HEIGHT = 631;
   const FONT_SIZE = 96;
-  const HORIZONTAL_MARGIN = 100; // Margin on each side
+  const HORIZONTAL_MARGIN = 50; // Margin on each side
   const CHAR_WIDTH_RATIO = 0.6; // Approximate ratio of character width to font size for Arial bold
-  
+
   // Calculate maximum characters per line based on canvas width and font size
   const usableWidth = CANVAS_WIDTH - 2 * HORIZONTAL_MARGIN;
   const maxCharsPerLine = Math.floor(usableWidth / (FONT_SIZE * CHAR_WIDTH_RATIO));
   const lines = wrapText(title, maxCharsPerLine);
-  
+
   // Calculate vertical positioning
   const lineHeight = FONT_SIZE * 1.2; // 20% spacing between lines
   const totalTextHeight = lines.length * lineHeight;
