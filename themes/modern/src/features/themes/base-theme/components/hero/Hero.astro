@@ -6,16 +6,20 @@ import { getPhotoPath } from '../../utils';
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
 import { renderMarkdown } from '@/lib/markdown';
 
+import type { HeaderImageVariants } from '@simple-photo-gallery/common';
+
 interface Props {
   title: string;
   description?: string;
   thumbsBaseUrl?: string;
   headerImage?: string;
   headerImageBlurHash?: string;
+  headerImageVariants?: HeaderImageVariants;
   mediaBaseUrl?: string;
 }
 
-const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash, mediaBaseUrl } = Astro.props;
+const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash, headerImageVariants, mediaBaseUrl } =
+  Astro.props;
 
 // Parse description as Markdown if it exists
 const parsedDescription: string = description ? await renderMarkdown(description) : '';
@@ -28,59 +32,80 @@ const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
 
 // Original header photo
 const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
+
+// Determine which sources to show based on headerImageVariants
+// If headerImageVariants is not set, use all generated paths (default behavior)
+// If headerImageVariants is set, only show sources for formats that are explicitly provided
+const useDefaultPaths = !headerImageVariants;
+
+const showPortraitAvif = useDefaultPaths || !!headerImageVariants?.portrait?.avif;
+const showPortraitJpg = useDefaultPaths || !!headerImageVariants?.portrait?.jpg;
+const showLandscapeAvif = useDefaultPaths || !!headerImageVariants?.landscape?.avif;
+const showLandscapeJpg = useDefaultPaths || !!headerImageVariants?.landscape?.jpg;
+
+// Helper to build srcset - only includes sizes that are provided
+const buildSrcset = (
+  variants: Record<number, string | undefined> | undefined,
+  sizes: number[],
+  orientation: 'portrait' | 'landscape',
+  format: 'avif' | 'jpg',
+): string => {
+  return sizes
+    .map((size) => {
+      const customPath = variants?.[size];
+      if (customPath) {
+        return `${customPath} ${size}w`;
+      }
+      // Only use generated path if we're in default mode (no headerImageVariants)
+      if (useDefaultPaths) {
+        return `${thumbnailBasePath}/${imgBasename}_${orientation}_${size}.${format} ${size}w`;
+      }
+      return null;
+    })
+    .filter(Boolean)
+    .join(', ');
+};
+
+const portraitSizes = [360, 480, 720, 1080];
+const landscapeSizes = [640, 960, 1280, 1920, 2560, 3840];
+
+const getPortraitAvifSrcset = () =>
+  buildSrcset(headerImageVariants?.portrait?.avif, portraitSizes, 'portrait', 'avif');
+const getPortraitJpgSrcset = () =>
+  buildSrcset(headerImageVariants?.portrait?.jpg, portraitSizes, 'portrait', 'jpg');
+const getLandscapeAvifSrcset = () =>
+  buildSrcset(headerImageVariants?.landscape?.avif, landscapeSizes, 'landscape', 'avif');
+const getLandscapeJpgSrcset = () =>
+  buildSrcset(headerImageVariants?.landscape?.jpg, landscapeSizes, 'landscape', 'jpg');
 ---
 
 <section class="hero">
   <div class="hero__bg-wrapper">
     {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
     <picture class="hero__bg" id="hero-bg-picture">
-      <!-- Portrait -->
-      <source
-        type="image/avif"
-        media="(max-aspect-ratio: 3/4)"
-        srcset={`
-          ${thumbnailBasePath}/${imgBasename}_portrait_360.avif 360w,
-          ${thumbnailBasePath}/${imgBasename}_portrait_480.avif 480w,
-          ${thumbnailBasePath}/${imgBasename}_portrait_720.avif 720w,
-          ${thumbnailBasePath}/${imgBasename}_portrait_1080.avif 1080w`}
-        sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-      />
-      <source
-        type="image/jpeg"
-        media="(max-aspect-ratio: 3/4)"
-        srcset={`
-          ${thumbnailBasePath}/${imgBasename}_portrait_360.jpg 360w,
-          ${thumbnailBasePath}/${imgBasename}_portrait_480.jpg 480w,
-          ${thumbnailBasePath}/${imgBasename}_portrait_720.jpg 720w,
-          ${thumbnailBasePath}/${imgBasename}_portrait_1080.jpg 1080w`}
-        sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-      />
+      {/* Portrait */}
+      {showPortraitAvif && (
+        <source
+          type="image/avif"
+          media="(max-aspect-ratio: 3/4)"
+          srcset={getPortraitAvifSrcset()}
+          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        />
+      )}
+      {showPortraitJpg && (
+        <source
+          type="image/jpeg"
+          media="(max-aspect-ratio: 3/4)"
+          srcset={getPortraitJpgSrcset()}
+          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        />
+      )}
 
-      <!-- Landscape -->
-      <source
-        type="image/avif"
-        srcset={`
-          ${thumbnailBasePath}/${imgBasename}_landscape_640.avif 640w,
-          ${thumbnailBasePath}/${imgBasename}_landscape_960.avif 960w,
-          ${thumbnailBasePath}/${imgBasename}_landscape_1280.avif 1280w,
-          ${thumbnailBasePath}/${imgBasename}_landscape_1920.avif 1920w,
-          ${thumbnailBasePath}/${imgBasename}_landscape_2560.avif 2560w,
-          ${thumbnailBasePath}/${imgBasename}_landscape_3840.avif 3840w`}
-        sizes="100vw"
-      />
-      <source
-        type="image/jpg"
-        srcset={`
-        ${thumbnailBasePath}/${imgBasename}_landscape_640.jpg 640w,
-        ${thumbnailBasePath}/${imgBasename}_landscape_960.jpg 960w,
-        ${thumbnailBasePath}/${imgBasename}_landscape_1280.jpg 1280w,
-        ${thumbnailBasePath}/${imgBasename}_landscape_1920.jpg 1920w,
-        ${thumbnailBasePath}/${imgBasename}_landscape_2560.jpg 2560w,
-        ${thumbnailBasePath}/${imgBasename}_landscape_3840.jpg 3840w`}
-        sizes="100vw"
-      />
+      {/* Landscape */}
+      {showLandscapeAvif && <source type="image/avif" srcset={getLandscapeAvifSrcset()} sizes="100vw" />}
+      {showLandscapeJpg && <source type="image/jpeg" srcset={getLandscapeJpgSrcset()} sizes="100vw" />}
 
-      <!-- Fallback -->
+      {/* Fallback */}
       <img src={headerPhotoPath} class="hero__bg-img" />
     </picture>
     <script is:inline>
