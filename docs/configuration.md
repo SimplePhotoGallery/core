@@ -95,11 +95,13 @@ The final URL will always be `"https://special-cdn.example.com/custom-path/photo
 By default, thumbnail URLs are constructed by combining the `thumbsBaseUrl` (if set at the gallery level) with the thumbnail `path` or `pathRetina`. However, you can override this for individual thumbnails by setting a `baseUrl` property directly on the thumbnail object.
 
 **Priority order for thumbnail URLs:**
+
 1. If a thumbnail has a `baseUrl` property, it will be used to construct the URL: `${thumbnail.baseUrl}/${path}` or `${thumbnail.baseUrl}/${pathRetina}`
 2. Otherwise, if `thumbsBaseUrl` is set at the gallery level, it will be used: `${thumbsBaseUrl}/${path}` or `${thumbsBaseUrl}/${pathRetina}`
 3. Otherwise, thumbnails will use the default relative path: `gallery/images/${path}`
 
 **Example with gallery-level thumbsBaseUrl:**
+
 ```json
 {
   "thumbsBaseUrl": "https://cdn.example.com/thumbs",
@@ -125,10 +127,12 @@ By default, thumbnail URLs are constructed by combining the `thumbsBaseUrl` (if 
 ```
 
 The thumbnail URLs will be:
+
 - Regular: `https://cdn.example.com/thumbs/photo-001.avif`
 - Retina: `https://cdn.example.com/thumbs/photo-001@2x.avif`
 
 **Example with thumbnail-specific baseUrl:**
+
 ```json
 {
   "thumbsBaseUrl": "https://cdn.example.com/thumbs",
@@ -155,6 +159,7 @@ The thumbnail URLs will be:
 ```
 
 The thumbnail URLs will be:
+
 - Regular: `https://special-cdn.example.com/custom-thumbs/photo-001.avif`
 - Retina: `https://special-cdn.example.com/custom-thumbs/photo-001@2x.avif`
 
@@ -235,6 +240,97 @@ Markdown formatting is available in:
 ## Thumbnail size
 
 Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
+
+## Header image variants
+
+By default, the hero section generates responsive image paths based on the `headerImage` filename using a naming convention (e.g., `photo_portrait_360.avif`, `photo_landscape_1920.jpg`). If you need to specify custom paths for the hero image variants, you can use the `headerImageVariants` configuration.
+
+When `headerImageVariants` is set, only the formats and sizes you explicitly specify will be rendered. Any format or orientation not included will be omitted from the HTML output entirely.
+
+### Structure
+
+All fields are optional. You only need to include the formats and sizes you want to use:
+
+```json
+{
+  "headerImageVariants": {
+    "portrait": {
+      "avif": {
+        "360": "path/to/portrait_360.avif",
+        "480": "path/to/portrait_480.avif",
+        "720": "path/to/portrait_720.avif",
+        "1080": "path/to/portrait_1080.avif"
+      },
+      "jpg": {
+        "360": "path/to/portrait_360.jpg",
+        "480": "path/to/portrait_480.jpg",
+        "720": "path/to/portrait_720.jpg",
+        "1080": "path/to/portrait_1080.jpg"
+      }
+    },
+    "landscape": {
+      "avif": {
+        "640": "path/to/landscape_640.avif",
+        "960": "path/to/landscape_960.avif",
+        "1280": "path/to/landscape_1280.avif",
+        "1920": "path/to/landscape_1920.avif",
+        "2560": "path/to/landscape_2560.avif",
+        "3840": "path/to/landscape_3840.avif"
+      },
+      "jpg": {
+        "640": "path/to/landscape_640.jpg",
+        "960": "path/to/landscape_960.jpg",
+        "1280": "path/to/landscape_1280.jpg",
+        "1920": "path/to/landscape_1920.jpg",
+        "2560": "path/to/landscape_2560.jpg",
+        "3840": "path/to/landscape_3840.jpg"
+      }
+    }
+  }
+}
+```
+
+### Examples
+
+**AVIF only (no JPG fallback):**
+
+```json
+{
+  "headerImageVariants": {
+    "landscape": {
+      "avif": {
+        "1920": "hero/landscape_1920.avif",
+        "3840": "hero/landscape_3840.avif"
+      }
+    }
+  }
+}
+```
+
+This will only render the landscape AVIF source element with the specified sizes. No portrait sources or JPG fallbacks will be included.
+
+**Landscape only (for wide hero images):**
+
+```json
+{
+  "headerImageVariants": {
+    "landscape": {
+      "avif": {
+        "1280": "https://cdn.example.com/hero_1280.avif",
+        "1920": "https://cdn.example.com/hero_1920.avif"
+      },
+      "jpg": {
+        "1280": "https://cdn.example.com/hero_1280.jpg",
+        "1920": "https://cdn.example.com/hero_1920.jpg"
+      }
+    }
+  }
+}
+```
+
+This configuration omits portrait variants entirely, which is useful when your hero image is designed only for landscape orientations.
+
+> **Note:** The `headerImage` field is still used as the fallback `<img>` source when responsive images fail to load. Make sure it points to a valid image.
 
 ## Analytics script
 

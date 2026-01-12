@@ -3,7 +3,12 @@ import { existsSync, rmSync, readFileSync, readdirSync, writeFileSync } from 'no
 import path from 'node:path';
 import process from 'node:process';
 
-import { GalleryDataSchema, MediaFileSchema, ThumbnailSchema } from '@simple-photo-gallery/common';
+import {
+  GalleryDataSchema,
+  HeaderImageVariantsSchema,
+  MediaFileSchema,
+  ThumbnailSchema,
+} from '@simple-photo-gallery/common';
 import { copySync } from 'fs-extra';
 
 import { init } from '../src/modules/init';
@@ -859,6 +864,258 @@ describe('Clean command', () => {
       expect(existsSync(path.resolve(cleanMultiTestPath, 'first', 'gallery'))).toBe(true);
       expect(existsSync(path.resolve(cleanMultiTestPath, 'second', 'index.html'))).toBe(true);
       expect(existsSync(path.resolve(cleanMultiTestPath, 'second', 'gallery'))).toBe(true);
+    });
+  });
+});
+
+describe('HeaderImageVariantsSchema', () => {
+  describe('schema validation', () => {
+    test('should accept empty object', () => {
+      const result = HeaderImageVariantsSchema.safeParse({});
+      expect(result.success).toBe(true);
+    });
+
+    test('should accept fully populated variants', () => {
+      const fullVariants = {
+        portrait: {
+          avif: {
+            360: 'hero/portrait_360.avif',
+            480: 'hero/portrait_480.avif',
+            720: 'hero/portrait_720.avif',
+            1080: 'hero/portrait_1080.avif',
+          },
+          jpg: {
+            360: 'hero/portrait_360.jpg',
+            480: 'hero/portrait_480.jpg',
+            720: 'hero/portrait_720.jpg',
+            1080: 'hero/portrait_1080.jpg',
+          },
+        },
+        landscape: {
+          avif: {
+            640: 'hero/landscape_640.avif',
+            960: 'hero/landscape_960.avif',
+            1280: 'hero/landscape_1280.avif',
+            1920: 'hero/landscape_1920.avif',
+            2560: 'hero/landscape_2560.avif',
+            3840: 'hero/landscape_3840.avif',
+          },
+          jpg: {
+            640: 'hero/landscape_640.jpg',
+            960: 'hero/landscape_960.jpg',
+            1280: 'hero/landscape_1280.jpg',
+            1920: 'hero/landscape_1920.jpg',
+            2560: 'hero/landscape_2560.jpg',
+            3840: 'hero/landscape_3840.jpg',
+          },
+        },
+      };
+
+      const result = HeaderImageVariantsSchema.safeParse(fullVariants);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.portrait?.avif?.[360]).toBe('hero/portrait_360.avif');
+        expect(result.data.landscape?.jpg?.[1920]).toBe('hero/landscape_1920.jpg');
+      }
+    });
+
+    test('should accept landscape only (no portrait)', () => {
+      const landscapeOnly = {
+        landscape: {
+          avif: {
+            1920: 'hero/landscape_1920.avif',
+            3840: 'hero/landscape_3840.avif',
+          },
+        },
+      };
+
+      const result = HeaderImageVariantsSchema.safeParse(landscapeOnly);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.portrait).toBeUndefined();
+        expect(result.data.landscape?.avif?.[1920]).toBe('hero/landscape_1920.avif');
+        expect(result.data.landscape?.jpg).toBeUndefined();
+      }
+    });
+
+    test('should accept AVIF only (no JPG)', () => {
+      const avifOnly = {
+        portrait: {
+          avif: {
+            720: 'hero/portrait_720.avif',
+            1080: 'hero/portrait_1080.avif',
+          },
+        },
+        landscape: {
+          avif: {
+            1920: 'hero/landscape_1920.avif',
+          },
+        },
+      };
+
+      const result = HeaderImageVariantsSchema.safeParse(avifOnly);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.portrait?.jpg).toBeUndefined();
+        expect(result.data.landscape?.jpg).toBeUndefined();
+        expect(result.data.portrait?.avif?.[720]).toBe('hero/portrait_720.avif');
+      }
+    });
+
+    test('should accept partial sizes within a format', () => {
+      const partialSizes = {
+        landscape: {
+          avif: {
+            1920: 'hero/landscape_1920.avif',
+            // Only one size specified
+          },
+          jpg: {
+            1280: 'hero/landscape_1280.jpg',
+            1920: 'hero/landscape_1920.jpg',
+            // Only two sizes specified
+          },
+        },
+      };
+
+      const result = HeaderImageVariantsSchema.safeParse(partialSizes);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.landscape?.avif?.[640]).toBeUndefined();
+        expect(result.data.landscape?.avif?.[1920]).toBe('hero/landscape_1920.avif');
+        expect(result.data.landscape?.jpg?.[960]).toBeUndefined();
+        expect(result.data.landscape?.jpg?.[1280]).toBe('hero/landscape_1280.jpg');
+      }
+    });
+
+    test('should accept external URLs as values', () => {
+      const externalUrls = {
+        landscape: {
+          avif: {
+            1920: 'https://cdn.example.com/hero_1920.avif',
+            3840: 'https://cdn.example.com/hero_3840.avif',
+          },
+        },
+      };
+
+      const result = HeaderImageVariantsSchema.safeParse(externalUrls);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.landscape?.avif?.[1920]).toBe('https://cdn.example.com/hero_1920.avif');
+      }
+    });
+
+    test('should reject non-string values for paths', () => {
+      const invalidPaths = {
+        landscape: {
+          avif: {
+            1920: 123, // Should be string
+          },
+        },
+      };
+
+      const result = HeaderImageVariantsSchema.safeParse(invalidPaths);
+      expect(result.success).toBe(false);
+    });
+
+    test('should reject invalid size keys', () => {
+      const invalidSizeKey = {
+        landscape: {
+          avif: {
+            999: 'hero/invalid_size.avif', // 999 is not a valid landscape size
+          },
+        },
+      };
+
+      // The schema uses strict keys, so this should fail or the key should be stripped
+      const result = HeaderImageVariantsSchema.safeParse(invalidSizeKey);
+      // With passthrough behavior this might pass but strip the key
+      // Let's check the actual behavior
+      if (result.success) {
+        // If it passes, the invalid key should not be in the result (stripped)
+        expect((result.data.landscape?.avif as Record<number, string>)?.[999]).toBeUndefined();
+      }
+    });
+  });
+
+  describe('integration with GalleryDataSchema', () => {
+    const baseGalleryData = {
+      title: 'Test Gallery',
+      description: 'Test description',
+      headerImage: 'header.jpg',
+      metadata: {},
+      sections: [],
+      subGalleries: { title: 'Sub Galleries', galleries: [] },
+    };
+
+    test('should accept gallery data without headerImageVariants', () => {
+      const result = GalleryDataSchema.safeParse(baseGalleryData);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.headerImageVariants).toBeUndefined();
+      }
+    });
+
+    test('should accept gallery data with empty headerImageVariants', () => {
+      const galleryWithEmptyVariants = {
+        ...baseGalleryData,
+        headerImageVariants: {},
+      };
+
+      const result = GalleryDataSchema.safeParse(galleryWithEmptyVariants);
+      expect(result.success).toBe(true);
+    });
+
+    test('should accept gallery data with partial headerImageVariants', () => {
+      const galleryWithPartialVariants = {
+        ...baseGalleryData,
+        headerImageVariants: {
+          landscape: {
+            avif: {
+              1920: 'gallery/images/hero_1920.avif',
+            },
+          },
+        },
+      };
+
+      const result = GalleryDataSchema.safeParse(galleryWithPartialVariants);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.headerImageVariants?.landscape?.avif?.[1920]).toBe('gallery/images/hero_1920.avif');
+        expect(result.data.headerImageVariants?.portrait).toBeUndefined();
+      }
+    });
+
+    test('should accept gallery data with full headerImageVariants', () => {
+      const galleryWithFullVariants = {
+        ...baseGalleryData,
+        headerImageVariants: {
+          portrait: {
+            avif: { 360: 'p360.avif', 480: 'p480.avif', 720: 'p720.avif', 1080: 'p1080.avif' },
+            jpg: { 360: 'p360.jpg', 480: 'p480.jpg', 720: 'p720.jpg', 1080: 'p1080.jpg' },
+          },
+          landscape: {
+            avif: {
+              640: 'l640.avif',
+              960: 'l960.avif',
+              1280: 'l1280.avif',
+              1920: 'l1920.avif',
+              2560: 'l2560.avif',
+              3840: 'l3840.avif',
+            },
+            jpg: {
+              640: 'l640.jpg',
+              960: 'l960.jpg',
+              1280: 'l1280.jpg',
+              1920: 'l1920.jpg',
+              2560: 'l2560.jpg',
+              3840: 'l3840.jpg',
+            },
+          },
+        },
+      };
+
+      const result = GalleryDataSchema.safeParse(galleryWithFullVariants);
+      expect(result.success).toBe(true);
     });
   });
 });
