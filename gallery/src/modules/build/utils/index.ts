@@ -24,8 +24,15 @@ function wrapText(text: string, maxCharsPerLine: number): string[] {
   for (const word of words) {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     
-    // If the test line is too long and we have words in current line, start new line
-    if (testLine.length > maxCharsPerLine && currentLine) {
+    // If a single word is longer than max, force it on its own line
+    if (word.length > maxCharsPerLine) {
+      if (currentLine) {
+        lines.push(currentLine);
+        currentLine = '';
+      }
+      lines.push(word);
+    } else if (testLine.length > maxCharsPerLine && currentLine) {
+      // If the test line is too long and we have words in current line, start new line
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -72,20 +79,25 @@ export async function createGallerySocialMediaCardImage(
   const outputPath = ouputPath;
   await sharp(resizedImageBuffer).toFile(outputPath);
 
-  // Wrap text for long titles
-  // Font size is 96px, and we estimate ~0.6 * fontSize pixels per character
-  // Canvas width is 1200px, leaving ~100px margin on each side gives us 1000px usable width
-  // So max chars per line ≈ 1000 / (96 * 0.6) ≈ 17 characters
-  const maxCharsPerLine = 17;
+  // Configuration for text rendering
+  const CANVAS_WIDTH = 1200;
+  const CANVAS_HEIGHT = 631;
+  const FONT_SIZE = 96;
+  const HORIZONTAL_MARGIN = 100; // Margin on each side
+  const CHAR_WIDTH_RATIO = 0.6; // Approximate ratio of character width to font size for Arial bold
+  
+  // Calculate maximum characters per line based on canvas width and font size
+  const usableWidth = CANVAS_WIDTH - 2 * HORIZONTAL_MARGIN;
+  const maxCharsPerLine = Math.floor(usableWidth / (FONT_SIZE * CHAR_WIDTH_RATIO));
   const lines = wrapText(title, maxCharsPerLine);
   
   // Calculate vertical positioning
-  const fontSize = 96;
-  const lineHeight = fontSize * 1.2; // 20% spacing between lines
+  const lineHeight = FONT_SIZE * 1.2; // 20% spacing between lines
   const totalTextHeight = lines.length * lineHeight;
-  const startY = (631 - totalTextHeight) / 2 + fontSize; // Center vertically and adjust for baseline
+  const startY = (CANVAS_HEIGHT - totalTextHeight) / 2 + FONT_SIZE; // Center vertically and adjust for baseline
 
   // Create SVG with title split into multiple lines using tspan elements
+  const centerX = CANVAS_WIDTH / 2;
   const tspanElements = lines
     .map((line, index) => {
       const yPosition = startY + index * lineHeight;
@@ -98,18 +110,18 @@ export async function createGallerySocialMediaCardImage(
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&apos;');
       /* eslint-enable unicorn/prefer-string-replace-all */
-      return `<tspan x="600" y="${yPosition}">${escapedLine}</tspan>`;
+      return `<tspan x="${centerX}" y="${yPosition}">${escapedLine}</tspan>`;
     })
     .join('\n      ');
 
   const svgText = `
-    <svg width="1200" height="631" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <style>
-          .title { font-family: 'Arial, sans-serif'; font-size: 96px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
+          .title { font-family: 'Arial, sans-serif'; font-size: ${FONT_SIZE}px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
         </style>
       </defs>
-      <text x="600" class="title">
+      <text x="${centerX}" class="title">
       ${tspanElements}
       </text>
     </svg>
