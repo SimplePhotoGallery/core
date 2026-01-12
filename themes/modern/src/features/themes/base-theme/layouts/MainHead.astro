@@ -29,14 +29,26 @@ const useDefaultPaths = !headerImageVariants;
 // Pre-compute srcsets - only non-empty srcsets will be rendered
 // This handles edge cases like empty format objects: { avif: {} }
 const portraitAvifSrcset = buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
+const portraitJpgSrcset = buildHeroSrcset(headerImageVariants?.portrait?.jpg, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'jpg', useDefaultPaths);
 const landscapeAvifSrcset = buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
+const landscapeJpgSrcset = buildHeroSrcset(headerImageVariants?.landscape?.jpg, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'jpg', useDefaultPaths);
 
-// Determine media queries for preloads based on actual non-empty srcsets
-// Portrait preload only needs restriction when landscape sources also exist (to avoid double preload)
-// Landscape preload only needs restriction when portrait sources also exist
-// When only one orientation exists, it will be selected on ALL devices, so preload should fire on all devices
-const portraitPreloadMedia = landscapeAvifSrcset ? '(max-aspect-ratio: 3/4)' : undefined;
-const landscapePreloadMedia = portraitAvifSrcset ? 'not (max-aspect-ratio: 3/4)' : undefined;
+// Determine media queries for preloads to match actual <source> media attributes in Hero.astro
+// Portrait <source> always has media="(max-aspect-ratio: 3/4)", so preload must use the same restriction
+// Otherwise landscape devices would preload portrait images they'll never use (wasting bandwidth)
+// Landscape sources have no media restriction in Hero.astro, but we add one here when ANY portrait source exists
+// to prevent landscape images from being preloaded on portrait devices (which will use portrait sources)
+// We check both AVIF and JPG because portrait devices will use whichever portrait format is available
+const hasAnyPortraitSource = portraitAvifSrcset || portraitJpgSrcset;
+const portraitPreloadMedia = '(max-aspect-ratio: 3/4)';
+const landscapePreloadMedia = hasAnyPortraitSource ? 'not (max-aspect-ratio: 3/4)' : undefined;
+
+// Determine which format to preload for each orientation
+// Prefer AVIF when available (better compression), fall back to JPG for JPG-only configurations
+const portraitPreloadSrcset = portraitAvifSrcset || portraitJpgSrcset;
+const portraitPreloadType = portraitAvifSrcset ? 'image/avif' : 'image/jpeg';
+const landscapePreloadSrcset = landscapeAvifSrcset || landscapeJpgSrcset;
+const landscapePreloadType = landscapeAvifSrcset ? 'image/avif' : 'image/jpeg';
 ---
 
 <head>
@@ -97,24 +109,24 @@ const landscapePreloadMedia = portraitAvifSrcset ? 'not (max-aspect-ratio: 3/4)'
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet"
   />
-  {portraitAvifSrcset && (
+  {portraitPreloadSrcset && (
     <link
       rel="preload"
       as="image"
-      type="image/avif"
+      type={portraitPreloadType}
       media={portraitPreloadMedia}
-      imagesrcset={portraitAvifSrcset}
+      imagesrcset={portraitPreloadSrcset}
       imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
       fetchpriority="high"
     />
   )}
-  {landscapeAvifSrcset && (
+  {landscapePreloadSrcset && (
     <link
       rel="preload"
       as="image"
-      type="image/avif"
+      type={landscapePreloadType}
       media={landscapePreloadMedia}
-      imagesrcset={landscapeAvifSrcset}
+      imagesrcset={landscapePreloadSrcset}
       imagesizes="100vw"
       fetchpriority="high"
     />
