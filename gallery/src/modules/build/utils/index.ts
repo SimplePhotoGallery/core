@@ -82,22 +82,22 @@ export async function createGallerySocialMediaCardImage(
   // Configuration for text rendering
   const CANVAS_WIDTH = 1200;
   const CANVAS_HEIGHT = 631;
-  const FONT_SIZE = 96;
-  const HORIZONTAL_MARGIN = 50; // Margin on each side
+  const FONT_SIZE = 72;
+  const MARGIN = 50; // Margin from edges
   const CHAR_WIDTH_RATIO = 0.6; // Approximate ratio of character width to font size for Arial bold
 
   // Calculate maximum characters per line based on canvas width and font size
-  const usableWidth = CANVAS_WIDTH - 2 * HORIZONTAL_MARGIN;
+  const usableWidth = CANVAS_WIDTH - 2 * MARGIN;
   const maxCharsPerLine = Math.floor(usableWidth / (FONT_SIZE * CHAR_WIDTH_RATIO));
   const lines = wrapText(title, maxCharsPerLine);
 
-  // Calculate vertical positioning
+  // Calculate vertical positioning for bottom-left alignment
   const lineHeight = FONT_SIZE * 1.2; // 20% spacing between lines
   const totalTextHeight = lines.length * lineHeight;
-  const startY = (CANVAS_HEIGHT - totalTextHeight) / 2 + FONT_SIZE; // Center vertically and adjust for baseline
+  const startY = CANVAS_HEIGHT - MARGIN - totalTextHeight + FONT_SIZE; // Bottom aligned with margin
 
-  // Create SVG with title split into multiple lines using tspan elements
-  const centerX = CANVAS_WIDTH / 2;
+  // Create SVG with title split into multiple lines using tspan elements (left aligned)
+  const leftX = MARGIN;
   const tspanElements = lines
     .map((line, index) => {
       const yPosition = startY + index * lineHeight;
@@ -110,18 +110,23 @@ export async function createGallerySocialMediaCardImage(
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&apos;');
       /* eslint-enable unicorn/prefer-string-replace-all */
-      return `<tspan x="${centerX}" y="${yPosition}">${escapedLine}</tspan>`;
+      return `<tspan x="${leftX}" y="${yPosition}">${escapedLine}</tspan>`;
     })
     .join('\n      ');
 
   const svgText = `
     <svg width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <linearGradient id="darkGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:0" />
+          <stop offset="100%" style="stop-color:rgb(0,0,0);stop-opacity:0.65" />
+        </linearGradient>
         <style>
-          .title { font-family: 'Arial, sans-serif'; font-size: ${FONT_SIZE}px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
+          .title { font-family: 'Arial, sans-serif'; font-size: ${FONT_SIZE}px; font-weight: bold; fill: white; text-anchor: start; }
         </style>
       </defs>
-      <text x="${centerX}" class="title">
+      <rect x="0" y="0" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" fill="url(#darkGradient)" />
+      <text x="${leftX}" class="title">
       ${tspanElements}
       </text>
     </svg>
