@@ -38,19 +38,12 @@ const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
 // If headerImageVariants is set, only show sources for formats that are explicitly provided
 const useDefaultPaths = !headerImageVariants;
 
-const showPortraitAvif = useDefaultPaths || !!headerImageVariants?.portrait?.avif;
-const showPortraitJpg = useDefaultPaths || !!headerImageVariants?.portrait?.jpg;
-const showLandscapeAvif = useDefaultPaths || !!headerImageVariants?.landscape?.avif;
-const showLandscapeJpg = useDefaultPaths || !!headerImageVariants?.landscape?.jpg;
-
-const getPortraitAvifSrcset = () =>
-  buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
-const getPortraitJpgSrcset = () =>
-  buildHeroSrcset(headerImageVariants?.portrait?.jpg, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'jpg', useDefaultPaths);
-const getLandscapeAvifSrcset = () =>
-  buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
-const getLandscapeJpgSrcset = () =>
-  buildHeroSrcset(headerImageVariants?.landscape?.jpg, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'jpg', useDefaultPaths);
+// Pre-compute all srcsets - only render sources when srcset is non-empty
+// This handles edge cases like empty format objects: { avif: {} }
+const portraitAvifSrcset = buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
+const portraitJpgSrcset = buildHeroSrcset(headerImageVariants?.portrait?.jpg, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'jpg', useDefaultPaths);
+const landscapeAvifSrcset = buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
+const landscapeJpgSrcset = buildHeroSrcset(headerImageVariants?.landscape?.jpg, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'jpg', useDefaultPaths);
 ---
 
 <section class="hero">
@@ -58,26 +51,26 @@ const getLandscapeJpgSrcset = () =>
     {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
     <picture class="hero__bg" id="hero-bg-picture">
       {/* Portrait */}
-      {showPortraitAvif && (
+      {portraitAvifSrcset && (
         <source
           type="image/avif"
           media="(max-aspect-ratio: 3/4)"
-          srcset={getPortraitAvifSrcset()}
+          srcset={portraitAvifSrcset}
           sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
         />
       )}
-      {showPortraitJpg && (
+      {portraitJpgSrcset && (
         <source
           type="image/jpeg"
           media="(max-aspect-ratio: 3/4)"
-          srcset={getPortraitJpgSrcset()}
+          srcset={portraitJpgSrcset}
           sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
         />
       )}
 
       {/* Landscape */}
-      {showLandscapeAvif && <source type="image/avif" srcset={getLandscapeAvifSrcset()} sizes="100vw" />}
-      {showLandscapeJpg && <source type="image/jpeg" srcset={getLandscapeJpgSrcset()} sizes="100vw" />}
+      {landscapeAvifSrcset && <source type="image/avif" srcset={landscapeAvifSrcset} sizes="100vw" />}
+      {landscapeJpgSrcset && <source type="image/jpeg" srcset={landscapeJpgSrcset} sizes="100vw" />}
 
       {/* Fallback */}
       <img src={headerPhotoPath} class="hero__bg-img" />

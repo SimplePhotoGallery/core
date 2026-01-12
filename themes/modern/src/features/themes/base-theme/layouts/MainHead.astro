@@ -26,16 +26,17 @@ const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
 // If headerImageVariants is set, only show sources for formats that are explicitly provided
 const useDefaultPaths = !headerImageVariants;
 
-const showPortraitAvif = useDefaultPaths || !!headerImageVariants?.portrait?.avif;
-const showLandscapeAvif = useDefaultPaths || !!headerImageVariants?.landscape?.avif;
+// Pre-compute srcsets - only non-empty srcsets will be rendered
+// This handles edge cases like empty format objects: { avif: {} }
+const portraitAvifSrcset = buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
+const landscapeAvifSrcset = buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
 
-// Get srcsets for preloads (only if they have content)
-const portraitAvifSrcset = showPortraitAvif
-  ? buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths)
-  : '';
-const landscapeAvifSrcset = showLandscapeAvif
-  ? buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths)
-  : '';
+// Determine media queries for preloads based on actual non-empty srcsets
+// Portrait preload only needs restriction when landscape sources also exist (to avoid double preload)
+// Landscape preload only needs restriction when portrait sources also exist
+// When only one orientation exists, it will be selected on ALL devices, so preload should fire on all devices
+const portraitPreloadMedia = landscapeAvifSrcset ? '(max-aspect-ratio: 3/4)' : undefined;
+const landscapePreloadMedia = portraitAvifSrcset ? 'not (max-aspect-ratio: 3/4)' : undefined;
 ---
 
 <head>
@@ -101,7 +102,7 @@ const landscapeAvifSrcset = showLandscapeAvif
       rel="preload"
       as="image"
       type="image/avif"
-      media="(max-aspect-ratio: 3/4)"
+      media={portraitPreloadMedia}
       imagesrcset={portraitAvifSrcset}
       imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
       fetchpriority="high"
@@ -112,7 +113,7 @@ const landscapeAvifSrcset = showLandscapeAvif
       rel="preload"
       as="image"
       type="image/avif"
-      media="not (max-aspect-ratio: 3/4)"
+      media={landscapePreloadMedia}
       imagesrcset={landscapeAvifSrcset}
       imagesizes="100vw"
       fetchpriority="high"
