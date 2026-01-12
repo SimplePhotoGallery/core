@@ -1,5 +1,7 @@
 ---
-import type { GalleryMetadata } from '@simple-photo-gallery/common/src/gallery';
+import { buildHeroSrcset, LANDSCAPE_SIZES, PORTRAIT_SIZES } from '../utils';
+
+import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common/src/gallery';
 
 interface Props {
   title: string;
@@ -8,15 +10,32 @@ interface Props {
   thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
   headerImageBasename?: string;
+  headerImageVariants?: HeaderImageVariants;
 }
 
-const { title, description, url, thumbsBaseUrl, metadata, headerImageBasename } = Astro.props;
+const { title, description, url, thumbsBaseUrl, metadata, headerImageBasename, headerImageVariants } = Astro.props;
 
 // Use headerImageBasename for dynamic image paths, fallback to generic name
 const imgBasename = headerImageBasename || 'header';
 
 // Get the base path for the thumbnails
 const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
+
+// Determine which sources to show based on headerImageVariants
+// If headerImageVariants is not set, use all generated paths (default behavior)
+// If headerImageVariants is set, only show sources for formats that are explicitly provided
+const useDefaultPaths = !headerImageVariants;
+
+const showPortraitAvif = useDefaultPaths || !!headerImageVariants?.portrait?.avif;
+const showLandscapeAvif = useDefaultPaths || !!headerImageVariants?.landscape?.avif;
+
+// Get srcsets for preloads (only if they have content)
+const portraitAvifSrcset = showPortraitAvif
+  ? buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths)
+  : '';
+const landscapeAvifSrcset = showLandscapeAvif
+  ? buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths)
+  : '';
 ---
 
 <head>
@@ -77,22 +96,26 @@ const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet"
   />
-  <link
-    rel="preload"
-    as="image"
-    type="image/avif"
-    media="(max-aspect-ratio: 3/4)"
-    imagesrcset={`${thumbnailBasePath}/${imgBasename}_portrait_360.avif 360w, ${thumbnailBasePath}/${imgBasename}_portrait_480.avif 480w, ${thumbnailBasePath}/${imgBasename}_portrait_720.avif 720w, ${thumbnailBasePath}/${imgBasename}_portrait_1080.avif 1080w`}
-    imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-    fetchpriority="high"
-  />
-  <link
-    rel="preload"
-    as="image"
-    type="image/avif"
-    media="(min-aspect-ratio: 3/4)"
-    imagesrcset={`${thumbnailBasePath}/${imgBasename}_landscape_640.avif 640w, ${thumbnailBasePath}/${imgBasename}_landscape_960.avif 960w, ${thumbnailBasePath}/${imgBasename}_landscape_1280.avif 1280w, ${thumbnailBasePath}/${imgBasename}_landscape_1920.avif 1920w, ${thumbnailBasePath}/${imgBasename}_landscape_2560.avif 2560w, ${thumbnailBasePath}/${imgBasename}_landscape_3840.avif 3840w`}
-    imagesizes="100vw"
-    fetchpriority="high"
-  />
+  {portraitAvifSrcset && (
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      media="(max-aspect-ratio: 3/4)"
+      imagesrcset={portraitAvifSrcset}
+      imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+      fetchpriority="high"
+    />
+  )}
+  {landscapeAvifSrcset && (
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      media="not (max-aspect-ratio: 3/4)"
+      imagesrcset={landscapeAvifSrcset}
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
+  )}
 </head>

@@ -1,7 +1,7 @@
 ---
 import path from 'node:path';
 
-import { getPhotoPath } from '../../utils';
+import { buildHeroSrcset, getPhotoPath, LANDSCAPE_SIZES, PORTRAIT_SIZES } from '../../utils';
 
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
 import { renderMarkdown } from '@/lib/markdown';
@@ -43,40 +43,14 @@ const showPortraitJpg = useDefaultPaths || !!headerImageVariants?.portrait?.jpg;
 const showLandscapeAvif = useDefaultPaths || !!headerImageVariants?.landscape?.avif;
 const showLandscapeJpg = useDefaultPaths || !!headerImageVariants?.landscape?.jpg;
 
-// Helper to build srcset - only includes sizes that are provided
-const buildSrcset = (
-  variants: Record<number, string | undefined> | undefined,
-  sizes: number[],
-  orientation: 'portrait' | 'landscape',
-  format: 'avif' | 'jpg',
-): string => {
-  return sizes
-    .map((size) => {
-      const customPath = variants?.[size];
-      if (customPath) {
-        return `${customPath} ${size}w`;
-      }
-      // Only use generated path if we're in default mode (no headerImageVariants)
-      if (useDefaultPaths) {
-        return `${thumbnailBasePath}/${imgBasename}_${orientation}_${size}.${format} ${size}w`;
-      }
-      return null;
-    })
-    .filter(Boolean)
-    .join(', ');
-};
-
-const portraitSizes = [360, 480, 720, 1080];
-const landscapeSizes = [640, 960, 1280, 1920, 2560, 3840];
-
 const getPortraitAvifSrcset = () =>
-  buildSrcset(headerImageVariants?.portrait?.avif, portraitSizes, 'portrait', 'avif');
+  buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
 const getPortraitJpgSrcset = () =>
-  buildSrcset(headerImageVariants?.portrait?.jpg, portraitSizes, 'portrait', 'jpg');
+  buildHeroSrcset(headerImageVariants?.portrait?.jpg, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'jpg', useDefaultPaths);
 const getLandscapeAvifSrcset = () =>
-  buildSrcset(headerImageVariants?.landscape?.avif, landscapeSizes, 'landscape', 'avif');
+  buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
 const getLandscapeJpgSrcset = () =>
-  buildSrcset(headerImageVariants?.landscape?.jpg, landscapeSizes, 'landscape', 'jpg');
+  buildHeroSrcset(headerImageVariants?.landscape?.jpg, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'jpg', useDefaultPaths);
 ---
 
 <section class="hero">
