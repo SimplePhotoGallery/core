@@ -11,6 +11,37 @@ import { cropAndResizeImage, loadImage } from '../../../utils/image';
 import type { ConsolaInstance } from 'consola';
 
 /**
+ * Wraps text into multiple lines based on a maximum character width
+ * @param text - The text to wrap
+ * @param maxCharsPerLine - Maximum number of characters per line (approximate)
+ * @returns Array of text lines
+ */
+function wrapText(text: string, maxCharsPerLine: number): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    
+    // If the test line is too long and we have words in current line, start new line
+    if (testLine.length > maxCharsPerLine && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  
+  // Add the last line
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  
+  return lines;
+}
+
+/**
  * Creates a social media card image for a gallery
  * @param headerPhotoPath - Path to the header photo
  * @param title - Title of the gallery
@@ -41,7 +72,36 @@ export async function createGallerySocialMediaCardImage(
   const outputPath = ouputPath;
   await sharp(resizedImageBuffer).toFile(outputPath);
 
-  // Create SVG with title and description
+  // Wrap text for long titles
+  // Font size is 96px, and we estimate ~0.6 * fontSize pixels per character
+  // Canvas width is 1200px, leaving ~100px margin on each side gives us 1000px usable width
+  // So max chars per line ≈ 1000 / (96 * 0.6) ≈ 17 characters
+  const maxCharsPerLine = 17;
+  const lines = wrapText(title, maxCharsPerLine);
+  
+  // Calculate vertical positioning
+  const fontSize = 96;
+  const lineHeight = fontSize * 1.2; // 20% spacing between lines
+  const totalTextHeight = lines.length * lineHeight;
+  const startY = (631 - totalTextHeight) / 2 + fontSize; // Center vertically and adjust for baseline
+
+  // Create SVG with title split into multiple lines using tspan elements
+  const tspanElements = lines
+    .map((line, index) => {
+      const yPosition = startY + index * lineHeight;
+      // Escape special XML characters in the line text
+      /* eslint-disable unicorn/prefer-string-replace-all */
+      const escapedLine = line
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+      /* eslint-enable unicorn/prefer-string-replace-all */
+      return `<tspan x="600" y="${yPosition}">${escapedLine}</tspan>`;
+    })
+    .join('\n      ');
+
   const svgText = `
     <svg width="1200" height="631" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -49,7 +109,9 @@ export async function createGallerySocialMediaCardImage(
           .title { font-family: 'Arial, sans-serif'; font-size: 96px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
         </style>
       </defs>
-      <text x="600" y="250" class="title">${title}</text>
+      <text x="600" class="title">
+      ${tspanElements}
+      </text>
     </svg>
   `;
 
