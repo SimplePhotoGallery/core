@@ -73,18 +73,18 @@ describe('createGallerySocialMediaCardImage', () => {
 
     // Create the file first
     await createGallerySocialMediaCardImage(testImagePath, title, outputPath);
-    
+
     // Verify file exists and get its size
     expect(fs.existsSync(outputPath)).toBe(true);
     const firstFileSize = fs.statSync(outputPath).size;
 
     // Try creating again - should skip
     const result = await createGallerySocialMediaCardImage(testImagePath, title, outputPath);
-    
+
     // File should not have been recreated (same size)
     const secondFileSize = fs.statSync(outputPath).size;
     expect(secondFileSize).toBe(firstFileSize);
-    
+
     // Function should return the header basename
     expect(result).toBe(path.basename(testImagePath, path.extname(testImagePath)));
   });

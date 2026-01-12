@@ -93,7 +93,7 @@ export async function createGallerySocialMediaCardImage(
 
   // Calculate vertical positioning for bottom-left alignment
   const lineHeight = FONT_SIZE * 1.2; // 20% spacing between lines
-  const totalTextHeight = lines.length * lineHeight;
+  const totalTextHeight = FONT_SIZE + (lines.length - 1) * lineHeight; // First line + spacing for additional lines
   const startY = CANVAS_HEIGHT - MARGIN - totalTextHeight + FONT_SIZE; // Bottom aligned with margin
 
   // Create SVG with title split into multiple lines using tspan elements (left aligned)
