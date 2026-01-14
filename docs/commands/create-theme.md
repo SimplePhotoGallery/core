@@ -19,7 +19,7 @@ The command:
 
 1. Copies all files from the bundled base theme template (excluding build artifacts like `node_modules`, `.astro`, `dist`, etc.)
 2. Updates `package.json` with your theme name
-3. Updates `README.md` with your theme name
+3. Generates `README.md` for the new theme (from the template's `README_BASE.md`)
 
 By default, the theme is created in `./themes/<name>`. If you run the CLI from inside a monorepo workspace, it will prefer creating themes under the **monorepo root** `./themes/<name>`.
 

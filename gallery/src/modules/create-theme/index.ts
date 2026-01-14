@@ -81,6 +81,13 @@ const EXCLUDE_PATTERNS = ['node_modules', '.astro', 'dist', '_build', '.git', '*
  * Check if a file or directory should be excluded
  */
 function shouldExclude(name: string): boolean {
+  // Template README files are not meant to be copied into a newly created theme.
+  // - README.md: template maintainer docs (source template warning, etc.)
+  // - README_BASE.md: scaffold used to generate the new theme's README.md
+  if (name === 'README.md' || name === 'README_BASE.md') {
+    return true;
+  }
+
   return EXCLUDE_PATTERNS.some((pattern) => {
     if (pattern.includes('*')) {
       const regexPattern = pattern.split('*').join('.*');
@@ -164,27 +171,39 @@ async function updatePackageJson(themeDir: string, themeName: string, ui: Consol
 }
 
 /**
- * Update README.md with the new theme name
+ * Create README.md from README_BASE.md and fill placeholders with the new theme name
+ * @param baseThemePath - Base theme template directory path
  * @param themeDir - Theme directory path
  * @param themeName - New theme name
  * @param ui - ConsolaInstance for logging
  */
-async function updateReadme(themeDir: string, themeName: string, ui: ConsolaInstance): Promise<void> {
+async function createReadmeFromBase(
+  baseThemePath: string,
+  themeDir: string,
+  themeName: string,
+  ui: ConsolaInstance,
+): Promise<void> {
+  const readmeBasePath = path.join(baseThemePath, 'README_BASE.md');
   const readmePath = path.join(themeDir, 'README.md');
-  let readme = await fs.promises.readFile(readmePath, 'utf8');
 
-  // Replace theme name references
-  // Replace "# base Theme" with "# {themeName} Theme"
-  readme = readme.replace(/^# base Theme$/m, `# ${themeName} Theme`);
+  if (!fs.existsSync(readmeBasePath)) {
+    throw new Error(`README_BASE.md not found in template: ${readmeBasePath}`);
+  }
 
-  // Replace "./themes/base" with "./themes/{themeName}"
-  readme = readme.split('./themes/base').join(`./themes/${themeName}`);
+  let readme = await fs.promises.readFile(readmeBasePath, 'utf8');
 
-  // Replace "theme-base" with "theme-{themeName}"
-  readme = readme.split('theme-base').join(`theme-${themeName}`);
+  // Display name: "my-theme" -> "My Theme"
+  const displayName = themeName
+    .split('-')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  readme = readme.replace(/{THEME_NAME}/g, displayName);
+  readme = readme.replace(/{THEME_NAME_LOWER}/g, displayName.toLowerCase());
 
   await fs.promises.writeFile(readmePath, readme, 'utf8');
-  ui.debug(`Updated README.md with theme name: ${themeName}`);
+  ui.debug(`Created README.md from README_BASE.md for theme: ${themeName}`);
 }
 
 /**
@@ -234,7 +253,7 @@ export async function createTheme(options: CreateThemeOptions, ui: ConsolaInstan
     // Update theme-specific files
     ui.debug('Updating theme-specific files...');
     await updatePackageJson(themeDir, options.name, ui);
-    await updateReadme(themeDir, options.name, ui);
+    await createReadmeFromBase(baseThemePath, themeDir, options.name, ui);
 
     ui.success(`Theme created successfully at: ${themeDir}`);
     ui.info(`\nNext steps:`);
