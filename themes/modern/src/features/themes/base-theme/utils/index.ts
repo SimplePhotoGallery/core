@@ -62,3 +62,46 @@ export const getSubgalleryThumbnailPath = (subgalleryHeaderImagePath: string) =>
 
   return path.join(subgalleryFolderName, 'gallery', 'thumbnails', photoBasename);
 };
+
+/** Portrait image sizes for responsive hero images */
+export const PORTRAIT_SIZES = [360, 480, 720, 1080] as const;
+
+/** Landscape image sizes for responsive hero images */
+export const LANDSCAPE_SIZES = [640, 960, 1280, 1920, 2560, 3840] as const;
+
+/**
+ * Build a srcset string for responsive images.
+ * Uses custom paths from variants when provided, otherwise generates default paths.
+ *
+ * @param variants - Optional record mapping sizes to custom URLs
+ * @param sizes - Array of image widths to include
+ * @param thumbnailBasePath - Base path for generated thumbnails
+ * @param imgBasename - Image basename for generated paths
+ * @param orientation - 'portrait' or 'landscape'
+ * @param format - Image format ('avif' or 'jpg')
+ * @param useDefaultPaths - Whether to use generated paths when no custom variant exists
+ * @returns Comma-separated srcset string
+ */
+export const buildHeroSrcset = (
+  variants: Record<number, string | undefined> | undefined,
+  sizes: readonly number[],
+  thumbnailBasePath: string,
+  imgBasename: string,
+  orientation: 'portrait' | 'landscape',
+  format: 'avif' | 'jpg',
+  useDefaultPaths: boolean,
+): string => {
+  return sizes
+    .map((size) => {
+      const customPath = variants?.[size];
+      if (customPath) {
+        return `${customPath} ${size}w`;
+      }
+      if (useDefaultPaths) {
+        return `${thumbnailBasePath}/${imgBasename}_${orientation}_${size}.${format} ${size}w`;
+      }
+      return null;
+    })
+    .filter(Boolean)
+    .join(', ');
+};

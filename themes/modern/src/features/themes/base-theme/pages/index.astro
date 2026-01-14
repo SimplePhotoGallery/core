@@ -29,6 +29,7 @@ const {
   analyticsScript,
   headerImage,
   headerImageBlurHash,
+  headerImageVariants,
   ctaBanner,
 } = gallery;
 
@@ -66,12 +67,14 @@ const showCtaBanner = ctaBanner === true;
   url={url}
   thumbsBaseUrl={thumbsBaseUrl}
   analyticsScript={analyticsScript}
-  headerImage={headerImage}>
+  headerImage={headerImage}
+  headerImageVariants={headerImageVariants}>
   <Hero
     title={title}
     description={description}
     headerImage={headerImage}
     headerImageBlurHash={headerImageBlurHash}
+    headerImageVariants={headerImageVariants}
     thumbsBaseUrl={thumbsBaseUrl}
     mediaBaseUrl={mediaBaseUrl}
   />

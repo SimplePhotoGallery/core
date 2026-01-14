@@ -54,6 +54,40 @@ export const SubGallerySchema = z.object({
   path: z.string(),
 });
 
+/** Zod schema for portrait image size variants */
+const PortraitSizesSchema = z.object({
+  360: z.string().optional(),
+  480: z.string().optional(),
+  720: z.string().optional(),
+  1080: z.string().optional(),
+});
+
+/** Zod schema for landscape image size variants */
+const LandscapeSizesSchema = z.object({
+  640: z.string().optional(),
+  960: z.string().optional(),
+  1280: z.string().optional(),
+  1920: z.string().optional(),
+  2560: z.string().optional(),
+  3840: z.string().optional(),
+});
+
+/** Zod schema for header image variants allowing explicit specification of responsive hero images */
+export const HeaderImageVariantsSchema = z.object({
+  portrait: z
+    .object({
+      avif: PortraitSizesSchema.optional(),
+      jpg: PortraitSizesSchema.optional(),
+    })
+    .optional(),
+  landscape: z
+    .object({
+      avif: LandscapeSizesSchema.optional(),
+      jpg: LandscapeSizesSchema.optional(),
+    })
+    .optional(),
+});
+
 /** Zod schema for complete gallery data including metadata, sections, and sub-galleries */
 export const GalleryMetadataSchema = z.object({
   image: z.string().optional(),
@@ -79,6 +113,7 @@ export const GalleryDataSchema = z.object({
   url: z.string().optional(),
   headerImage: z.string(),
   headerImageBlurHash: z.string().optional(),
+  headerImageVariants: HeaderImageVariantsSchema.optional(),
   thumbnailSize: z.number().optional(),
   metadata: GalleryMetadataSchema,
   mediaBaseUrl: z.string().optional(),
@@ -114,6 +149,9 @@ export type GallerySection = z.infer<typeof GallerySectionSchema>;
 
 /** TypeScript type for sub-gallery metadata */
 export type SubGallery = z.infer<typeof SubGallerySchema>;
+
+/** TypeScript type for header image variants */
+export type HeaderImageVariants = z.infer<typeof HeaderImageVariantsSchema>;
 
 /** TypeScript type for gallery metadata */
 export type GalleryMetadata = z.infer<typeof GalleryMetadataSchema>;

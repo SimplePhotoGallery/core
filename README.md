@@ -7,16 +7,16 @@ This is a free, open-source tool that you can use to generate galleries and self
 ## Example Gallries
 
 <div align="center">
-  <a href="https://simple.photo/demo-australia">
+  <a href="https://simple.photo/haltakov/australia">
     <img src="docs/images/simple-photo-gallery-demo.jpg" alt="Simple Photo Gallery Demo" width="50%">
   </a>
 </div>
 
 ### More examples
 
-- [California Road Trip](https://simple.photo/demo-california)
-- [Visiting Australia](https://simple.photo/demo-australia)
-- [Discovering Japan](https://simple.photo/demo-japan)
+- [California Road Trip](https://simple.photo/haltakov/california-trip/)
+- [Visiting Australia](https://simple.photo/haltakov/australia/)
+- [Discovering Japan](https://simple.photo/haltakov/japan-trip/)
 
 ## Features
 
