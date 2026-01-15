@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { defineConfig } from 'astro/config';
 import relativeLinks from 'astro-relative-links';
+import process from 'node:process';
 
 import type { AstroIntegration } from 'astro';
 

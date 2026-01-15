@@ -1,5 +1,7 @@
 import path from 'node:path';
 
+import process from 'node:process';
+
 /**
  * Normalizes resource paths to be relative to the gallery root directory.
  *
