@@ -4,7 +4,12 @@
   "description": "Custom theme for Simple Photo Gallery",
   "license": "MIT",
   "type": "module",
-  "files": ["public", "src", "astro.config.ts", "tsconfig.json"],
+  "files": [
+    "public",
+    "src",
+    "astro.config.ts",
+    "tsconfig.json"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

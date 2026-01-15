@@ -15,7 +15,14 @@ const gallery = galleryData as GalleryData;
 const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, headerImageBlurHash } = gallery;
 ---
 
-<MainLayout title={title} description={description} metadata={gallery.metadata} url={gallery.url} thumbsBaseUrl={thumbsBaseUrl} analyticsScript={gallery.analyticsScript} headerImage={headerImage}>
+<MainLayout
+  title={title}
+  description={description}
+  metadata={gallery.metadata}
+  url={gallery.url}
+  thumbsBaseUrl={thumbsBaseUrl}
+  analyticsScript={gallery.analyticsScript}
+  headerImage={headerImage}>
   <Hero
     title={title}
     description={description}
@@ -26,50 +33,51 @@ const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, 
   />
 
   <main>
-
     {/* Render gallery sections */}
-    {sections.map((section) => (
-      <section class="gallery-section">
-        {section.title && <h2>{section.title}</h2>}
-        {section.description && <p>{section.description}</p>}
+    {
+      sections.map((section) => (
+        <section class="gallery-section">
+          {section.title && <h2>{section.title}</h2>}
+          {section.description && <p>{section.description}</p>}
 
-        <div class="gallery-grid">
-          {section.images.map((image) => {
-            const imagePath = getPhotoPath(image.filename, mediaBaseUrl, image.url);
-            const thumbnailPath = image.thumbnail
-              ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)
-              : imagePath;
+          <div class="gallery-grid">
+            {section.images.map((image) => {
+              const imagePath = getPhotoPath(image.filename, mediaBaseUrl, image.url);
+              const thumbnailPath = image.thumbnail
+                ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)
+                : imagePath;
 
-            const thumbnailSrcSet = image.thumbnail
-              ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl) +
-                ' 1x, ' +
-                getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl, image.thumbnail.baseUrl) +
-                ' 2x'
-              : undefined;
+              const thumbnailSrcSet = image.thumbnail
+                ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl) +
+                  ' 1x, ' +
+                  getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl, image.thumbnail.baseUrl) +
+                  ' 2x'
+                : undefined;
 
-            return (
-              <a
-                href={imagePath}
-                data-pswp-width={image.width}
-                data-pswp-height={image.height}
-                data-pswp-type={image.type}
-                data-pswp-caption={image.alt || ''}
-                class="gallery-item">
-                <img
-                  src={thumbnailPath}
-                  srcset={thumbnailSrcSet}
-                  alt={image.alt || ''}
-                  loading="lazy"
-                  width={image.thumbnail?.width}
-                  height={image.thumbnail?.height}
-                />
-                {image.alt && <span class="caption">{image.alt}</span>}
-              </a>
-            );
-          })}
-        </div>
-      </section>
-    ))}
+              return (
+                <a
+                  href={imagePath}
+                  data-pswp-width={image.width}
+                  data-pswp-height={image.height}
+                  data-pswp-type={image.type}
+                  data-pswp-caption={image.alt || ''}
+                  class="gallery-item">
+                  <img
+                    src={thumbnailPath}
+                    srcset={thumbnailSrcSet}
+                    alt={image.alt || ''}
+                    loading="lazy"
+                    width={image.thumbnail?.width}
+                    height={image.thumbnail?.height}
+                  />
+                  {image.alt && <span class="caption">{image.alt}</span>}
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      ))
+    }
   </main>
 </MainLayout>
 

@@ -47,43 +47,43 @@ const landscapeJpgSrcset = landscapeWidths
 
 {
   headerImage ? (
-  <section class="hero">
-    <div class="hero__bg-wrapper">
-      {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
-      <picture class="hero__bg" id="hero-bg-picture">
-        {/* Portrait */}
-        <source
-          type="image/avif"
-          media="(max-aspect-ratio: 3/4)"
-          srcset={portraitAvifSrcset}
-          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-        />
-        <source
-          type="image/jpeg"
-          media="(max-aspect-ratio: 3/4)"
-          srcset={portraitJpgSrcset}
-          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-        />
+    <section class="hero">
+      <div class="hero__bg-wrapper">
+        {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
+        <picture class="hero__bg" id="hero-bg-picture">
+          {/* Portrait */}
+          <source
+            type="image/avif"
+            media="(max-aspect-ratio: 3/4)"
+            srcset={portraitAvifSrcset}
+            sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+          />
+          <source
+            type="image/jpeg"
+            media="(max-aspect-ratio: 3/4)"
+            srcset={portraitJpgSrcset}
+            sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+          />
 
-        {/* Landscape */}
-        <source type="image/avif" srcset={landscapeAvifSrcset} sizes="100vw" />
-        <source type="image/jpeg" srcset={landscapeJpgSrcset} sizes="100vw" />
+          {/* Landscape */}
+          <source type="image/avif" srcset={landscapeAvifSrcset} sizes="100vw" />
+          <source type="image/jpeg" srcset={landscapeJpgSrcset} sizes="100vw" />
 
-        {/* Fallback */}
-        <img src={headerPhotoPath} class="hero__bg-img" alt="" />
-      </picture>
-    </div>
-    <div class="hero__overlay"></div>
-    <div class="hero__content">
-      <h1 class="hero__title">{title}</h1>
-      {parsedDescription && <div class="hero__description markdown-content" set:html={parsedDescription} />}
-    </div>
-  </section>
+          {/* Fallback */}
+          <img src={headerPhotoPath} class="hero__bg-img" alt="" />
+        </picture>
+      </div>
+      <div class="hero__overlay" />
+      <div class="hero__content">
+        <h1 class="hero__title">{title}</h1>
+        {parsedDescription && <div class="hero__description markdown-content" set:html={parsedDescription} />}
+      </div>
+    </section>
   ) : (
-  <header class="header">
-    <h1>{title}</h1>
-    {parsedDescription && <div class="description markdown-content" set:html={parsedDescription} />}
-  </header>
+    <header class="header">
+      <h1>{title}</h1>
+      {parsedDescription && <div class="description markdown-content" set:html={parsedDescription} />}
+    </header>
   )
 }
 

@@ -23,7 +23,14 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead title={title} description={description} metadata={metadata} url={url} thumbsBaseUrl={thumbsBaseUrl} headerImageBasename={headerImageBasename} />
+  <MainHead
+    title={title}
+    description={description}
+    metadata={metadata}
+    url={url}
+    thumbsBaseUrl={thumbsBaseUrl}
+    headerImageBasename={headerImageBasename}
+  />
   <body>
     <slot />
 
