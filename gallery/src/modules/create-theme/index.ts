@@ -199,8 +199,8 @@ async function createReadmeFromBase(
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  readme = readme.replace(/{THEME_NAME}/g, displayName);
-  readme = readme.replace(/{THEME_NAME_LOWER}/g, displayName.toLowerCase());
+  readme = readme.replaceAll('{THEME_NAME}', displayName);
+  readme = readme.replaceAll('{THEME_NAME_LOWER}', displayName.toLowerCase());
 
   await fs.promises.writeFile(readmePath, readme, 'utf8');
   ui.debug(`Created README.md from README_BASE.md for theme: ${themeName}`);
