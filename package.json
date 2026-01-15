@@ -2,6 +2,9 @@
   "name": "@simple-photo-gallery/workspace",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "gallery": "yarn workspace simple-photo-gallery gallery"
+  },
   "workspaces": {
     "packages": [
       "common",

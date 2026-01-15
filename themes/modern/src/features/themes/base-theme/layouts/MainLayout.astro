@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import MainHead from '@/features/themes/base-theme/layouts/MainHead.astro';
 
-import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common';
 
 interface Props {
   title: string;
@@ -16,8 +16,7 @@ interface Props {
   headerImageVariants?: HeaderImageVariants;
 }
 
-const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage, headerImageVariants } =
-  Astro.props;
+const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage, headerImageVariants } = Astro.props;
 
 // Extract basename from headerImage filename
 const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;

@@ -10,6 +10,7 @@ This is the command reference for Simple Photo Gallery CLI. All commands can be 
 - **[build](./build.md)** - Generate the HTML gallery from your photos and gallery.json
 - **[thumbnails](./thumbnails.md)** - Generate optimized thumbnail images for all media files
 - **[clean](./clean.md)** - Remove gallery files while preserving original photos
+- **[create-theme](./create-theme.md)** - Scaffold a new Astro theme package
 
 ## Quick Reference
 

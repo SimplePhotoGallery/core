@@ -12,4 +12,6 @@ export interface BuildOptions {
   scan: boolean;
   /** Create thumbnails */
   thumbnails: boolean;
+  /** Theme package name to use for building (e.g., '@simple-photo-gallery/theme-modern' or '@your-org/your-private-theme') */
+  theme?: string;
 }

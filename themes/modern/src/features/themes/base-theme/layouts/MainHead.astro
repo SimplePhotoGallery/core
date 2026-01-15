@@ -1,7 +1,7 @@
 ---
 import { buildHeroSrcset, LANDSCAPE_SIZES, PORTRAIT_SIZES } from '../utils';
 
-import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common';
 
 interface Props {
   title: string;
@@ -28,10 +28,42 @@ const useDefaultPaths = !headerImageVariants;
 
 // Pre-compute srcsets - only non-empty srcsets will be rendered
 // This handles edge cases like empty format objects: { avif: {} }
-const portraitAvifSrcset = buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
-const portraitJpgSrcset = buildHeroSrcset(headerImageVariants?.portrait?.jpg, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'jpg', useDefaultPaths);
-const landscapeAvifSrcset = buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
-const landscapeJpgSrcset = buildHeroSrcset(headerImageVariants?.landscape?.jpg, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'jpg', useDefaultPaths);
+const portraitAvifSrcset = buildHeroSrcset(
+  headerImageVariants?.portrait?.avif,
+  PORTRAIT_SIZES,
+  thumbnailBasePath,
+  imgBasename,
+  'portrait',
+  'avif',
+  useDefaultPaths,
+);
+const portraitJpgSrcset = buildHeroSrcset(
+  headerImageVariants?.portrait?.jpg,
+  PORTRAIT_SIZES,
+  thumbnailBasePath,
+  imgBasename,
+  'portrait',
+  'jpg',
+  useDefaultPaths,
+);
+const landscapeAvifSrcset = buildHeroSrcset(
+  headerImageVariants?.landscape?.avif,
+  LANDSCAPE_SIZES,
+  thumbnailBasePath,
+  imgBasename,
+  'landscape',
+  'avif',
+  useDefaultPaths,
+);
+const landscapeJpgSrcset = buildHeroSrcset(
+  headerImageVariants?.landscape?.jpg,
+  LANDSCAPE_SIZES,
+  thumbnailBasePath,
+  imgBasename,
+  'landscape',
+  'jpg',
+  useDefaultPaths,
+);
 
 // Determine media queries for preloads to match actual <source> media attributes in Hero.astro
 // Portrait <source> always has media="(max-aspect-ratio: 3/4)", so preload must use the same restriction
@@ -109,26 +141,30 @@ const landscapePreloadType = landscapeAvifSrcset ? 'image/avif' : 'image/jpeg';
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet"
   />
-  {portraitPreloadSrcset && (
-    <link
-      rel="preload"
-      as="image"
-      type={portraitPreloadType}
-      media={portraitPreloadMedia}
-      imagesrcset={portraitPreloadSrcset}
-      imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-      fetchpriority="high"
-    />
-  )}
-  {landscapePreloadSrcset && (
-    <link
-      rel="preload"
-      as="image"
-      type={landscapePreloadType}
-      media={landscapePreloadMedia}
-      imagesrcset={landscapePreloadSrcset}
-      imagesizes="100vw"
-      fetchpriority="high"
-    />
-  )}
+  {
+    portraitPreloadSrcset && (
+      <link
+        rel="preload"
+        as="image"
+        type={portraitPreloadType}
+        media={portraitPreloadMedia}
+        imagesrcset={portraitPreloadSrcset}
+        imagesizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+        fetchpriority="high"
+      />
+    )
+  }
+  {
+    landscapePreloadSrcset && (
+      <link
+        rel="preload"
+        as="image"
+        type={landscapePreloadType}
+        media={landscapePreloadMedia}
+        imagesrcset={landscapePreloadSrcset}
+        imagesizes="100vw"
+        fetchpriority="high"
+      />
+    )
+  }
 </head>
