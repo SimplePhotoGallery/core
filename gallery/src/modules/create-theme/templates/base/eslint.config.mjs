@@ -1,8 +1,9 @@
+import path from 'node:path';
+
 import eslint from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginAstro from 'eslint-plugin-astro';
 import globals from 'globals';
-import path from 'node:path';
 import tseslint from 'typescript-eslint';
 
 const tseslintConfig = tseslint.config(eslint.configs.recommended, tseslint.configs.recommended);
