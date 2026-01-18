@@ -14,18 +14,18 @@ If you have created the gallery in a different folder from the photos folder, th
 
 ## Options
 
-| Option                        | Description                                 | Default                          |
-| ----------------------------- | ------------------------------------------- | -------------------------------- | ------------------------------------ |
-| `-g, --gallery <path>`        | Path to gallery directory                   | Current directory                |
-| `-r, --recursive`             | Build all galleries                         | `false`                          |
-| `-b, --base-url <url>`        | Base URL for external hosting               | None                             |
-| `-t, --thumbs-base-url <url>` | Base URL for external hosting of thumbnails | None                             |
-| `--theme <package             | path>`                                      | Theme package name or local path | `@simple-photo-gallery/theme-modern` |
-| `--no-scan`                   | Do not scan for new photos                  | `true`                           |
-| `--no-thumbnails`             | Skip creating thumbnails                    | `true`                           |
-| `-v, --verbose`               | Show detailed output                        |                                  |
-| `-q, --quiet`                 | Only show warnings/errors                   |                                  |
-| `-h, --help`                  | Show command help                           |                                  |
+| Option                        | Description                                 | Default                              |
+| ----------------------------- | ------------------------------------------- | ------------------------------------ |
+| `-g, --gallery <path>`        | Path to gallery directory                   | Current directory                    |
+| `-r, --recursive`             | Build all galleries                         | `false`                              |
+| `-b, --base-url <url>`        | Base URL for external hosting               | None                                 |
+| `-t, --thumbs-base-url <url>` | Base URL for external hosting of thumbnails | None                                 |
+| `--theme <package>`           | Theme package name                          | `@simple-photo-gallery/theme-modern` |
+| `--no-scan`                   | Do not scan for new photos                  | `true`                               |
+| `--no-thumbnails`             | Skip creating thumbnails                    | `true`                               |
+| `-v, --verbose`               | Show detailed output                        |                                      |
+| `-q, --quiet`                 | Only show warnings/errors                   |                                      |
+| `-h, --help`                  | Show command help                           |                                      |
 
 ## Examples
 
