@@ -15,22 +15,26 @@ const { hero } = Astro.props;
     {hero.headerImageBlurHash && <canvas data-blur-hash={hero.headerImageBlurHash} width={32} height={32} />}
     <picture class="hero__bg" id="hero-bg-picture">
       {/* Portrait */}
-      {hero.srcsets.portraitAvif && (
-        <source
-          type="image/avif"
-          media="(max-aspect-ratio: 3/4)"
-          srcset={hero.srcsets.portraitAvif}
-          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-        />
-      )}
-      {hero.srcsets.portraitJpg && (
-        <source
-          type="image/jpeg"
-          media="(max-aspect-ratio: 3/4)"
-          srcset={hero.srcsets.portraitJpg}
-          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-        />
-      )}
+      {
+        hero.srcsets.portraitAvif && (
+          <source
+            type="image/avif"
+            media="(max-aspect-ratio: 3/4)"
+            srcset={hero.srcsets.portraitAvif}
+            sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+          />
+        )
+      }
+      {
+        hero.srcsets.portraitJpg && (
+          <source
+            type="image/jpeg"
+            media="(max-aspect-ratio: 3/4)"
+            srcset={hero.srcsets.portraitJpg}
+            sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+          />
+        )
+      }
 
       {/* Landscape */}
       {hero.srcsets.landscapeAvif && <source type="image/avif" srcset={hero.srcsets.landscapeAvif} sizes="100vw" />}

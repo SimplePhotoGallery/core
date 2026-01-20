@@ -19,11 +19,7 @@ import type PhotoSwipeLightbox from 'photoswipe/lightbox';
  * @param width - The width to decode at (default: 32)
  * @param height - The height to decode at (default: 32)
  */
-export function decodeBlurhashToCanvas(
-  canvas: HTMLCanvasElement,
-  width: number = 32,
-  height: number = 32,
-): void {
+export function decodeBlurhashToCanvas(canvas: HTMLCanvasElement, width: number = 32, height: number = 32): void {
   const blurHashValue = canvas.dataset.blurHash;
   if (!blurHashValue) return;
 
@@ -553,9 +549,7 @@ export interface GalleryLightboxOptions {
  * lightbox.init();
  * ```
  */
-export async function createGalleryLightbox(
-  options: GalleryLightboxOptions = {},
-): Promise<PhotoSwipeLightbox> {
+export async function createGalleryLightbox(options: GalleryLightboxOptions = {}): Promise<PhotoSwipeLightbox> {
   // Inject enhanced styles - safe to call multiple times
   injectPhotoSwipeStyles();
 
@@ -597,8 +591,9 @@ export async function createGalleryLightbox(
         appendTo: 'wrapper',
         onInit: (el: HTMLElement) => {
           (lightbox.pswp as PhotoSwipe | undefined)?.on('change', () => {
-            const currSlideElement = (lightbox.pswp as PhotoSwipe | undefined)?.currSlide?.data
-              .element as HTMLElement | undefined;
+            const currSlideElement = (lightbox.pswp as PhotoSwipe | undefined)?.currSlide?.data.element as
+              | HTMLElement
+              | undefined;
             if (currSlideElement) {
               const caption = (currSlideElement as HTMLElement).dataset.pswpCaption;
               el.innerHTML = caption || currSlideElement.querySelector('img')?.alt || '';

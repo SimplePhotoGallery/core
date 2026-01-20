@@ -44,11 +44,7 @@ const showCtaBanner = gallery.ctaBanner === true;
       <SubGalleries title={gallery.subGalleries.title} subGalleries={gallery.subGalleries.galleries} />
     )
   }
-  {
-    gallery.sections.map((section, sectionIndex) => (
-      <GallerySection section={section} sectionIndex={sectionIndex} />
-    ))
-  }
+  {gallery.sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
 
   {showCtaBanner && <CtaBanner />}
 

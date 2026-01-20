@@ -39,9 +39,7 @@ const { hero } = Astro.props;
       <div class="hero__overlay" />
       <div class="hero__content">
         <h1 class="hero__title">{hero.title}</h1>
-        {hero.parsedDescription && (
-          <div class="hero__description markdown-content" set:html={hero.parsedDescription} />
-        )}
+        {hero.parsedDescription && <div class="hero__description markdown-content" set:html={hero.parsedDescription} />}
       </div>
     </section>
   ) : (

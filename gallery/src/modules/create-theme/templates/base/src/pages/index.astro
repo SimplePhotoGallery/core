@@ -36,12 +36,7 @@ const gallery = await resolveGalleryData(raw);
                 data-pswp-type={image.type}
                 data-pswp-caption={image.alt || ''}
                 class="gallery-item">
-                <img
-                  src={image.thumbnailPath}
-                  srcset={image.thumbnailSrcSet}
-                  alt={image.alt || ''}
-                  loading="lazy"
-                />
+                <img src={image.thumbnailPath} srcset={image.thumbnailSrcSet} alt={image.alt || ''} loading="lazy" />
                 {image.alt && <span class="caption">{image.alt}</span>}
               </a>
             ))}

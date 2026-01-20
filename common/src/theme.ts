@@ -4,14 +4,7 @@ import process from 'node:process';
 
 import { marked } from 'marked';
 
-import type {
-  GalleryData,
-  GalleryMetadata,
-  GallerySection,
-  HeaderImageVariants,
-  MediaFile,
-  SubGallery,
-} from './gallery';
+import type { GalleryData, GalleryMetadata, GallerySection, HeaderImageVariants, MediaFile, SubGallery } from './gallery';
 
 // ============================================================================
 // Types
@@ -163,11 +156,7 @@ export function getRelativePath(resourcePath: string): string {
  * @param thumbnailBaseUrl - Optional thumbnail-specific base URL that overrides thumbsBaseUrl if provided
  * @returns The normalized path relative to the gallery root directory or the thumbnails base URL
  */
-export function getThumbnailPath(
-  resourcePath: string,
-  thumbsBaseUrl?: string,
-  thumbnailBaseUrl?: string,
-): string {
+export function getThumbnailPath(resourcePath: string, thumbsBaseUrl?: string, thumbnailBaseUrl?: string): string {
   // If thumbnail-specific baseUrl is provided, use it and combine with the path
   if (thumbnailBaseUrl) {
     return `${thumbnailBaseUrl}/${resourcePath}`;
@@ -328,8 +317,7 @@ function resolveSubGallery(subGallery: SubGallery): ResolvedSubGallery {
  * Resolve hero data with all paths computed and srcsets built.
  */
 async function resolveHero(gallery: GalleryData): Promise<ResolvedHero> {
-  const { title, description, headerImage, headerImageBlurHash, headerImageVariants, mediaBaseUrl, thumbsBaseUrl } =
-    gallery;
+  const { title, description, headerImage, headerImageBlurHash, headerImageVariants, mediaBaseUrl, thumbsBaseUrl } = gallery;
 
   const parsedDescription = description ? await renderMarkdown(description) : '';
   const imgBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : 'header';
