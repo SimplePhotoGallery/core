@@ -1,7 +1,7 @@
+import { preventEmptyContentFiles } from '@simple-photo-gallery/common/theme';
 import { defineConfig } from 'astro/config';
 import relativeLinks from 'astro-relative-links';
 
-import { preventEmptyContentFiles } from '@simple-photo-gallery/common/theme';
 
 // Dynamically import gallery.json from source path or fallback to local
 const sourceGalleryPath = process.env.GALLERY_JSON_PATH;
