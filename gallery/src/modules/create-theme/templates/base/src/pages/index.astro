@@ -53,28 +53,10 @@ const gallery = await resolveGalleryData(raw);
 </MainLayout>
 
 <script>
-  import PhotoSwipe from 'photoswipe';
-  import PhotoSwipeLightbox from 'photoswipe/lightbox';
-
-  import { PhotoSwipeVideoPlugin } from '@simple-photo-gallery/common/client';
+  import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
   import 'photoswipe/style.css';
 
-  // Initialize PhotoSwipe lightbox
-  const lightbox = new PhotoSwipeLightbox({
-    gallery: '.gallery-grid',
-    children: 'a',
-    pswpModule: PhotoSwipe,
-    showAnimationDuration: 300,
-    hideAnimationDuration: 300,
-    wheelToZoom: true,
-    loop: false,
-    bgOpacity: 1,
-  });
-
-  // Add video plugin support
-  new PhotoSwipeVideoPlugin(lightbox);
-
-  // Initialize the lightbox
+  const lightbox = await createGalleryLightbox();
   lightbox.init();
 </script>
 

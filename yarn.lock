@@ -1677,8 +1677,11 @@ __metadata:
     typescript-eslint: "npm:^8.38.0"
     zod: "npm:^4.0.14"
   peerDependencies:
+    blurhash: ^2.0.5
     photoswipe: ^5.4.4
   peerDependenciesMeta:
+    blurhash:
+      optional: true
     photoswipe:
       optional: true
   languageName: unknown

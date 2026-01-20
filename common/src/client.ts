@@ -500,3 +500,242 @@ export class PhotoSwipeVideoPlugin {
     });
   }
 }
+
+// ============================================================================
+// Gallery Lightbox Factory
+// ============================================================================
+
+/** Options for creating a gallery lightbox */
+export interface GalleryLightboxOptions {
+  /** CSS selector for gallery container (default: '.gallery-grid') */
+  gallerySelector?: string;
+  /** CSS selector for gallery items within container (default: 'a') */
+  childrenSelector?: string;
+  /** Animation duration when opening in ms (default: 300) */
+  showAnimationDuration?: number;
+  /** Animation duration when closing in ms (default: 300) */
+  hideAnimationDuration?: number;
+  /** Enable mouse wheel zoom (default: true) */
+  wheelToZoom?: boolean;
+  /** Loop back to first image after last (default: false) */
+  loop?: boolean;
+  /** Background opacity 0-1 (default: 1) */
+  bgOpacity?: number;
+  /** Options for the video plugin */
+  videoPluginOptions?: VideoPluginOptions;
+  /** Enable slide-in animations when changing slides (default: true) */
+  slideAnimations?: boolean;
+  /** Enable custom caption UI from data-pswp-caption attribute (default: true) */
+  enableCaptions?: boolean;
+}
+
+/**
+ * Create a PhotoSwipe lightbox with sensible defaults and video support.
+ * Returns the lightbox instance for further customization before calling init().
+ *
+ * @example
+ * ```typescript
+ * import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
+ * import 'photoswipe/style.css';
+ *
+ * // Basic usage
+ * const lightbox = await createGalleryLightbox();
+ * lightbox.init();
+ *
+ * // With custom options
+ * const lightbox = await createGalleryLightbox({
+ *   gallerySelector: '.my-gallery',
+ *   loop: true,
+ * });
+ *
+ * // Add custom event handlers before init
+ * lightbox.on('change', () => console.log('slide changed'));
+ * lightbox.init();
+ * ```
+ */
+export async function createGalleryLightbox(
+  options: GalleryLightboxOptions = {},
+): Promise<PhotoSwipeLightbox> {
+  // Inject enhanced styles - safe to call multiple times
+  injectPhotoSwipeStyles();
+
+  const PhotoSwipe = (await import('photoswipe')).default;
+  const PhotoSwipeLightboxModule = (await import('photoswipe/lightbox')).default;
+
+  const lightbox = new PhotoSwipeLightboxModule({
+    gallery: options.gallerySelector ?? '.gallery-grid',
+    children: options.childrenSelector ?? 'a',
+    pswpModule: PhotoSwipe,
+    showAnimationDuration: options.showAnimationDuration ?? 300,
+    hideAnimationDuration: options.hideAnimationDuration ?? 300,
+    wheelToZoom: options.wheelToZoom ?? true,
+    loop: options.loop ?? false,
+    bgOpacity: options.bgOpacity ?? 1,
+  });
+
+  new PhotoSwipeVideoPlugin(lightbox, options.videoPluginOptions);
+
+  // Slide animations (enabled by default)
+  if (options.slideAnimations !== false) {
+    lightbox.on('contentDeactivate', ({ content }: { content: { element?: HTMLElement } }) => {
+      content.element?.classList.remove('pswp__img--in-viewport');
+    });
+    lightbox.on('contentActivate', ({ content }: { content: { element?: HTMLElement } }) => {
+      content.element?.classList.add('pswp__img--in-viewport');
+    });
+  }
+
+  // Custom caption UI (enabled by default)
+  if (options.enableCaptions !== false) {
+    lightbox.on('uiRegister', () => {
+      (lightbox.pswp as PhotoSwipe | undefined)?.ui?.registerElement({
+        name: 'custom-caption',
+        isButton: false,
+        className: 'pswp__caption',
+        appendTo: 'wrapper',
+        onInit: (el: HTMLElement) => {
+          (lightbox.pswp as PhotoSwipe | undefined)?.on('change', () => {
+            const currSlideElement = (lightbox.pswp as PhotoSwipe | undefined)?.currSlide?.data
+              .element as HTMLElement | undefined;
+            if (currSlideElement) {
+              const caption = (currSlideElement as HTMLElement).dataset.pswpCaption;
+              el.innerHTML = caption || currSlideElement.querySelector('img')?.alt || '';
+            }
+          });
+        },
+      });
+    });
+  }
+
+  return lightbox;
+}
+
+// ============================================================================
+// PhotoSwipe Enhanced Styles
+// ============================================================================
+
+const PHOTOSWIPE_STYLES = `
+/* PhotoSwipe enhanced styles */
+.pswp .pswp__bg {
+  --pswp-bg: rgba(0, 0, 0, 1);
+}
+
+.pswp__counter {
+  color: white;
+  font-size: 1rem;
+}
+
+.pswp__button {
+  color: white;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.pswp__button:hover {
+  opacity: 1;
+}
+
+.pswp__caption {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 768px) {
+  .pswp__caption {
+    width: calc(100% - 16px);
+  }
+}
+
+.pswp__caption .image-caption {
+  text-align: left;
+  background: rgba(128, 128, 128, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  padding: 16px;
+  border-radius: 16px;
+  margin: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .pswp__caption .image-caption {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    margin: 8px 0;
+  }
+}
+
+.pswp__caption__center {
+  text-align: center;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.pswp__caption h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pswp__caption p {
+  font-size: 1rem;
+  opacity: 0.95;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-weight: 400;
+}
+
+.pswp__caption .description {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* Slide-in animation */
+.pswp__img {
+  opacity: 0;
+}
+
+.pswp__img--in-viewport {
+  animation: pswp-slideIn 0.6s ease-out forwards;
+}
+
+@keyframes pswp-slideIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+`;
+
+/**
+ * Inject PhotoSwipe enhanced styles into the document.
+ * Includes custom styles for captions, animations, and button hover effects.
+ * Safe to call multiple times - will only inject once.
+ * Called automatically by createGalleryLightbox(), so you typically don't need to call this directly.
+ *
+ * Note: Base PhotoSwipe CSS (photoswipe/style.css) must still be imported in your theme.
+ * This function only injects the enhanced SPG-specific styles.
+ *
+ * @example
+ * ```typescript
+ * import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
+ * import 'photoswipe/style.css'; // Required base styles
+ *
+ * const lightbox = await createGalleryLightbox();
+ * lightbox.init();
+ * ```
+ */
+export function injectPhotoSwipeStyles(): void {
+  if (document.querySelector('#spg-photoswipe-styles')) return;
+
+  const style = document.createElement('style');
+  style.id = 'spg-photoswipe-styles';
+  style.textContent = PHOTOSWIPE_STYLES;
+  document.head.append(style);
+}
