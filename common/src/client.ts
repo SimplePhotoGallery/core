@@ -559,8 +559,10 @@ export async function createGalleryLightbox(
   // Inject enhanced styles - safe to call multiple times
   injectPhotoSwipeStyles();
 
-  const PhotoSwipe = (await import('photoswipe')).default;
-  const PhotoSwipeLightboxModule = (await import('photoswipe/lightbox')).default;
+  const photoswipeModule = await import('photoswipe');
+  const PhotoSwipe = photoswipeModule.default;
+  const lightboxModule = await import('photoswipe/lightbox');
+  const PhotoSwipeLightboxModule = lightboxModule.default;
 
   const lightbox = new PhotoSwipeLightboxModule({
     gallery: options.gallerySelector ?? '.gallery-grid',
