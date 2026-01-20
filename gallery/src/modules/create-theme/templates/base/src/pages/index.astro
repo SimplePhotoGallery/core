@@ -1,79 +1,50 @@
 ---
-import fs from 'node:fs';
+import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
 
-import MainLayout from '@/layouts/MainLayout.astro';
 import Hero from '@/components/Hero.astro';
-import { getPhotoPath, getThumbnailPath } from '@/utils';
+import MainLayout from '@/layouts/MainLayout.astro';
 
-import type { GalleryData } from '@simple-photo-gallery/common';
-
-// Read gallery.json from the path provided by the build process
-const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
-const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
-const gallery = galleryData as GalleryData;
-
-const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, headerImageBlurHash } = gallery;
+// Load and resolve gallery data - all paths are pre-computed
+const raw = loadGalleryData();
+const gallery = await resolveGalleryData(raw);
 ---
 
 <MainLayout
-  title={title}
-  description={description}
+  title={gallery.title}
+  description={gallery.hero.description}
   metadata={gallery.metadata}
   url={gallery.url}
-  thumbsBaseUrl={thumbsBaseUrl}
+  thumbsBaseUrl={gallery.thumbsBaseUrl}
   analyticsScript={gallery.analyticsScript}
-  headerImage={headerImage}>
-  <Hero
-    title={title}
-    description={description}
-    thumbsBaseUrl={thumbsBaseUrl}
-    headerImage={headerImage}
-    headerImageBlurHash={headerImageBlurHash}
-    mediaBaseUrl={mediaBaseUrl}
-  />
+  headerImage={gallery.hero.headerImage}>
+  <Hero hero={gallery.hero} />
 
   <main>
     {/* Render gallery sections */}
     {
-      sections.map((section) => (
+      gallery.sections.map((section) => (
         <section class="gallery-section">
           {section.title && <h2>{section.title}</h2>}
-          {section.description && <p>{section.description}</p>}
+          {section.parsedDescription && <div class="section-description" set:html={section.parsedDescription} />}
 
           <div class="gallery-grid">
-            {section.images.map((image) => {
-              const imagePath = getPhotoPath(image.filename, mediaBaseUrl, image.url);
-              const thumbnailPath = image.thumbnail
-                ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl)
-                : imagePath;
-
-              const thumbnailSrcSet = image.thumbnail
-                ? getThumbnailPath(image.thumbnail.path, thumbsBaseUrl, image.thumbnail.baseUrl) +
-                  ' 1x, ' +
-                  getThumbnailPath(image.thumbnail.pathRetina, thumbsBaseUrl, image.thumbnail.baseUrl) +
-                  ' 2x'
-                : undefined;
-
-              return (
-                <a
-                  href={imagePath}
-                  data-pswp-width={image.width}
-                  data-pswp-height={image.height}
-                  data-pswp-type={image.type}
-                  data-pswp-caption={image.alt || ''}
-                  class="gallery-item">
-                  <img
-                    src={thumbnailPath}
-                    srcset={thumbnailSrcSet}
-                    alt={image.alt || ''}
-                    loading="lazy"
-                    width={image.thumbnail?.width}
-                    height={image.thumbnail?.height}
-                  />
-                  {image.alt && <span class="caption">{image.alt}</span>}
-                </a>
-              );
-            })}
+            {section.images.map((image) => (
+              <a
+                href={image.imagePath}
+                data-pswp-width={image.width}
+                data-pswp-height={image.height}
+                data-pswp-type={image.type}
+                data-pswp-caption={image.alt || ''}
+                class="gallery-item">
+                <img
+                  src={image.thumbnailPath}
+                  srcset={image.thumbnailSrcSet}
+                  alt={image.alt || ''}
+                  loading="lazy"
+                />
+                {image.alt && <span class="caption">{image.alt}</span>}
+              </a>
+            ))}
           </div>
         </section>
       ))
@@ -85,7 +56,7 @@ const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, 
   import PhotoSwipe from 'photoswipe';
   import PhotoSwipeLightbox from 'photoswipe/lightbox';
 
-  import PhotoSwipeVideoPlugin from '@/lib/photoswipe-video-plugin';
+  import { PhotoSwipeVideoPlugin } from '@simple-photo-gallery/common/client';
   import 'photoswipe/style.css';
 
   // Initialize PhotoSwipe lightbox
@@ -137,6 +108,11 @@ const { title, description, sections, mediaBaseUrl, thumbsBaseUrl, headerImage, 
 
   .gallery-section h2 {
     font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-description {
+    color: #666;
     margin-bottom: 1rem;
   }
 

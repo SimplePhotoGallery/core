@@ -1,154 +1,68 @@
 ---
-import path from 'node:path';
-
-import { getPhotoPath } from '@/utils';
-import { renderMarkdown } from '@/lib/markdown';
+import type { ResolvedHero } from '@simple-photo-gallery/common/theme';
 
 interface Props {
-  title: string;
-  description?: string;
-  thumbsBaseUrl?: string;
-  headerImage?: string;
-  headerImageBlurHash?: string;
-  mediaBaseUrl?: string;
+  hero: ResolvedHero;
 }
 
-const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash, mediaBaseUrl } = Astro.props;
-
-// Parse description as Markdown if it exists
-const parsedDescription: string = description ? await renderMarkdown(description) : '';
-
-// Extract basename from headerImage filename, fallback to generic name
-const imgBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : 'header';
-
-// Get the base path for the thumbnails
-const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
-
-// Original header photo (fallback)
-const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
-
-const portraitWidths = [360, 480, 720, 1080] as const;
-const landscapeWidths = [640, 960, 1280, 1920, 2560, 3840] as const;
-
-const portraitAvifSrcset = portraitWidths
-  .map((w) => thumbnailBasePath + '/' + imgBasename + '_portrait_' + w + '.avif ' + w + 'w')
-  .join(', ');
-const portraitJpgSrcset = portraitWidths
-  .map((w) => thumbnailBasePath + '/' + imgBasename + '_portrait_' + w + '.jpg ' + w + 'w')
-  .join(', ');
-
-const landscapeAvifSrcset = landscapeWidths
-  .map((w) => thumbnailBasePath + '/' + imgBasename + '_landscape_' + w + '.avif ' + w + 'w')
-  .join(', ');
-const landscapeJpgSrcset = landscapeWidths
-  .map((w) => thumbnailBasePath + '/' + imgBasename + '_landscape_' + w + '.jpg ' + w + 'w')
-  .join(', ');
+const { hero } = Astro.props;
 ---
 
 {
-  headerImage ? (
+  hero.headerImage ? (
     <section class="hero">
       <div class="hero__bg-wrapper">
-        {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
+        {hero.headerImageBlurHash && <canvas data-blur-hash={hero.headerImageBlurHash} width={32} height={32} />}
         <picture class="hero__bg" id="hero-bg-picture">
           {/* Portrait */}
           <source
             type="image/avif"
             media="(max-aspect-ratio: 3/4)"
-            srcset={portraitAvifSrcset}
+            srcset={hero.srcsets.portraitAvif}
             sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
           />
           <source
             type="image/jpeg"
             media="(max-aspect-ratio: 3/4)"
-            srcset={portraitJpgSrcset}
+            srcset={hero.srcsets.portraitJpg}
             sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
           />
 
           {/* Landscape */}
-          <source type="image/avif" srcset={landscapeAvifSrcset} sizes="100vw" />
-          <source type="image/jpeg" srcset={landscapeJpgSrcset} sizes="100vw" />
+          <source type="image/avif" srcset={hero.srcsets.landscapeAvif} sizes="100vw" />
+          <source type="image/jpeg" srcset={hero.srcsets.landscapeJpg} sizes="100vw" />
 
           {/* Fallback */}
-          <img src={headerPhotoPath} class="hero__bg-img" alt="" />
+          <img src={hero.headerPhotoPath} class="hero__bg-img" alt="" />
         </picture>
       </div>
       <div class="hero__overlay" />
       <div class="hero__content">
-        <h1 class="hero__title">{title}</h1>
-        {parsedDescription && <div class="hero__description markdown-content" set:html={parsedDescription} />}
+        <h1 class="hero__title">{hero.title}</h1>
+        {hero.parsedDescription && (
+          <div class="hero__description markdown-content" set:html={hero.parsedDescription} />
+        )}
       </div>
     </section>
   ) : (
     <header class="header">
-      <h1>{title}</h1>
-      {parsedDescription && <div class="description markdown-content" set:html={parsedDescription} />}
+      <h1>{hero.title}</h1>
+      {hero.parsedDescription && <div class="description markdown-content" set:html={hero.parsedDescription} />}
     </header>
   )
 }
 
 <script>
-  import { decode } from 'blurhash';
+  import { decodeBlurhashToCanvas, initHeroImageFallback } from '@simple-photo-gallery/common/client';
 
-  const picture = document.querySelector('#hero-bg-picture');
-  const img = picture?.querySelector<HTMLImageElement>('img.hero__bg-img');
+  // Decode blurhash canvas if present
   const canvas = document.querySelector<HTMLCanvasElement>('canvas[data-blur-hash]');
-
-  // Decode blurhash (if present)
   if (canvas) {
-    const blurHashValue = canvas.dataset.blurHash;
-    if (blurHashValue) {
-      const pixels = decode(blurHashValue, 32, 32);
-      const ctx = canvas.getContext('2d');
-      if (pixels && ctx) {
-        const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
-        ctx.putImageData(imageData, 0, 0);
-      }
-    }
+    decodeBlurhashToCanvas(canvas);
   }
 
-  if (!img) {
-    // No hero image element found
-  } else {
-    const fallbackSrc = img.getAttribute('src') || '';
-    let didFallback = false;
-
-    const hideBlurhash = () => {
-      if (canvas) {
-        canvas.style.display = 'none';
-      }
-    };
-
-    const doFallback = () => {
-      if (didFallback) return;
-      didFallback = true;
-
-      if (picture) {
-        // Remove all <source> elements so the browser does not retry them
-        for (const sourceEl of picture.querySelectorAll('source')) {
-          sourceEl.remove();
-        }
-      }
-
-      // Force reload using the <img> src as the final fallback
-      const current = img.getAttribute('src') || '';
-      img.setAttribute('src', '');
-      img.setAttribute('src', fallbackSrc || current);
-    };
-
-    // Check if image already loaded or failed before script runs
-    if (img.complete) {
-      if (img.naturalWidth === 0) {
-        doFallback();
-      } else {
-        hideBlurhash();
-      }
-    } else {
-      img.addEventListener('load', hideBlurhash, { once: true });
-    }
-
-    img.addEventListener('error', doFallback, { once: true });
-  }
+  // Initialize hero image fallback behavior
+  initHeroImageFallback();
 </script>
 
 <style>

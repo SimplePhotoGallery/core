@@ -3,19 +3,18 @@ import Container from '@/features/themes/base-theme/components/container/Contain
 import GallerySectionHeader from '@/features/themes/base-theme/components/gallery-section/GallerySectionHeader.astro';
 import GallerySectionItem from '@/features/themes/base-theme/components/gallery-section/GallerySectionItem.astro';
 
-import type { GallerySection as GallerySectionType } from '@simple-photo-gallery/common';
+import type { ResolvedSection } from '@simple-photo-gallery/common/theme';
 
 interface Props {
-  section: GallerySectionType;
+  section: ResolvedSection;
   sectionIndex: number;
-  mediaBaseUrl?: string;
-  thumbsBaseUrl?: string;
 }
 
-const { section, sectionIndex, mediaBaseUrl, thumbsBaseUrl } = Astro.props;
+const { section, sectionIndex } = Astro.props;
 
+// Filter to only valid images with proper dimensions
 const validImages = section.images.filter(
-  (image) => image.width > 0 && image.height > 0 && (image.thumbnail?.width || 0) > 0 && (image.thumbnail?.height || 0) > 0,
+  (image) => image.width > 0 && image.height > 0 && (image.thumbnailWidth || 0) > 0 && (image.thumbnailHeight || 0) > 0,
 );
 ---
 
@@ -23,16 +22,7 @@ const validImages = section.images.filter(
   <Container>
     <GallerySectionHeader section={section} />
     <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
-      {
-        validImages.map((image) => (
-          <GallerySectionItem
-            image={image}
-            mediaBaseUrl={mediaBaseUrl}
-            thumbsBaseUrl={thumbsBaseUrl}
-            blurHash={image.thumbnail?.blurHash}
-          />
-        ))
-      }
+      {validImages.map((image) => <GallerySectionItem image={image} />)}
     </div>
   </Container>
 </section>

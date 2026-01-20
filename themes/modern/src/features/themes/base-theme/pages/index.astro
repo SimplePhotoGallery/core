@@ -1,5 +1,5 @@
 ---
-import fs from 'node:fs';
+import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
 
 import CtaBanner from '@/features/themes/base-theme/components/cta/CtaBanner.astro';
 import Footer from '@/features/themes/base-theme/components/footer/Footer.astro';
@@ -9,89 +9,44 @@ import PhotoSwipe from '@/features/themes/base-theme/components/lightbox/PhotoSw
 import SubGalleries from '@/features/themes/base-theme/components/sub-galleries/SubGalleries.astro';
 import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
 
-import type { GalleryData } from '@simple-photo-gallery/common';
+// Load and resolve gallery data - all paths are pre-computed
+const raw = loadGalleryData();
+const gallery = await resolveGalleryData(raw);
 
-// Dynamically import gallery.json from source path or fallback to local
-const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
-const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
-
-const gallery = galleryData as GalleryData;
-
-const {
-  title,
-  description,
-  metadata,
-  sections,
-  subGalleries,
-  mediaBaseUrl,
-  thumbsBaseUrl,
-  url,
-  analyticsScript,
-  headerImage,
-  headerImageBlurHash,
-  headerImageVariants,
-  ctaBanner,
-} = gallery;
-
-const showCtaBanner = ctaBanner === true;
+const showCtaBanner = gallery.ctaBanner === true;
 ---
 
 <script>
-  import { decode } from 'blurhash';
+  import { decodeAllBlurhashes } from '@simple-photo-gallery/common/client';
 
   import { applyQueryParams } from '@/features/themes/base-theme/utils/queryParams';
 
-  const blurHashCanvases = document.querySelectorAll<HTMLCanvasElement>('canvas[data-blur-hash]');
+  // Decode all blurhash canvases on the page
+  decodeAllBlurhashes();
 
-  for (const canvas of blurHashCanvases) {
-    const blurHashValue = canvas.dataset.blurHash;
-
-    if (blurHashValue) {
-      const pixels = decode(blurHashValue, 32, 32);
-      const ctx = canvas.getContext('2d');
-
-      if (pixels && ctx) {
-        const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
-        ctx.putImageData(imageData, 0, 0);
-      }
-    }
-  }
-
+  // Apply query parameter customizations
   applyQueryParams();
 </script>
 
 <MainLayout
-  title={title}
-  description={description}
-  metadata={metadata}
-  url={url}
-  thumbsBaseUrl={thumbsBaseUrl}
-  analyticsScript={analyticsScript}
-  headerImage={headerImage}
-  headerImageVariants={headerImageVariants}>
-  <Hero
-    title={title}
-    description={description}
-    headerImage={headerImage}
-    headerImageBlurHash={headerImageBlurHash}
-    headerImageVariants={headerImageVariants}
-    thumbsBaseUrl={thumbsBaseUrl}
-    mediaBaseUrl={mediaBaseUrl}
-  />
+  title={gallery.title}
+  description={gallery.hero.description}
+  metadata={gallery.metadata}
+  url={gallery.url}
+  thumbsBaseUrl={gallery.thumbsBaseUrl}
+  analyticsScript={gallery.analyticsScript}
+  headerImage={gallery.hero.headerImage}
+  headerImageVariants={gallery.hero.headerImageVariants}>
+  <Hero hero={gallery.hero} />
 
   {
-    subGalleries && subGalleries.galleries.length > 0 && (
-      <SubGalleries title={subGalleries.title} subGalleries={subGalleries.galleries} />
+    gallery.subGalleries && gallery.subGalleries.galleries.length > 0 && (
+      <SubGalleries title={gallery.subGalleries.title} subGalleries={gallery.subGalleries.galleries} />
     )
   }
   {
-    sections.map((section, sectionIndex) => (
-      <GallerySection
-        section={section}
-        sectionIndex={sectionIndex}
-        mediaBaseUrl={mediaBaseUrl}
-        thumbsBaseUrl={thumbsBaseUrl}
-      />
+    gallery.sections.map((section, sectionIndex) => (
+      <GallerySection section={section} sectionIndex={sectionIndex} />
     ))
   }
 

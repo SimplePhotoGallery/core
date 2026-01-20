@@ -1,16 +1,13 @@
 ---
-import Container from '@/features/themes/base-theme/components/container/Container.astro';
-import { getRelativePath, getSubgalleryThumbnailPath } from '@/features/themes/base-theme/utils';
+import { getRelativePath } from '@simple-photo-gallery/common/theme';
 
-interface SubGallery {
-  title: string;
-  headerImage: string;
-  path: string;
-}
+import Container from '@/features/themes/base-theme/components/container/Container.astro';
+
+import type { ResolvedSubGallery } from '@simple-photo-gallery/common/theme';
 
 interface Props {
   title?: string;
-  subGalleries: SubGallery[];
+  subGalleries: ResolvedSubGallery[];
 }
 
 const { title, subGalleries } = Astro.props;
@@ -19,9 +16,9 @@ const { title, subGalleries } = Astro.props;
 <section class="sub-galleries">
   <Container>
     {
-      (title) && (
+      title && (
         <div class="sub-galleries__header">
-          {title && <h2 class="sub-galleries__header-title">{title}</h2>}
+          <h2 class="sub-galleries__header-title">{title}</h2>
         </div>
       )
     }
@@ -30,7 +27,7 @@ const { title, subGalleries } = Astro.props;
         subGalleries.map((subgallery) => (
           <a href={getRelativePath(subgallery.path)} class="sub-galleries__item">
             <div class="sub-galleries__item-image">
-              <img src={getSubgalleryThumbnailPath(subgallery.headerImage)} alt={subgallery.title} loading="lazy" />
+              <img src={subgallery.thumbnailPath} alt={subgallery.title} loading="lazy" />
             </div>
             <div class="sub-galleries__item-content">
               <h3 class="sub-galleries__item-title">{subgallery.title}</h3>

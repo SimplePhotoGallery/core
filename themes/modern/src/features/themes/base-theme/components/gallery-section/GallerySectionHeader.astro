@@ -1,21 +1,20 @@
 ---
-import { renderMarkdown } from '@/lib/markdown';
-
-import type { GallerySection as GallerySectionType } from '@simple-photo-gallery/common';
+import type { ResolvedSection } from '@simple-photo-gallery/common/theme';
 
 interface Props {
-  section: GallerySectionType;
+  section: ResolvedSection;
 }
 
 const { section } = Astro.props;
-
-// Parse description as Markdown if it exists
-const parsedDescription = section.description ? await renderMarkdown(section.description) : '';
 ---
 
 <div class="gallery-section__header">
   <h2 class="gallery-section__header-title">{section.title}</h2>
-  {parsedDescription && <div class="gallery-section__header-description markdown-content" set:html={parsedDescription} />}
+  {
+    section.parsedDescription && (
+      <div class="gallery-section__header-description markdown-content" set:html={section.parsedDescription} />
+    )
+  }
 </div>
 
 <style>
