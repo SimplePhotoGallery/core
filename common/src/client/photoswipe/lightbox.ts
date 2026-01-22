@@ -1,9 +1,9 @@
+import { injectPhotoSwipeStyles } from './styles';
+import { PhotoSwipeVideoPlugin } from './video-plugin';
+
+import type { VideoPluginOptions } from './types';
 import type PhotoSwipe from 'photoswipe';
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
-
-import { injectPhotoSwipeStyles } from './styles';
-import type { VideoPluginOptions } from './types';
-import { PhotoSwipeVideoPlugin } from './video-plugin';
 
 /** Options for creating a gallery lightbox */
 export interface GalleryLightboxOptions {

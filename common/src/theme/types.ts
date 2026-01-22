@@ -48,6 +48,8 @@ export interface ResolvedSubGallery {
   headerImage: string;
   path: string;
   thumbnailPath: string;
+  /** Pre-computed relative path for linking (only present when galleryJsonPath is provided to resolveGalleryData) */
+  resolvedPath?: string;
 }
 
 /** Fully resolved gallery data ready for rendering */

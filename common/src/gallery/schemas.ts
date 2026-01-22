@@ -22,7 +22,10 @@ export const MediaFileSchema = z.object({
   lastMediaTimestamp: z.string().optional(),
 });
 
-/** Zod schema for media file with path (deprecated) */
+/**
+ * Zod schema for media file with path.
+ * @deprecated Use MediaFileSchema instead which uses 'filename' instead of 'path'.
+ */
 export const MediaFileDeprecatedSchema = z.object({
   type: z.enum(['image', 'video']),
   path: z.string(),
@@ -40,7 +43,10 @@ export const GallerySectionSchema = z.object({
   images: z.array(MediaFileSchema),
 });
 
-/** Zod schema for a gallery section containing title, description, and media files (deprecated) */
+/**
+ * Zod schema for a gallery section containing title, description, and media files.
+ * @deprecated Use GallerySectionSchema instead which uses MediaFileSchema.
+ */
 export const GallerySectionDeprecatedSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
@@ -124,7 +130,10 @@ export const GalleryDataSchema = z.object({
   subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });
 
-/** Zod schema for complete gallery data without mediaBasePath (deprecated) */
+/**
+ * Zod schema for complete gallery data without mediaBasePath.
+ * @deprecated Use GalleryDataSchema instead which includes mediaBasePath and headerImageVariants.
+ */
 export const GalleryDataDeprecatedSchema = z.object({
   title: z.string(),
   description: z.string(),

@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import { LANDSCAPE_SIZES, PORTRAIT_SIZES } from './constants';
 import { renderMarkdown } from './markdown';
-import { buildHeroSrcset, getPhotoPath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
+import { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
 
 import type { GalleryData, GallerySection, MediaFile, SubGallery } from '../gallery';
 import type { ResolvedGalleryData, ResolvedHero, ResolvedImage, ResolvedSection, ResolvedSubGallery } from './types';
@@ -57,14 +57,15 @@ async function resolveSection(
 }
 
 /**
- * Resolve a sub-gallery with computed thumbnail path.
+ * Resolve a sub-gallery with computed thumbnail path and optional resolved path.
  */
-function resolveSubGallery(subGallery: SubGallery): ResolvedSubGallery {
+function resolveSubGallery(subGallery: SubGallery, galleryJsonPath?: string): ResolvedSubGallery {
   return {
     title: subGallery.title,
     headerImage: subGallery.headerImage,
     path: subGallery.path,
     thumbnailPath: getSubgalleryThumbnailPath(subGallery.headerImage),
+    resolvedPath: galleryJsonPath ? getRelativePath(subGallery.path, galleryJsonPath) : undefined,
   };
 }
 
@@ -137,14 +138,30 @@ async function resolveHero(gallery: GalleryData): Promise<ResolvedHero> {
 }
 
 /**
+ * Options for resolving gallery data.
+ */
+export interface ResolveGalleryDataOptions {
+  /**
+   * Path to the gallery.json file. When provided, enables resolution of
+   * relative paths for sub-galleries (resolvedPath field).
+   */
+  galleryJsonPath?: string;
+}
+
+/**
  * Transform raw gallery data into a fully resolved structure with all paths
  * computed and markdown parsed. This is the main API for themes.
  *
  * @param gallery - Raw gallery data from loadGalleryData()
+ * @param options - Optional configuration for path resolution
  * @returns Fully resolved gallery data ready for rendering
  */
-export async function resolveGalleryData(gallery: GalleryData): Promise<ResolvedGalleryData> {
+export async function resolveGalleryData(
+  gallery: GalleryData,
+  options?: ResolveGalleryDataOptions,
+): Promise<ResolvedGalleryData> {
   const { mediaBaseUrl, thumbsBaseUrl, subGalleries } = gallery;
+  const { galleryJsonPath } = options ?? {};
 
   const hero = await resolveHero(gallery);
   const sections = await Promise.all(
@@ -154,7 +171,7 @@ export async function resolveGalleryData(gallery: GalleryData): Promise<Resolved
   const resolvedSubGalleries = subGalleries?.galleries?.length
     ? {
         title: subGalleries.title,
-        galleries: subGalleries.galleries.map((sg) => resolveSubGallery(sg)),
+        galleries: subGalleries.galleries.map((sg) => resolveSubGallery(sg, galleryJsonPath)),
       }
     : undefined;
 

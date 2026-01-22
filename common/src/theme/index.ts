@@ -14,6 +14,7 @@ export { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailP
 export { loadGalleryData } from './loader';
 
 // Data resolution
+export type { ResolveGalleryDataOptions } from './resolver';
 export { resolveGalleryData } from './resolver';
 
 // Astro integration

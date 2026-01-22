@@ -1,6 +1,4 @@
 ---
-import { getRelativePath } from '@simple-photo-gallery/common/theme';
-
 import Container from '@/features/themes/base-theme/components/container/Container.astro';
 
 import type { ResolvedSubGallery } from '@simple-photo-gallery/common/theme';
@@ -25,7 +23,7 @@ const { title, subGalleries } = Astro.props;
     <div class="sub-galleries__grid">
       {
         subGalleries.map((subgallery) => (
-          <a href={getRelativePath(subgallery.path)} class="sub-galleries__item">
+          <a href={subgallery.resolvedPath || subgallery.path} class="sub-galleries__item">
             <div class="sub-galleries__item-image">
               <img src={subgallery.thumbnailPath} alt={subgallery.title} loading="lazy" />
             </div>

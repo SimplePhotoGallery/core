@@ -1,14 +1,14 @@
 import path from 'node:path';
-import process from 'node:process';
 
 /**
  * Normalizes resource paths to be relative to the gallery root directory.
  *
  * @param resourcePath - The resource path (file or directory), typically relative to the gallery.json file
+ * @param galleryJsonPath - Path to the gallery.json file used to resolve relative paths
  * @returns The normalized path relative to the gallery root directory
  */
-export function getRelativePath(resourcePath: string): string {
-  const galleryConfigPath = path.resolve(process.env.GALLERY_JSON_PATH || '');
+export function getRelativePath(resourcePath: string, galleryJsonPath: string): string {
+  const galleryConfigPath = path.resolve(galleryJsonPath);
   const galleryConfigDir = path.dirname(galleryConfigPath);
 
   const absoluteResourcePath = path.resolve(path.join(galleryConfigDir, resourcePath));
