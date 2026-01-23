@@ -11,6 +11,7 @@ export { renderMarkdown } from './markdown';
 export { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
 
 // Gallery loading
+export type { LoadGalleryDataOptions } from './loader';
 export { loadGalleryData } from './loader';
 
 // Data resolution
