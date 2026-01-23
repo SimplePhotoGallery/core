@@ -1,4 +1,5 @@
 import type { GalleryMetadata, HeaderImageVariants } from '../gallery';
+import type { ThumbnailConfig } from './config';
 
 /** Resolved hero data with all paths computed and markdown parsed */
 export interface ResolvedHero {
@@ -68,4 +69,9 @@ export interface ResolvedGalleryData {
   // Pass through base URLs for components that need them
   mediaBaseUrl?: string;
   thumbsBaseUrl?: string;
+  /**
+   * Thumbnail configuration with dimension and edge settings.
+   * Themes should use this for display sizing (e.g., row-height for modern theme).
+   */
+  thumbnails?: Required<ThumbnailConfig>;
 }

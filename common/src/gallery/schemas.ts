@@ -120,7 +120,12 @@ export const GalleryDataSchema = z.object({
   headerImage: z.string(),
   headerImageBlurHash: z.string().optional(),
   headerImageVariants: HeaderImageVariantsSchema.optional(),
-  thumbnailSize: z.number().optional(),
+  thumbnails: z
+    .object({
+      size: z.number().optional(),
+      edge: z.enum(['auto', 'width', 'height']).optional(),
+    })
+    .optional(),
   metadata: GalleryMetadataSchema,
   mediaBaseUrl: z.string().optional(),
   thumbsBaseUrl: z.string().optional(),

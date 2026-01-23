@@ -75,6 +75,7 @@ Your theme package should have the following structure:
 ```
 your-theme-package/
 ├── package.json
+├── themeConfig.json (optional, but recommended)
 ├── astro.config.ts
 ├── tsconfig.json
 └── src/
@@ -146,7 +147,56 @@ export default defineConfig({
 });
 ```
 
-#### 3. `src/pages/index.astro`
+#### 3. `themeConfig.json` (Optional, but recommended)
+
+Theme authors can provide default configuration for their theme by including a `themeConfig.json` file in the theme root directory (same level as `package.json`).
+
+This allows you to set optimal defaults for your theme's layout while still allowing users to override these settings per gallery in their `gallery.json` file.
+
+**Example themeConfig.json:**
+
+```json
+{
+  "thumbnails": {
+    "size": 300,
+    "edge": "height"
+  }
+}
+```
+
+**Configuration Options:**
+
+- `thumbnails.size` (number): Default thumbnail size in pixels (default: 300)
+- `thumbnails.edge` (string): How the size is applied
+  - `"auto"`: Applied to longer edge (default)
+  - `"width"`: Applied to width (good for masonry layouts)
+  - `"height"`: Applied to height (good for row-based layouts)
+
+**Configuration Hierarchy:**
+
+The thumbnail settings follow this priority order:
+
+1. **Gallery-level** (highest priority): Settings in user's `gallery.json`
+2. **Theme-level**: Settings in theme's `themeConfig.json`
+3. **Built-in defaults** (lowest priority): 300px on auto (longer edge)
+
+This means users can override your theme defaults per gallery, while your theme provides sensible defaults that work well with its layout.
+
+**Loading Theme Config:**
+
+Use the `loadThemeConfig()` utility from `@simple-photo-gallery/common/theme`:
+
+```typescript
+import path from 'node:path';
+import { loadThemeConfig } from '@simple-photo-gallery/common/theme';
+
+const themePath = path.resolve(import.meta.dirname, '../..');
+const themeConfig = loadThemeConfig(themePath);
+```
+
+See the example in section 3 below for complete integration.
+
+#### 4. `src/pages/index.astro`
 
 This is your main theme entry point. It must:
 
@@ -158,18 +208,28 @@ This is your main theme entry point. It must:
 
 ```astro
 ---
-import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+import path from 'node:path';
+import { loadGalleryData, loadThemeConfig, resolveGalleryData } from '@simple-photo-gallery/common/theme';
 import type { ResolvedGalleryData } from '@simple-photo-gallery/common/theme';
 
 // Read gallery.json from the path provided by the build process
 const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
 
-// Load and resolve gallery data
+// Load gallery data
 const raw = loadGalleryData(galleryJsonPath, { validate: true });
-const gallery: ResolvedGalleryData = await resolveGalleryData(raw, { galleryJsonPath });
+
+// Load theme config (optional, for theme-level defaults)
+const themePath = path.resolve(import.meta.dirname, '../..');
+const themeConfig = loadThemeConfig(themePath);
+
+// Resolve gallery data with theme config
+const gallery: ResolvedGalleryData = await resolveGalleryData(raw, {
+  galleryJsonPath,
+  themeConfig
+});
 
 // Extract resolved gallery properties
-const { hero, sections, subGalleries, metadata } = gallery;
+const { hero, sections, subGalleries, metadata, thumbnails } = gallery;
 ---
 
 <html>

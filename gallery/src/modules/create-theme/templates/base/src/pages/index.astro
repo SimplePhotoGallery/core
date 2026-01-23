@@ -1,13 +1,21 @@
 ---
-import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+import path from 'node:path';
 
+import { loadGalleryData, loadThemeConfig, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+
+import GalleryItem from '@/components/GalleryItem.astro';
 import Hero from '@/components/Hero.astro';
 import MainLayout from '@/layouts/MainLayout.astro';
 
 // Load and resolve gallery data - all paths are pre-computed
 const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
 const raw = loadGalleryData(galleryJsonPath, { validate: true });
-const gallery = await resolveGalleryData(raw, { galleryJsonPath });
+
+// Load theme config from theme root or cwd
+const themePath = path.resolve(import.meta.dirname, '../..');
+const themeConfig = loadThemeConfig(themePath);
+
+const gallery = await resolveGalleryData(raw, { galleryJsonPath, themeConfig });
 ---
 
 <MainLayout
@@ -17,7 +25,8 @@ const gallery = await resolveGalleryData(raw, { galleryJsonPath });
   url={gallery.url}
   thumbsBaseUrl={gallery.thumbsBaseUrl}
   analyticsScript={gallery.analyticsScript}
-  headerImage={gallery.hero.headerImage}>
+  headerImage={gallery.hero.headerImage}
+  thumbnails={gallery.thumbnails}>
   <Hero hero={gallery.hero} />
 
   <main>
@@ -30,16 +39,7 @@ const gallery = await resolveGalleryData(raw, { galleryJsonPath });
 
           <div class="gallery-grid">
             {section.images.map((image) => (
-              <a
-                href={image.imagePath}
-                data-pswp-width={image.width}
-                data-pswp-height={image.height}
-                data-pswp-type={image.type}
-                data-pswp-caption={image.alt || ''}
-                class="gallery-item">
-                <img src={image.thumbnailPath} srcset={image.thumbnailSrcSet} alt={image.alt || ''} loading="lazy" />
-                {image.alt && <span class="caption">{image.alt}</span>}
-              </a>
+              <GalleryItem image={image} />
             ))}
           </div>
         </section>
@@ -100,37 +100,6 @@ const gallery = await resolveGalleryData(raw, { galleryJsonPath });
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
     margin-top: 2rem;
-  }
-
-  .gallery-item {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    border-radius: 8px;
-    cursor: pointer;
-    aspect-ratio: 1;
-  }
-
-  .gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .gallery-item:hover img {
-    transform: scale(1.05);
-  }
-
-  .caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-    color: white;
-    padding: 1rem;
-    font-size: 0.9rem;
   }
 
   /* TODO: Customize styles to match your design */

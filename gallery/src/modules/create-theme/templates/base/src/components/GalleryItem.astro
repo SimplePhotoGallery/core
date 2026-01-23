@@ -1,0 +1,57 @@
+---
+import { renderMarkdown } from '@simple-photo-gallery/common/theme';
+import type { ResolvedImage } from '@simple-photo-gallery/common/theme';
+
+interface Props {
+  image: ResolvedImage;
+}
+
+const { image } = Astro.props;
+
+const parsedCaption = image.alt ? await renderMarkdown(image.alt) : '';
+const captionHtml = parsedCaption ? `<div class="image-caption markdown-content">${parsedCaption}</div>` : '';
+---
+
+<a
+  href={image.imagePath}
+  data-pswp-width={image.width}
+  data-pswp-height={image.height}
+  data-pswp-type={image.type}
+  data-pswp-caption={captionHtml}
+  class="gallery-item">
+  <img src={image.thumbnailPath} srcset={image.thumbnailSrcSet} alt={image.alt || ''} loading="lazy" />
+  {image.alt && <span class="caption">{image.alt}</span>}
+</a>
+
+<style>
+  .gallery-item {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    aspect-ratio: 1;
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.005);
+  }
+
+  .caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    color: white;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+</style>

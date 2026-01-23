@@ -237,9 +237,78 @@ Markdown formatting is available in:
 - **Images** and **tables** are not supported for security and layout consistency
 - **HTML tags** are stripped for security
 
-## Thumbnail size
+## Thumbnail Configuration
 
-Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
+Thumbnail generation and display can be configured through a hierarchical configuration system:
+
+1. **Gallery-level configuration** (highest priority) - Set in `gallery.json`
+2. **Theme-level configuration** - Set in theme's `themeConfig.json` file
+3. **Built-in defaults** (lowest priority) - 300px on auto (longer edge)
+
+### Configuration Hierarchy
+
+The thumbnail settings follow this priority order:
+
+```
+gallery.json > themeConfig.json > built-in defaults
+```
+
+This means if you specify thumbnail settings in `gallery.json`, those will be used. If not, the theme's `themeConfig.json` will be checked. If neither is set, the built-in defaults (300px, auto edge) will be used.
+
+### Gallery-level Configuration
+
+You can override thumbnail settings per gallery by adding a `thumbnails` object to your `gallery.json`:
+
+```json
+{
+  "title": "My Gallery",
+  "thumbnails": {
+    "size": 400,
+    "edge": "height"
+  }
+}
+```
+
+**Options:**
+
+- `size` (number): The thumbnail size in pixels. Default: `300`
+- `edge` (string): How the size is applied. Default: `"auto"`
+  - `"auto"` - Applied to the longer edge (default behavior)
+  - `"width"` - Applied to width (good for masonry layouts)
+  - `"height"` - Applied to height (good for row-based layouts like modern theme)
+
+### Theme-level Configuration
+
+Themes can provide their own default thumbnail settings by including a `themeConfig.json` file in the theme root directory:
+
+```json
+{
+  "thumbnails": {
+    "size": 300,
+    "edge": "height"
+  }
+}
+```
+
+This allows theme authors to set optimal defaults for their specific layout while still allowing users to override these settings per gallery.
+
+**For theme developers:** Place `themeConfig.json` in your theme's root directory (same level as `package.json`). The configuration will be automatically loaded when the theme is used.
+
+### Display Behavior
+
+When thumbnails are configured, they also control the display size in themes:
+
+- **Modern theme**: `thumbnails.size` becomes the row height (e.g., `size: 200` sets `--row-height: 200px`)
+- **Default behavior** (no thumbnails config): Uses responsive breakpoints (96px on mobile, scaling up to 160px on desktop)
+
+### Interactive Configuration
+
+When running `gallery init`, you'll be prompted to configure thumbnail settings. You can:
+- Enter a custom size (in pixels)
+- Choose how the size is applied (auto/width/height)
+- Press Enter to skip and use theme/default settings
+
+Only explicitly set values will be saved to `gallery.json`, keeping the file clean and allowing the configuration hierarchy to work properly.
 
 ## Header image variants
 

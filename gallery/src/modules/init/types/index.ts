@@ -57,4 +57,11 @@ export interface GallerySettingsFromUser {
   url: string;
   /** Path to the header image */
   headerImage: string;
+  /** Thumbnail configuration */
+  thumbnails: {
+    /** Size of generated thumbnails in pixels (empty string if not set) */
+    size: string;
+    /** How thumbnail size should be applied: 'auto', 'width', or 'height' (undefined if not set) */
+    edge: 'auto' | 'width' | 'height' | undefined;
+  };
 }

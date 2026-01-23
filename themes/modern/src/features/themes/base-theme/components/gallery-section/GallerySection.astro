@@ -58,12 +58,14 @@ const validImages = section.images.filter(
     margin-bottom: 1rem;
   }
 
+  /* Spacer element to prevent last row items from stretching.
+     Uses a large flex-grow to absorb remaining space, keeping items at natural size.
+     min-width ensures the spacer takes up remaining space on incomplete rows. */
   .gallery-section__gallery::after {
-    --w: 2;
-    --h: 1;
-    --ratio: calc(var(--w) / var(--h));
     content: '';
-    flex-basis: calc(var(--ratio) * var(--row-height));
-    flex-grow: 1000000;
+    flex-grow: 999999999;
+    flex-shrink: 0;
+    flex-basis: var(--row-height);
+    min-width: var(--row-height);
   }
 </style>

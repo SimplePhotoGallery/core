@@ -1,11 +1,22 @@
 import path from 'node:path';
 
+import { mergeThumbnailConfig, type ThumbnailConfig } from './config';
 import { LANDSCAPE_SIZES, PORTRAIT_SIZES } from './constants';
 import { renderMarkdown } from './markdown';
 import { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
 
 import type { GalleryData, GallerySection, MediaFile, SubGallery } from '../gallery';
 import type { ResolvedGalleryData, ResolvedHero, ResolvedImage, ResolvedSection, ResolvedSubGallery } from './types';
+
+/**
+ * Extracts thumbnail config from gallery data.
+ */
+function extractThumbnailConfigFromGallery(gallery: GalleryData): ThumbnailConfig {
+  return {
+    size: gallery.thumbnails?.size,
+    edge: gallery.thumbnails?.edge,
+  };
+}
 
 /**
  * Resolve a single image with all paths computed.
@@ -146,6 +157,11 @@ export interface ResolveGalleryDataOptions {
    * relative paths for sub-galleries (resolvedPath field).
    */
   galleryJsonPath?: string;
+  /**
+   * Theme-specific thumbnail configuration from themeConfig.json.
+   * Used as fallback when gallery.json doesn't specify thumbnail settings.
+   */
+  themeConfig?: ThumbnailConfig;
 }
 
 /**
@@ -161,7 +177,7 @@ export async function resolveGalleryData(
   options?: ResolveGalleryDataOptions,
 ): Promise<ResolvedGalleryData> {
   const { mediaBaseUrl, thumbsBaseUrl, subGalleries } = gallery;
-  const { galleryJsonPath } = options ?? {};
+  const { galleryJsonPath, themeConfig } = options ?? {};
 
   const hero = await resolveHero(gallery);
   const sections = await Promise.all(
@@ -175,6 +191,10 @@ export async function resolveGalleryData(
       }
     : undefined;
 
+  // Merge thumbnail config: gallery.json > themeConfig > defaults
+  const galleryThumbnailConfig = extractThumbnailConfigFromGallery(gallery);
+  const thumbnails = mergeThumbnailConfig(galleryThumbnailConfig, themeConfig);
+
   return {
     title: gallery.title,
     url: gallery.url,
@@ -186,5 +206,6 @@ export async function resolveGalleryData(
     subGalleries: resolvedSubGalleries,
     mediaBaseUrl,
     thumbsBaseUrl,
+    thumbnails,
   };
 }

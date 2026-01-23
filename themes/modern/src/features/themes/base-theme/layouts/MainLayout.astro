@@ -4,6 +4,7 @@ import path from 'node:path';
 import MainHead from '@/features/themes/base-theme/layouts/MainHead.astro';
 
 import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common';
+import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
 
 interface Props {
   title: string;
@@ -14,9 +15,11 @@ interface Props {
   analyticsScript?: string;
   headerImage?: string;
   headerImageVariants?: HeaderImageVariants;
+  thumbnails?: Required<ThumbnailConfig>;
 }
 
-const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage, headerImageVariants } = Astro.props;
+const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage, headerImageVariants, thumbnails } =
+  Astro.props;
 
 // Extract basename from headerImage filename
 const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;
@@ -33,7 +36,7 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
     headerImageBasename={headerImageBasename}
     headerImageVariants={headerImageVariants}
   />
-  <body>
+  <body style={thumbnails ? `--row-height: ${thumbnails.size}px` : undefined}>
     <slot />
 
     {analyticsScript && <Fragment set:html={analyticsScript} />}

@@ -28,13 +28,11 @@ Theme utilities for loading and transforming gallery data.
 Loads and optionally validates gallery.json.
 
 ```typescript
-function loadGalleryData(
-  galleryJsonPath?: string,
-  options?: LoadGalleryDataOptions
-): GalleryData
+function loadGalleryData(galleryJsonPath?: string, options?: LoadGalleryDataOptions): GalleryData;
 ```
 
 **Parameters:**
+
 - `galleryJsonPath` (optional): Path to gallery.json file. Defaults to `'./gallery.json'`
 - `options` (optional):
   - `validate?: boolean` - Enable Zod schema validation (default: `false`)
@@ -44,6 +42,7 @@ function loadGalleryData(
 **Throws:** Error if file cannot be read, parsed, or fails validation
 
 **Example:**
+
 ```typescript
 import { loadGalleryData } from '@simple-photo-gallery/common/theme';
 
@@ -56,39 +55,99 @@ const gallery = loadGalleryData('./gallery.json', { validate: true });
 
 ---
 
+#### `loadThemeConfig(themePath?)`
+
+Loads theme configuration from themeConfig.json file.
+
+```typescript
+function loadThemeConfig(themePath?: string): ThumbnailConfig | undefined;
+```
+
+**Parameters:**
+
+- `themePath` (optional): Path to the theme directory containing themeConfig.json
+
+**Returns:** `ThumbnailConfig` object with thumbnail settings, or `undefined` if not found
+
+**Searches in order:**
+
+1. Current working directory (`process.cwd()/themeConfig.json`)
+2. Provided `themePath` parameter (`themePath/themeConfig.json`)
+
+**Example:**
+
+```typescript
+import path from 'node:path';
+import { loadThemeConfig } from '@simple-photo-gallery/common/theme';
+
+// Load from theme directory
+const themePath = path.resolve(import.meta.dirname, '../..');
+const themeConfig = loadThemeConfig(themePath);
+
+// Use in data resolution
+const gallery = await resolveGalleryData(raw, {
+  galleryJsonPath: './gallery.json',
+  themeConfig,
+});
+```
+
+**Theme Configuration Structure:**
+
+```json
+{
+  "thumbnails": {
+    "size": 300,
+    "edge": "height"
+  }
+}
+```
+
+---
+
 #### `resolveGalleryData(data, options?)`
 
 Transforms raw data into fully-resolved structure with pre-computed paths and parsed markdown.
 
 ```typescript
-async function resolveGalleryData(
-  data: GalleryData,
-  options?: ResolveGalleryDataOptions
-): Promise<ResolvedGalleryData>
+async function resolveGalleryData(data: GalleryData, options?: ResolveGalleryDataOptions): Promise<ResolvedGalleryData>;
 ```
 
 **Parameters:**
+
 - `data`: Raw `GalleryData` object (from `loadGalleryData()`)
 - `options` (optional):
   - `galleryJsonPath?: string` - Path to gallery.json, enables relative path resolution for sub-galleries
+  - `themeConfig?: ThumbnailConfig` - Theme-level thumbnail configuration (from `loadThemeConfig()`)
 
 **Returns:** `ResolvedGalleryData` with:
+
 - Pre-computed image and thumbnail paths
 - Built responsive image srcsets for hero
 - Parsed markdown descriptions as HTML
 - Computed properties for sub-galleries
+- Resolved thumbnail configuration (merged from gallery.json, theme config, and defaults)
 
 **Example:**
+
 ```typescript
-import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+import path from 'node:path';
+import { loadGalleryData, loadThemeConfig, resolveGalleryData } from '@simple-photo-gallery/common/theme';
 
 const raw = loadGalleryData('./gallery.json', { validate: true });
-const gallery = await resolveGalleryData(raw, { galleryJsonPath: './gallery.json' });
+
+// Load theme config (optional, for theme-level thumbnail defaults)
+const themePath = path.resolve(import.meta.dirname, '../..');
+const themeConfig = loadThemeConfig(themePath);
+
+const gallery = await resolveGalleryData(raw, {
+  galleryJsonPath: './gallery.json',
+  themeConfig,
+});
 
 // Access resolved data
-console.log(gallery.hero.src);           // Pre-computed hero path
-console.log(gallery.hero.srcsets);       // Responsive srcsets
-console.log(gallery.sections[0].parsedDescription);  // HTML from markdown
+console.log(gallery.hero.src); // Pre-computed hero path
+console.log(gallery.hero.srcsets); // Responsive srcsets
+console.log(gallery.sections[0].parsedDescription); // HTML from markdown
 ```
 
 ---
@@ -100,11 +159,7 @@ console.log(gallery.sections[0].parsedDescription);  // HTML from markdown
 Resolves media file path with optional base URL.
 
 ```typescript
-function getPhotoPath(
-  filename: string,
-  baseUrl?: string,
-  url?: string
-): string
+function getPhotoPath(filename: string, baseUrl?: string, url?: string): string;
 ```
 
 ---
@@ -114,11 +169,7 @@ function getPhotoPath(
 Resolves thumbnail path with optional base URL.
 
 ```typescript
-function getThumbnailPath(
-  path: string,
-  baseUrl?: string,
-  thumbBaseUrl?: string
-): string
+function getThumbnailPath(path: string, baseUrl?: string, thumbBaseUrl?: string): string;
 ```
 
 ---
@@ -135,8 +186,8 @@ function buildHeroSrcset(
   basename: string,
   orientation: 'landscape' | 'portrait',
   format: 'avif' | 'jpg',
-  useDefaultPaths: boolean
-): string
+  useDefaultPaths: boolean,
+): string;
 ```
 
 ---
@@ -146,7 +197,7 @@ function buildHeroSrcset(
 Computes relative path between two locations.
 
 ```typescript
-function getRelativePath(to: string, from: string): string
+function getRelativePath(to: string, from: string): string;
 ```
 
 ---
@@ -156,7 +207,7 @@ function getRelativePath(to: string, from: string): string
 Computes thumbnail path for sub-gallery header images.
 
 ```typescript
-function getSubgalleryThumbnailPath(headerImage: string): string
+function getSubgalleryThumbnailPath(headerImage: string): string;
 ```
 
 ---
@@ -168,10 +219,11 @@ function getSubgalleryThumbnailPath(headerImage: string): string
 Parses markdown to HTML with limited formatting (no headings, images, HTML, or tables).
 
 ```typescript
-async function renderMarkdown(markdown: string): Promise<string>
+async function renderMarkdown(markdown: string): Promise<string>;
 ```
 
 **Example:**
+
 ```typescript
 import { renderMarkdown } from '@simple-photo-gallery/common/theme';
 
@@ -186,10 +238,11 @@ const html = await renderMarkdown('**Bold** and *italic* text');
 Astro integration that removes empty content collection files after build.
 
 ```typescript
-function preventEmptyContentFiles(): AstroIntegration
+function preventEmptyContentFiles(): AstroIntegration;
 ```
 
 **Example:**
+
 ```typescript
 // In astro.config.ts
 import { preventEmptyContentFiles } from '@simple-photo-gallery/common/theme';
@@ -232,7 +285,8 @@ interface ResolvedGalleryData {
   hero: ResolvedHero;
   sections: ResolvedSection[];
   subGalleries?: ResolvedSubGallery[];
-  // ... other metadata
+  thumbnails?: Required<ThumbnailConfig>; // Resolved thumbnail configuration
+  // ... other metadata (url, metadata, analyticsScript, etc.)
 }
 ```
 
@@ -321,8 +375,26 @@ Options for `resolveGalleryData()`.
 ```typescript
 interface ResolveGalleryDataOptions {
   galleryJsonPath?: string;
+  themeConfig?: ThumbnailConfig;
 }
 ```
+
+#### `ThumbnailConfig`
+
+Thumbnail configuration settings.
+
+```typescript
+interface ThumbnailConfig {
+  size?: number; // Thumbnail size in pixels (default: 300)
+  edge?: 'auto' | 'width' | 'height'; // How size is applied (default: 'auto')
+}
+```
+
+**Edge Options:**
+
+- `'auto'`: Applied to longer edge (default behavior)
+- `'width'`: Applied to width (good for masonry layouts)
+- `'height'`: Applied to height (good for row-based layouts)
 
 ---
 
@@ -337,10 +409,11 @@ Browser-side utilities for client-side functionality.
 Decodes all blurhash canvases on the page (elements with `data-blurhash` attribute).
 
 ```typescript
-function decodeAllBlurhashes(): void
+function decodeAllBlurhashes(): void;
 ```
 
 **Example:**
+
 ```typescript
 import { decodeAllBlurhashes } from '@simple-photo-gallery/common/client';
 
@@ -349,6 +422,7 @@ decodeAllBlurhashes();
 ```
 
 **HTML:**
+
 ```html
 <canvas data-blurhash="LGF5]+Yk^6#M..." width="32" height="32"></canvas>
 ```
@@ -360,10 +434,7 @@ decodeAllBlurhashes();
 Decodes a single blurhash to a canvas element.
 
 ```typescript
-function decodeBlurhashToCanvas(
-  canvas: HTMLCanvasElement,
-  blurhash: string
-): void
+function decodeBlurhashToCanvas(canvas: HTMLCanvasElement, blurhash: string): void;
 ```
 
 ---
@@ -375,12 +446,11 @@ function decodeBlurhashToCanvas(
 Creates a configured PhotoSwipe lightbox instance with video support.
 
 ```typescript
-function createGalleryLightbox(
-  options?: GalleryLightboxOptions
-): PhotoSwipeLightbox
+function createGalleryLightbox(options?: GalleryLightboxOptions): PhotoSwipeLightbox;
 ```
 
 **Parameters:**
+
 - `options` (optional):
   - `gallery?: string` - Gallery element selector (default: `'#gallery'`)
   - `children?: string` - Child elements selector (default: `'a'`)
@@ -390,12 +460,13 @@ function createGalleryLightbox(
 **Returns:** Configured PhotoSwipe lightbox instance (call `.init()` to activate)
 
 **Example:**
+
 ```typescript
 import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
 
 const lightbox = createGalleryLightbox({
   gallery: '#my-gallery',
-  children: 'a.gallery-item'
+  children: 'a.gallery-item',
 });
 
 lightbox.init();
@@ -424,23 +495,23 @@ class PhotoSwipeVideoPlugin {
 Initializes hero image fallback behavior (transitions from blur hash to actual image).
 
 ```typescript
-function initHeroImageFallback(
-  options?: HeroImageFallbackOptions
-): void
+function initHeroImageFallback(options?: HeroImageFallbackOptions): void;
 ```
 
 **Parameters:**
+
 - `options` (optional):
   - `heroSelector?: string` - Hero element selector (default: `'.hero'`)
   - `imageSelector?: string` - Hero image selector (default: `'.hero__image'`)
 
 **Example:**
+
 ```typescript
 import { initHeroImageFallback } from '@simple-photo-gallery/common/client';
 
 initHeroImageFallback({
   heroSelector: '.my-hero',
-  imageSelector: '.my-hero img'
+  imageSelector: '.my-hero img',
 });
 ```
 
@@ -453,14 +524,11 @@ initHeroImageFallback({
 Sets a CSS custom property value.
 
 ```typescript
-function setCSSVar(
-  name: string,
-  value: string,
-  element?: HTMLElement
-): void
+function setCSSVar(name: string, value: string, element?: HTMLElement): void;
 ```
 
 **Example:**
+
 ```typescript
 import { setCSSVar } from '@simple-photo-gallery/common/client';
 
@@ -479,7 +547,7 @@ setCSSVar('--hero-bg', '#000', hero);
 Parses a color string to RGB array.
 
 ```typescript
-function parseColor(color: string): [number, number, number] | null
+function parseColor(color: string): [number, number, number] | null;
 ```
 
 **Supports:** Hex colors (`#fff`, `#ffffff`) and RGB strings (`rgb(255, 0, 0)`)
@@ -491,13 +559,14 @@ function parseColor(color: string): [number, number, number] | null
 Normalizes a hex color to 6-character format.
 
 ```typescript
-function normalizeHex(hex: string): string
+function normalizeHex(hex: string): string;
 ```
 
 **Example:**
+
 ```typescript
-normalizeHex('#fff');      // Returns: '#ffffff'
-normalizeHex('#ffffff');   // Returns: '#ffffff'
+normalizeHex('#fff'); // Returns: '#ffffff'
+normalizeHex('#ffffff'); // Returns: '#ffffff'
 ```
 
 ---
@@ -507,13 +576,11 @@ normalizeHex('#ffffff');   // Returns: '#ffffff'
 Derives an RGBA color from a base color and opacity.
 
 ```typescript
-function deriveOpacityColor(
-  baseColor: string,
-  opacity: number
-): string
+function deriveOpacityColor(baseColor: string, opacity: number): string;
 ```
 
 **Example:**
+
 ```typescript
 import { deriveOpacityColor } from '@simple-photo-gallery/common/client';
 
@@ -661,6 +728,7 @@ All types have corresponding Zod validation schemas:
 - `HeaderImageVariantsSchema` - Validates responsive image variants
 
 **Example:**
+
 ```typescript
 import { GalleryDataSchema } from '@simple-photo-gallery/common';
 
@@ -741,7 +809,7 @@ initHeroImageFallback();
 // Setup PhotoSwipe lightbox
 const lightbox = createGalleryLightbox({
   gallery: '#gallery',
-  children: 'a'
+  children: 'a',
 });
 lightbox.init();
 ```

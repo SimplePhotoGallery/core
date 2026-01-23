@@ -8,11 +8,22 @@ spg init [options]
 
 ## How it works
 
-This command initializes a new gallery by scanning a folder (and optionally its subfolders) for images and videos. The command will prompt you to enter the gallery title, description, header image, and URL where it will be hosted. All of these can later be edited in the `gallery.json` file.
+This command initializes a new gallery by scanning a folder (and optionally its subfolders) for images and videos. The command will prompt you to enter:
+
+- Gallery title
+- Gallery description
+- Header image (selected from your photos)
+- URL where the gallery will be hosted
+- Thumbnail size (in pixels) - optional, press Enter to use theme/default settings
+- Thumbnail edge mode (auto/width/height) - optional, press Enter to use theme/default settings
+
+All of these settings can later be edited in the `gallery.json` file.
 
 > **Note:** The URL is important if you want the automatically generated social media images to work correctly, as it needs to be an absolute URL.
 
-After that, the command will create a `gallery` folder and a `gallery.json` file in it. The `gallery.json` file contains all the information about the gallery, including the title, description, header image, URL and all images and videos in the gallery.
+> **Tip:** For thumbnail settings, you can press Enter to skip the prompts. This allows the [configuration hierarchy](../configuration.md#thumbnail-configuration) to work: gallery.json → themeConfig.json → built-in defaults (300px, auto edge).
+
+After that, the command will create a `gallery` folder and a `gallery.json` file in it. The `gallery.json` file contains all the information about the gallery, including the title, description, header image, URL, thumbnail settings (if specified), and all images and videos in the gallery.
 
 ## Options
 

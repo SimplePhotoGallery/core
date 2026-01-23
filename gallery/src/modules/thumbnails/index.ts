@@ -1,21 +1,34 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { mergeThumbnailConfig } from '@simple-photo-gallery/common/theme';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { getFileMtime } from './utils';
 
-import { DEFAULT_THUMBNAIL_SIZE } from '../../config';
 import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
 import { getImageDescription } from '../../utils/descriptions';
 import { parseGalleryJson } from '../../utils/gallery';
-import { createImageThumbnails, loadImageWithMetadata } from '../../utils/image';
+import { createImageThumbnails, loadImageWithMetadata, type ThumbnailSizeDimension } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-import type { MediaFile } from '@simple-photo-gallery/common';
+import type { GalleryData, MediaFile } from '@simple-photo-gallery/common';
+import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
+
+/**
+ * Extracts thumbnail config from gallery data.
+ * @param galleryData - The gallery data object
+ * @returns ThumbnailConfig with values from gallery.json
+ */
+function extractThumbnailConfigFromGallery(galleryData: GalleryData): ThumbnailConfig {
+  return {
+    size: galleryData.thumbnails?.size,
+    edge: galleryData.thumbnails?.edge,
+  };
+}
 
 /**
  * Processes an image file to create thumbnail and extract metadata
@@ -23,6 +36,7 @@ import type { MediaFile } from '@simple-photo-gallery/common';
  * @param thumbnailPath - Path where thumbnail should be saved
  * @param thumbnailPathRetina - Path where retina thumbnail should be saved
  * @param thumbnailSize - Target size for thumbnail
+ * @param thumbnailSizeDimension - How to apply size: 'auto', 'width', or 'height'
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
  * @returns Promise resolving to updated MediaFile or undefined if skipped
  */
@@ -31,6 +45,7 @@ export async function processImage(
   thumbnailPath: string,
   thumbnailPathRetina: string,
   thumbnailSize: number,
+  thumbnailSizeDimension: ThumbnailSizeDimension = 'auto',
   lastMediaTimestamp?: Date,
 ): Promise<MediaFile | undefined> {
   // Get the last media timestamp
@@ -64,6 +79,7 @@ export async function processImage(
     thumbnailPath,
     thumbnailPathRetina,
     thumbnailSize,
+    thumbnailSizeDimension,
   );
 
   // Generate BlurHash from the thumbnail
@@ -93,6 +109,7 @@ export async function processImage(
  * @param thumbnailPath - Path where thumbnail should be saved
  * @param thumbnailPathRetina - Path where retina thumbnail should be saved
  * @param thumbnailSize - Target size for thumbnail
+ * @param thumbnailSizeDimension - How to apply size: 'auto', 'width', or 'height'
  * @param verbose - Whether to enable verbose output
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
  * @returns Promise resolving to updated MediaFile or undefined if skipped
@@ -102,6 +119,7 @@ async function processVideo(
   thumbnailPath: string,
   thumbnailPathRetina: string,
   thumbnailSize: number,
+  thumbnailSizeDimension: ThumbnailSizeDimension = 'auto',
   verbose: boolean,
   lastMediaTimestamp?: Date,
 ): Promise<MediaFile | undefined> {
@@ -123,6 +141,7 @@ async function processVideo(
     thumbnailPath,
     thumbnailPathRetina,
     thumbnailSize,
+    thumbnailSizeDimension,
     verbose,
   );
 
@@ -150,9 +169,8 @@ async function processVideo(
  * Processes a media file to generate thumbnails and update metadata
  * @param mediaFile - Media file to process
  * @param mediaBasePath - Base path for the media files
- * @param galleryDir - Path to the gallery directory
  * @param thumbnailsPath - Directory where thumbnails are stored
- * @param thumbnailSize - Target size for thumbnails
+ * @param thumbnailConfig - Thumbnail configuration (dimension and edge)
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to updated MediaFile
  */
@@ -160,7 +178,7 @@ async function processMediaFile(
   mediaFile: MediaFile,
   mediaBasePath: string,
   thumbnailsPath: string,
-  thumbnailSize: number,
+  thumbnailConfig: Required<ThumbnailConfig>,
   ui: ConsolaInstance,
 ): Promise<MediaFile> {
   try {
@@ -179,8 +197,23 @@ async function processMediaFile(
     ui.debug(`  Processing ${mediaFile.type}: ${fileName}`);
 
     const updatedMediaFile = await (mediaFile.type === 'image'
-      ? processImage(filePath, thumbnailPath, thumbnailPathRetina, thumbnailSize, lastMediaTimestamp)
-      : processVideo(filePath, thumbnailPath, thumbnailPathRetina, thumbnailSize, verbose, lastMediaTimestamp));
+      ? processImage(
+          filePath,
+          thumbnailPath,
+          thumbnailPathRetina,
+          thumbnailConfig.size,
+          thumbnailConfig.edge,
+          lastMediaTimestamp,
+        )
+      : processVideo(
+          filePath,
+          thumbnailPath,
+          thumbnailPathRetina,
+          thumbnailConfig.size,
+          thumbnailConfig.edge,
+          verbose,
+          lastMediaTimestamp,
+        ));
 
     if (!updatedMediaFile) {
       ui.debug(`  Skipping ${fileName} because it has already been processed`);
@@ -245,7 +278,14 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     // Read gallery.json
     const galleryData = parseGalleryJson(galleryJsonPath, ui);
 
-    const thumbnailSize = galleryData.thumbnailSize || DEFAULT_THUMBNAIL_SIZE;
+    // Extract thumbnail config from gallery.json
+    const galleryThumbnailConfig = extractThumbnailConfigFromGallery(galleryData);
+
+    // Merge with defaults (no theme config when running thumbnails command directly)
+    // Hierarchy: gallery.json > built-in defaults
+    const thumbnailConfig = mergeThumbnailConfig(galleryThumbnailConfig);
+
+    ui.debug(`Thumbnail config: size=${thumbnailConfig.size}, edge=${thumbnailConfig.edge}`);
 
     // If the mediaBasePath is not set, use the gallery directory
     const mediaBasePath = galleryData.mediaBasePath ?? path.join(galleryDir);
@@ -254,7 +294,7 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     let processedCount = 0;
     for (const section of galleryData.sections) {
       for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailSize, ui);
+        section.images[index] = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui);
       }
 
       processedCount += section.images.length;

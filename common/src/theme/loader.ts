@@ -1,4 +1,8 @@
 import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
+
+import { ThemeConfigSchema, type ThumbnailConfig } from './config';
 
 import { GalleryDataSchema, type GalleryData } from '../gallery';
 
@@ -9,6 +13,49 @@ export interface LoadGalleryDataOptions {
    * @default false
    */
   validate?: boolean;
+}
+
+/**
+ * Load theme configuration from themeConfig.json file.
+ *
+ * Searches for themeConfig.json in the following locations:
+ * 1. Current working directory (process.cwd())
+ * 2. Provided themePath parameter
+ *
+ * @param themePath - Optional path to the theme directory
+ * @returns The thumbnail configuration from the theme, or undefined if not found
+ *
+ * @example
+ * ```typescript
+ * // Load from theme directory
+ * const themeConfig = loadThemeConfig('/path/to/theme');
+ *
+ * // Load from current directory
+ * const themeConfig = loadThemeConfig();
+ * ```
+ */
+export function loadThemeConfig(themePath?: string): ThumbnailConfig | undefined {
+  const themeConfigPaths: string[] = [path.resolve(process.cwd(), 'themeConfig.json')];
+
+  if (themePath) {
+    themeConfigPaths.push(path.resolve(themePath, 'themeConfig.json'));
+  }
+
+  for (const configPath of themeConfigPaths) {
+    if (fs.existsSync(configPath)) {
+      try {
+        const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        const parsed = ThemeConfigSchema.safeParse(configData);
+        if (parsed.success) {
+          return parsed.data.thumbnails;
+        }
+      } catch {
+        // Ignore parse errors and continue searching
+      }
+    }
+  }
+
+  return undefined;
 }
 
 /**

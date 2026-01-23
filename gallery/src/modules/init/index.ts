@@ -84,8 +84,43 @@ async function getGallerySettingsFromUser(
     default: defaultImage,
     placeholder: defaultImage,
   });
+  const thumbnailSize = await ui.prompt('Enter thumbnail size in pixels (or press Enter to skip and use theme/default)', {
+    type: 'text',
+    default: '',
+    placeholder: 'theme default or 300',
+  });
 
-  return { title, description, url, headerImage };
+  const thumbnailEdgeOption = (await ui.prompt(
+    'How should thumbnail size be applied?\n  - auto: Applied to the longer edge (recommended for mixed orientations)\n  - width: Applied to width (for masonry layouts)\n  - height: Applied to height (for row-based layouts)\n  (Press Enter to skip and use theme/default)',
+    {
+      type: 'select',
+      options: ['Skip (use theme/default)', 'auto (longer edge)', 'width (masonry)', 'height (rows)'],
+      initial: 'Skip (use theme/default)',
+    },
+  )) as string;
+
+  // Extract edge from selected option - only set if not skipped
+  let thumbnailEdge: 'auto' | 'width' | 'height' | undefined = undefined;
+  if (!thumbnailEdgeOption.startsWith('Skip')) {
+    if (thumbnailEdgeOption.startsWith('auto')) {
+      thumbnailEdge = 'auto';
+    } else if (thumbnailEdgeOption.startsWith('width')) {
+      thumbnailEdge = 'width';
+    } else {
+      thumbnailEdge = 'height';
+    }
+  }
+
+  return {
+    title,
+    description,
+    url,
+    headerImage,
+    thumbnails: {
+      size: thumbnailSize,
+      edge: thumbnailEdge,
+    },
+  };
 }
 
 /**
@@ -138,13 +173,34 @@ async function createGalleryJson(
   };
 
   if (!useDefaultSettings) {
+    const userSettings = await getGallerySettingsFromUser(
+      path.basename(path.join(galleryDir, '..')),
+      path.basename(mediaFiles[0]?.filename || ''),
+      ui,
+    );
+
+    // Extract thumbnail settings and only include if actually set by user
+    const { thumbnails, ...otherSettings } = userSettings;
+    const parsedSize = thumbnails.size.length > 0 ? Number.parseInt(thumbnails.size, 10) : undefined;
+
+    // Build thumbnails config only with values explicitly set by user
+    const thumbnailsConfig: { size?: number; edge?: 'auto' | 'width' | 'height' } = {};
+
+    // Only include size if user entered a value (not empty)
+    if (parsedSize !== undefined && !Number.isNaN(parsedSize)) {
+      thumbnailsConfig.size = parsedSize;
+    }
+
+    // Only include edge if user selected a value (not skipped)
+    if (thumbnails.edge !== undefined) {
+      thumbnailsConfig.edge = thumbnails.edge;
+    }
+
     galleryData = {
       ...galleryData,
-      ...(await getGallerySettingsFromUser(
-        path.basename(path.join(galleryDir, '..')),
-        path.basename(mediaFiles[0]?.filename || ''),
-        ui,
-      )),
+      ...otherSettings,
+      // Only include thumbnails object if user set at least one value
+      ...(Object.keys(thumbnailsConfig).length > 0 && { thumbnails: thumbnailsConfig }),
     };
   }
 

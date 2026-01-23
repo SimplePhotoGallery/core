@@ -1,5 +1,7 @@
 ---
-import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+import path from 'node:path';
+
+import { loadGalleryData, loadThemeConfig, resolveGalleryData } from '@simple-photo-gallery/common/theme';
 
 import CtaBanner from '@/features/themes/base-theme/components/cta/CtaBanner.astro';
 import Footer from '@/features/themes/base-theme/components/footer/Footer.astro';
@@ -12,7 +14,13 @@ import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
 // Load and resolve gallery data - all paths are pre-computed
 const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
 const raw = loadGalleryData(galleryJsonPath, { validate: true });
-const gallery = await resolveGalleryData(raw, { galleryJsonPath });
+
+// Load theme config from theme root or cwd
+// Try current working directory first, then relative to built theme location
+const themePath = path.resolve(import.meta.dirname, '../../../..');
+const themeConfig = loadThemeConfig(themePath);
+
+const gallery = await resolveGalleryData(raw, { galleryJsonPath, themeConfig });
 
 const showCtaBanner = gallery.ctaBanner === true;
 ---
@@ -37,7 +45,8 @@ const showCtaBanner = gallery.ctaBanner === true;
   thumbsBaseUrl={gallery.thumbsBaseUrl}
   analyticsScript={gallery.analyticsScript}
   headerImage={gallery.hero.headerImage}
-  headerImageVariants={gallery.hero.headerImageVariants}>
+  headerImageVariants={gallery.hero.headerImageVariants}
+  thumbnails={gallery.thumbnails}>
   <Hero hero={gallery.hero} />
 
   {
