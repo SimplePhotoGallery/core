@@ -6,7 +6,7 @@ import MainLayout from '@/layouts/MainLayout.astro';
 
 // Load and resolve gallery data - all paths are pre-computed
 const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
-const raw = loadGalleryData(galleryJsonPath);
+const raw = loadGalleryData(galleryJsonPath, { validate: true });
 const gallery = await resolveGalleryData(raw, { galleryJsonPath });
 ---
 
