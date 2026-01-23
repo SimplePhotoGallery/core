@@ -98,10 +98,14 @@ This is a monorepo using Yarn workspaces. To set up the development environment:
 
 ### Workspace Packages
 
-- `common/` - Shared types and utilities (must be built first)
-- `gallery/` - CLI tool (`simple-photo-gallery`)
-  - `gallery/src/modules/create-theme/templates/base/` - Base theme template used by `spg create-theme` (bundled with the package)
-- `themes/modern/` - Default theme package
+- **`common/`** - Shared types, schemas, and utilities used by both the CLI and themes
+  - Gallery types and Zod validation schemas
+  - Theme utilities (data loading, path resolution, markdown parsing)
+  - Client-side utilities (PhotoSwipe, blurhash, CSS helpers)
+  - See [common/README.md](common/README.md) for full API documentation
+- **`gallery/`** - CLI tool (`simple-photo-gallery`)
+  - Includes base theme template bundled at `gallery/src/modules/create-theme/templates/base/`
+- **`themes/modern/`** - Default theme package (reference implementation)
 
 ### Building Packages
 
@@ -116,6 +120,20 @@ Each workspace package can be built individually:
 **Images:** JPEG, PNG, WebP, GIF, TIFF  
 **Videos:** MP4, MOV, AVI, WebM, MKV
 
+## Architecture
+
+This project uses a multi-theme architecture:
+- **Common package** provides shared utilities for all themes
+- **Themes** focus only on layout and presentation
+- **CLI** handles gallery generation and theme orchestration
+
+See the [Architecture Documentation](./docs/architecture.md) for details on how the system works, including:
+- Package structure and dependencies
+- Data flow from photos to static HTML
+- Theme system design and resolution
+- Multi-theme support implementation
+- Guidelines for adding new features
+
 ## Detailed Documentation
 
 For advanced usage, customization, and deployment options, see the comprehensive [documentation](./docs/README.md):
@@ -129,6 +147,7 @@ For advanced usage, customization, and deployment options, see the comprehensive
   - [`telemetry`](./docs/commands/telemetry.md) - Manage anonymous telemetry preferences
 - **[Gallery Configuration](./docs/configuration.md)** - Manual editing of `gallery.json` and advanced features like sections
 - **[Custom Themes](./docs/themes.md)** - Create and use custom themes
+- **[Common Package API](./common/README.md)** - Utilities and types for theme development
 - **[Deployment Guide](./docs/deployment.md)** - Guidelines for hosting your gallery
 
 ## Python Version

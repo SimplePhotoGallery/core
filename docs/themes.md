@@ -154,7 +154,69 @@ This is your main theme entry point. It must:
 - Parse and use the `GalleryData` structure
 - Generate valid HTML output
 
-Example:
+**Recommended approach** - Use the resolver utilities from `@simple-photo-gallery/common/theme`:
+
+```astro
+---
+import { loadGalleryData, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+import type { ResolvedGalleryData } from '@simple-photo-gallery/common/theme';
+
+// Read gallery.json from the path provided by the build process
+const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
+
+// Load and resolve gallery data
+const raw = loadGalleryData(galleryJsonPath, { validate: true });
+const gallery: ResolvedGalleryData = await resolveGalleryData(raw, { galleryJsonPath });
+
+// Extract resolved gallery properties
+const { hero, sections, subGalleries, metadata } = gallery;
+---
+
+<html>
+  <head>
+    <title>{hero.title}</title>
+    <meta name="description" content={hero.description} />
+    {metadata.analyticsScript && (
+      <Fragment set:html={metadata.analyticsScript} />
+    )}
+  </head>
+  <body>
+    <!-- Your theme implementation here -->
+    <h1>{hero.title}</h1>
+    <div set:html={hero.parsedDescription} />
+
+    <!-- Render hero with responsive images -->
+    <picture>
+      <source srcset={hero.srcsets.landscapeAvif} type="image/avif" media="(orientation: landscape)" />
+      <source srcset={hero.srcsets.landscapeJpg} type="image/jpeg" media="(orientation: landscape)" />
+      <source srcset={hero.srcsets.portraitAvif} type="image/avif" media="(orientation: portrait)" />
+      <source srcset={hero.srcsets.portraitJpg} type="image/jpeg" media="(orientation: portrait)" />
+      <img src={hero.src} alt={hero.title} />
+    </picture>
+
+    <!-- Render gallery sections -->
+    {sections.map((section) => (
+      <section>
+        <h2>{section.title}</h2>
+        <div set:html={section.parsedDescription} />
+        {section.images.map((image) => (
+          <a href={image.imagePath} data-pswp-width={image.width} data-pswp-height={image.height}>
+            <img
+              src={image.thumbnailPath}
+              srcset={image.thumbnailSrcSet}
+              alt={image.alt || image.filename}
+              width={image.thumbnailWidth}
+              height={image.thumbnailHeight}
+            />
+          </a>
+        ))}
+      </section>
+    ))}
+  </body>
+</html>
+```
+
+**Alternative - Manual approach** (not recommended for new themes):
 
 ```astro
 ---
@@ -166,41 +228,24 @@ const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
 const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
 const gallery = galleryData as GalleryData;
 
-// Extract gallery properties
-const {
-  title,
-  description,
-  metadata,
-  sections,
-  subGalleries,
-  mediaBaseUrl,
-  thumbsBaseUrl,
-  url,
-  analyticsScript,
-  headerImage,
-  headerImageBlurHash,
-  ctaBanner,
-} = gallery;
+// Extract gallery properties - note: paths and markdown NOT pre-computed
+const { title, description, sections } = gallery;
 ---
 
 <html>
   <head>
     <title>{title}</title>
     <meta name="description" content={description} />
-    {analyticsScript && (
-      <Fragment set:html={analyticsScript} />
-    )}
   </head>
   <body>
-    <!-- Your theme implementation here -->
     <h1>{title}</h1>
     <p>{description}</p>
 
-    <!-- Render gallery sections -->
+    <!-- Note: Using raw filenames, not resolved paths -->
     {sections.map((section) => (
       <section>
         {section.images.map((image) => (
-          <img src={image.filename} alt={image.caption || ''} />
+          <img src={image.filename} alt={image.alt || ''} />
         ))}
       </section>
     ))}
@@ -208,9 +253,19 @@ const {
 </html>
 ```
 
+> **Note:** The resolver approach is recommended because it provides pre-computed paths, responsive srcsets, and parsed markdown. The modern theme uses this pattern. See the [Common Package API](../common/README.md) for complete documentation.
+
 ### Gallery Data Structure
 
-Your theme receives a `GalleryData` object with the following structure:
+> **Important:** There are two data structures to understand:
+> - **`GalleryData`** - Raw structure from `gallery.json` (manual approach)
+> - **`ResolvedGalleryData`** - Transformed structure with pre-computed paths (recommended approach)
+>
+> **Recommendation:** Use `resolveGalleryData()` from `@simple-photo-gallery/common/theme` to get resolved data. This is what the modern theme uses.
+
+#### Raw GalleryData (Manual Approach)
+
+Your theme receives a `GalleryData` object from `gallery.json` with the following structure:
 
 ```typescript
 interface GalleryData {
@@ -268,6 +323,89 @@ interface GalleryData {
 }
 ```
 
+### Using Common Package Utilities
+
+The `@simple-photo-gallery/common` package provides utilities that make theme development easier and more consistent.
+
+#### Data Loading and Resolution
+
+**`loadGalleryData()`** - Load gallery.json with optional validation:
+
+```typescript
+import { loadGalleryData } from '@simple-photo-gallery/common/theme';
+
+const gallery = loadGalleryData('./gallery.json', { validate: true });
+```
+
+**`resolveGalleryData()`** - Transform raw data into resolved structure:
+
+```typescript
+import { resolveGalleryData } from '@simple-photo-gallery/common/theme';
+
+const resolved = await resolveGalleryData(gallery, { galleryJsonPath: './gallery.json' });
+
+// Access pre-computed data
+resolved.hero.src              // Computed hero image path
+resolved.hero.srcsets          // Responsive image srcsets
+resolved.sections[0].parsedDescription  // HTML from markdown
+resolved.sections[0].images[0].imagePath  // Computed image path
+```
+
+**Benefits of using the resolver:**
+- All image paths pre-computed (no manual path logic)
+- Responsive srcsets built automatically
+- Markdown descriptions parsed to HTML
+- Type-safe with `ResolvedGalleryData` type
+
+#### Client-Side Utilities
+
+The `@simple-photo-gallery/common/client` module provides browser-side utilities:
+
+**PhotoSwipe Lightbox:**
+```typescript
+import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
+
+const lightbox = createGalleryLightbox({
+  gallery: '#gallery',
+  children: 'a'
+});
+lightbox.init();
+```
+
+**Blurhash Decoding:**
+```typescript
+import { decodeAllBlurhashes } from '@simple-photo-gallery/common/client';
+
+// Decodes all canvas elements with data-blurhash attribute
+decodeAllBlurhashes();
+```
+
+**Hero Image Fallback:**
+```typescript
+import { initHeroImageFallback } from '@simple-photo-gallery/common/client';
+
+// Smooth transition from blurhash to actual image
+initHeroImageFallback();
+```
+
+**CSS Utilities:**
+```typescript
+import { setCSSVar, deriveOpacityColor } from '@simple-photo-gallery/common/client';
+
+// Set CSS custom properties dynamically
+setCSSVar('--primary-color', '#007bff');
+
+// Create semi-transparent colors
+const bgColor = deriveOpacityColor('#007bff', 0.1);
+setCSSVar('--bg-color', bgColor);
+```
+
+#### Complete API Reference
+
+For a comprehensive list of all utilities and types, see the [Common Package API documentation](../common/README.md).
+
+---
+
 ### Environment Variables
 
 The build process sets these environment variables that your theme can access:
@@ -314,12 +452,14 @@ yarn dev
 
 ### Best Practices
 
-1. **Use TypeScript**: Import types from `@simple-photo-gallery/common` for type safety
-2. **Handle optional fields**: Many fields in `GalleryData` are optional - always check before using
-3. **Respect base URLs**: Use `mediaBaseUrl` and `thumbsBaseUrl` when provided for external hosting
-4. **Optimize assets**: Use Astro's asset optimization features
-5. **Test locally**: Use `astro dev` to preview your theme during development
-6. **Follow Astro conventions**: Use Astro components, layouts, and best practices
+1. **Use the resolver**: Use `resolveGalleryData()` from `@simple-photo-gallery/common/theme` for path computation and data transformation (recommended)
+2. **Use TypeScript**: Import types from `@simple-photo-gallery/common` for type safety
+3. **Leverage client utilities**: Import from `@simple-photo-gallery/common/client` for browser-side functionality like PhotoSwipe and blurhash
+4. **Handle optional fields**: Many fields in `GalleryData` are optional - always check before using
+5. **Use resolved types**: Work with `ResolvedGalleryData`, `ResolvedHero`, `ResolvedSection`, etc. for pre-computed data
+6. **Optimize assets**: Use Astro's asset optimization features
+7. **Test locally**: Use `astro dev` to preview your theme during development
+8. **Follow Astro conventions**: Use Astro components, layouts, and best practices
 
 ### Example Theme Packages
 
