@@ -42,5 +42,14 @@ export default defineConfig([
     outDir: 'dist',
     treeshake: true,
     external: ['photoswipe', 'photoswipe/lightbox', 'blurhash'],
+    async onSuccess() {
+      const fs = await import('node:fs/promises');
+
+      const srcStyles = 'src/styles';
+      const distStyles = 'dist/styles';
+
+      await fs.mkdir(distStyles, { recursive: true });
+      await fs.cp(srcStyles, distStyles, { recursive: true });
+    },
   },
 ]);

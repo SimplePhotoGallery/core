@@ -1,4 +1,3 @@
-import { injectPhotoSwipeStyles } from './styles';
 import { PhotoSwipeVideoPlugin } from './video-plugin';
 
 import type { VideoPluginOptions } from './types';
@@ -33,10 +32,15 @@ export interface GalleryLightboxOptions {
  * Create a PhotoSwipe lightbox with sensible defaults and video support.
  * Returns the lightbox instance for further customization before calling init().
  *
+ * IMPORTANT: You must import the PhotoSwipe CSS files for the lightbox to work properly:
+ * - `import 'photoswipe/style.css'` - Base PhotoSwipe styles
+ * - `import '@simple-photo-gallery/common/styles/photoswipe'` - SPG enhancement styles
+ *
  * @example
  * ```typescript
  * import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
  * import 'photoswipe/style.css';
+ * import '@simple-photo-gallery/common/styles/photoswipe';
  *
  * // Basic usage
  * const lightbox = await createGalleryLightbox();
@@ -54,9 +58,6 @@ export interface GalleryLightboxOptions {
  * ```
  */
 export async function createGalleryLightbox(options: GalleryLightboxOptions = {}): Promise<PhotoSwipeLightbox> {
-  // Inject enhanced styles - safe to call multiple times
-  injectPhotoSwipeStyles();
-
   const photoswipeModule = await import('photoswipe');
   const PhotoSwipe = photoswipeModule.default;
   const lightboxModule = await import('photoswipe/lightbox');

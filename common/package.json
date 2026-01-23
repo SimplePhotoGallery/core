@@ -24,7 +24,8 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "import": "./dist/client.js"
-    }
+    },
+    "./styles/photoswipe": "./dist/styles/photoswipe/photoswipe.css"
   },
   "files": [
     "dist"
