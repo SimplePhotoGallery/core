@@ -49,8 +49,15 @@ export function loadThemeConfig(themePath?: string): ThumbnailConfig | undefined
         if (parsed.success) {
           return parsed.data.thumbnails;
         }
-      } catch {
-        // Ignore parse errors and continue searching
+        // Log validation errors for debugging
+        if (process.env.DEBUG || process.env.VERBOSE) {
+          console.warn(`Failed to validate themeConfig at ${configPath}:`, parsed.error.message);
+        }
+      } catch (error) {
+        // Log parse errors for debugging
+        if (process.env.DEBUG || process.env.VERBOSE) {
+          console.warn(`Failed to parse themeConfig at ${configPath}:`, error);
+        }
       }
     }
   }

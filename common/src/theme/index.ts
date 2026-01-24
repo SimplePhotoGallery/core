@@ -3,7 +3,13 @@ export type { ResolvedGalleryData, ResolvedHero, ResolvedImage, ResolvedSection,
 
 // Theme config
 export type { ThemeConfig, ThumbnailConfig } from './config';
-export { DEFAULT_THUMBNAIL_CONFIG, mergeThumbnailConfig, ThemeConfigSchema, ThumbnailConfigSchema } from './config';
+export {
+  DEFAULT_THUMBNAIL_CONFIG,
+  extractThumbnailConfigFromGallery,
+  mergeThumbnailConfig,
+  ThemeConfigSchema,
+  ThumbnailConfigSchema,
+} from './config';
 
 // Constants
 export { LANDSCAPE_SIZES, PORTRAIT_SIZES } from './constants';

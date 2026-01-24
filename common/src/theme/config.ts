@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /** Zod schema for thumbnail configuration */
 export const ThumbnailConfigSchema = z.object({
-  size: z.number().optional(),
+  size: z.number().min(50).max(4000).optional(),
   edge: z.enum(['auto', 'width', 'height']).optional(),
 });
 
@@ -22,6 +22,18 @@ export const DEFAULT_THUMBNAIL_CONFIG: Required<ThumbnailConfig> = {
   size: 300,
   edge: 'auto',
 };
+
+/**
+ * Extracts thumbnail config from gallery data.
+ * @param gallery - The gallery data object
+ * @returns ThumbnailConfig with values from gallery data
+ */
+export function extractThumbnailConfigFromGallery(gallery: { thumbnails?: ThumbnailConfig }): ThumbnailConfig {
+  return {
+    size: gallery.thumbnails?.size,
+    edge: gallery.thumbnails?.edge,
+  };
+}
 
 /**
  * Merges thumbnail configurations with hierarchy:

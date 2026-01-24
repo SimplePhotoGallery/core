@@ -1,22 +1,12 @@
 import path from 'node:path';
 
-import { mergeThumbnailConfig, type ThumbnailConfig } from './config';
+import { extractThumbnailConfigFromGallery, mergeThumbnailConfig, type ThumbnailConfig } from './config';
 import { LANDSCAPE_SIZES, PORTRAIT_SIZES } from './constants';
 import { renderMarkdown } from './markdown';
 import { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
 
 import type { GalleryData, GallerySection, MediaFile, SubGallery } from '../gallery';
 import type { ResolvedGalleryData, ResolvedHero, ResolvedImage, ResolvedSection, ResolvedSubGallery } from './types';
-
-/**
- * Extracts thumbnail config from gallery data.
- */
-function extractThumbnailConfigFromGallery(gallery: GalleryData): ThumbnailConfig {
-  return {
-    size: gallery.thumbnails?.size,
-    edge: gallery.thumbnails?.edge,
-  };
-}
 
 /**
  * Resolve a single image with all paths computed.

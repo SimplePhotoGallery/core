@@ -9,6 +9,7 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@simple-photo-gallery/common$': '<rootDir>/../common/src/gallery.ts',
+    '^@simple-photo-gallery/common/theme$': '<rootDir>/../common/src/theme/index.ts',
   },
   transform: {
     '^.+\\.tsx?$': [

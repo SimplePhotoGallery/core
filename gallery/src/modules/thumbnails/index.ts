@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { mergeThumbnailConfig } from '@simple-photo-gallery/common/theme';
+import { extractThumbnailConfigFromGallery, mergeThumbnailConfig } from '@simple-photo-gallery/common/theme';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { getFileMtime } from './utils';
@@ -15,20 +15,8 @@ import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-import type { GalleryData, MediaFile } from '@simple-photo-gallery/common';
+import type { MediaFile } from '@simple-photo-gallery/common';
 import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
-
-/**
- * Extracts thumbnail config from gallery data.
- * @param galleryData - The gallery data object
- * @returns ThumbnailConfig with values from gallery.json
- */
-function extractThumbnailConfigFromGallery(galleryData: GalleryData): ThumbnailConfig {
-  return {
-    size: galleryData.thumbnails?.size,
-    edge: galleryData.thumbnails?.edge,
-  };
-}
 
 /**
  * Processes an image file to create thumbnail and extract metadata
