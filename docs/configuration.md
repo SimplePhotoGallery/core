@@ -241,6 +241,8 @@ Markdown formatting is available in:
 
 Thumbnail generation and display can be configured through a hierarchical configuration system:
 
+> **Migration Note:** If you're upgrading from an older version that used `thumbnailSize` (a number field), this has been replaced with a `thumbnails` object containing `size` and `edge` properties. Your existing `thumbnailSize` value will be automatically migrated to `thumbnails.size` when you run any gallery command.
+
 1. **Gallery-level configuration** (highest priority) - Set in `gallery.json`
 2. **Theme-level configuration** - Set in theme's `themeConfig.json` file
 3. **Built-in defaults** (lowest priority) - 300px on auto (longer edge)

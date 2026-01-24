@@ -18,9 +18,16 @@ export interface LoadGalleryDataOptions {
 /**
  * Load theme configuration from themeConfig.json file.
  *
- * Searches for themeConfig.json in the following locations:
- * 1. Current working directory (process.cwd())
- * 2. Provided themePath parameter
+ * Searches for themeConfig.json in the following locations (in priority order):
+ * 1. Current working directory (process.cwd()) - checked first
+ * 2. Provided themePath parameter - checked second
+ *
+ * The first valid configuration found is returned. This means a themeConfig.json
+ * in the project root will take precedence over the theme's built-in configuration,
+ * allowing users to override theme defaults without modifying the theme itself.
+ *
+ * **Note for theme authors:** Your theme's themeConfig.json provides sensible defaults,
+ * but users can override these by placing their own themeConfig.json in their project root.
  *
  * @param themePath - Optional path to the theme directory
  * @returns The thumbnail configuration from the theme, or undefined if not found
