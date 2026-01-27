@@ -1,0 +1,41 @@
+---
+import type { ResolvedSection } from '@simple-photo-gallery/common/theme';
+
+interface Props {
+  section: ResolvedSection;
+}
+
+const { section } = Astro.props;
+---
+
+<div class="gallery-section__header">
+  <h2 class="gallery-section__header-title">{section.title}</h2>
+  {
+    section.parsedDescription && (
+      <div class="gallery-section__header-description markdown-content" set:html={section.parsedDescription} />
+    )
+  }
+</div>
+
+<style>
+  .gallery-section__header {
+    margin-bottom: 4rem;
+  }
+
+  .gallery-section__header-title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--typography-color-title, var(--gallery-section-title-color, #111827));
+    text-align: center;
+  }
+
+  .gallery-section__header-description {
+    font-size: 1.125rem;
+    color: var(--typography-color-description, var(--gallery-section-description-color, #6b7280));
+    max-width: 42rem;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-align: left;
+  }
+</style>

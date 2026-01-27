@@ -1,0 +1,13 @@
+<script>
+  import { createGalleryLightbox, setupDeepLinking, restoreFromURL } from '@simple-photo-gallery/common/client';
+  import 'photoswipe/style.css';
+  import '@simple-photo-gallery/common/styles/photoswipe';
+
+  const gallerySelector = '.gallery-section__gallery';
+
+  const lightbox = await createGalleryLightbox({ gallerySelector });
+
+  setupDeepLinking(lightbox, { gallerySelector });
+  lightbox.init();
+  restoreFromURL(lightbox, { gallerySelector });
+</script>

@@ -1,6 +1,6 @@
 {
   "thumbnails": {
-    "size": 300,
-    "edge": "auto"
+    "size": 200,
+    "edge": "height"
   }
 }
