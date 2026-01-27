@@ -1,28 +1,20 @@
 ---
-import path from 'node:path';
-
 import MainHead from '@/features/themes/base-theme/layouts/MainHead.astro';
 
-import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common';
-import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
+import type { GalleryMetadata } from '@simple-photo-gallery/common';
+import type { ResolvedHero, ThumbnailConfig } from '@simple-photo-gallery/common/theme';
 
 interface Props {
   title: string;
   description?: string;
   url?: string;
-  thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
   analyticsScript?: string;
-  headerImage?: string;
-  headerImageVariants?: HeaderImageVariants;
+  heroSrcsets: ResolvedHero['srcsets'];
   thumbnails?: Required<ThumbnailConfig>;
 }
 
-const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage, headerImageVariants, thumbnails } =
-  Astro.props;
-
-// Extract basename from headerImage filename
-const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;
+const { title, description, metadata, url, analyticsScript, heroSrcsets, thumbnails } = Astro.props;
 ---
 
 <!doctype html>
@@ -32,9 +24,7 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
     description={description}
     metadata={metadata}
     url={url}
-    thumbsBaseUrl={thumbsBaseUrl}
-    headerImageBasename={headerImageBasename}
-    headerImageVariants={headerImageVariants}
+    heroSrcsets={heroSrcsets}
   />
   <body style={thumbnails ? `--row-height: ${thumbnails.size}px` : undefined}>
     <slot />

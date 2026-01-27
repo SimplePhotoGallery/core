@@ -1,69 +1,22 @@
 ---
-import { buildHeroSrcset, LANDSCAPE_SIZES, PORTRAIT_SIZES } from '@simple-photo-gallery/common/theme';
-
-import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common';
+import type { GalleryMetadata } from '@simple-photo-gallery/common';
+import type { ResolvedHero } from '@simple-photo-gallery/common/theme';
 
 interface Props {
   title: string;
   description?: string;
   url?: string;
-  thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
-  headerImageBasename?: string;
-  headerImageVariants?: HeaderImageVariants;
+  heroSrcsets: ResolvedHero['srcsets'];
 }
 
-const { title, description, url, thumbsBaseUrl, metadata, headerImageBasename, headerImageVariants } = Astro.props;
+const { title, description, url, metadata, heroSrcsets } = Astro.props;
 
-// Use headerImageBasename for dynamic image paths, fallback to generic name
-const imgBasename = headerImageBasename || 'header';
-
-// Get the base path for the thumbnails
-const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
-
-// Determine which sources to show based on headerImageVariants
-// If headerImageVariants is not set, use all generated paths (default behavior)
-// If headerImageVariants is set, only show sources for formats that are explicitly provided
-const useDefaultPaths = !headerImageVariants;
-
-// Pre-compute srcsets - only non-empty srcsets will be rendered
-// This handles edge cases like empty format objects: { avif: {} }
-const portraitAvifSrcset = buildHeroSrcset(
-  headerImageVariants?.portrait?.avif,
-  PORTRAIT_SIZES,
-  thumbnailBasePath,
-  imgBasename,
-  'portrait',
-  'avif',
-  useDefaultPaths,
-);
-const portraitJpgSrcset = buildHeroSrcset(
-  headerImageVariants?.portrait?.jpg,
-  PORTRAIT_SIZES,
-  thumbnailBasePath,
-  imgBasename,
-  'portrait',
-  'jpg',
-  useDefaultPaths,
-);
-const landscapeAvifSrcset = buildHeroSrcset(
-  headerImageVariants?.landscape?.avif,
-  LANDSCAPE_SIZES,
-  thumbnailBasePath,
-  imgBasename,
-  'landscape',
-  'avif',
-  useDefaultPaths,
-);
-const landscapeJpgSrcset = buildHeroSrcset(
-  headerImageVariants?.landscape?.jpg,
-  LANDSCAPE_SIZES,
-  thumbnailBasePath,
-  imgBasename,
-  'landscape',
-  'jpg',
-  useDefaultPaths,
-);
+// Use pre-computed srcsets from the resolver
+const portraitAvifSrcset = heroSrcsets.portraitAvif;
+const portraitJpgSrcset = heroSrcsets.portraitJpg;
+const landscapeAvifSrcset = heroSrcsets.landscapeAvif;
+const landscapeJpgSrcset = heroSrcsets.landscapeJpg;
 
 // Determine media queries for preloads to match actual <source> media attributes in Hero.astro
 // Portrait <source> always has media="(max-aspect-ratio: 3/4)", so preload must use the same restriction
