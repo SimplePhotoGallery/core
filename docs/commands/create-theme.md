@@ -8,11 +8,13 @@ spg create-theme <name> [options]
 
 ## How it works
 
-The command creates a new theme by copying the base theme template (bundled with the package) and customizing it with your theme name. The generated theme includes:
+The command creates a new theme by copying the base theme template (bundled with the package) and customizing it with your theme name. The generated theme is a **1:1 copy of the modern theme** that users are familiar with, including:
 
 - `package.json`, `astro.config.ts`, `tsconfig.json`
 - `src/pages/index.astro` (main entry point)
-- Basic layouts/components and helper utilities
+- Full-featured components (Hero, GallerySection, PhotoSwipe lightbox, SubGalleries, CTA banner, Footer)
+- Responsive layouts with blurhash placeholders and AVIF/JPG support
+- Query parameter customization utilities
 - All configuration files (ESLint, Prettier, etc.)
 
 The command:

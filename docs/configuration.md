@@ -29,6 +29,31 @@ Additionally, the following parameters are automatically generated, but you can 
 - `ogImageWidth` - The width of the image
 - `ogImageHeight` - The height of the image
 
+## Theme
+
+You can specify the theme to use for your gallery by setting the `theme` field in `gallery.json`. This allows each gallery to use a different theme without needing to specify it via CLI each time.
+
+```json
+{
+  "title": "My Gallery",
+  "theme": "@simple-photo-gallery/theme-modern"
+}
+```
+
+The theme can be specified as:
+- An npm package name (e.g., `@simple-photo-gallery/theme-modern`)
+- A local path (e.g., `./themes/my-custom-theme`)
+
+### Theme Resolution Priority
+
+When building a gallery, the theme is resolved in this order:
+
+1. **CLI option** (highest priority) - `--theme` flag
+2. **gallery.json** - The `theme` field in your gallery configuration
+3. **Default theme** (lowest priority) - `@simple-photo-gallery/theme-modern`
+
+When you specify a theme via the CLI `--theme` flag, it is saved to `gallery.json` for future builds.
+
 ## Sections
 
 Sections can be used to group your photos with their own titles and descriptions. This is useful if you have a large gallery and want to split it into smaller sections.
@@ -243,19 +268,22 @@ Thumbnail generation and display can be configured through a hierarchical config
 
 > **Migration Note:** If you're upgrading from an older version that used `thumbnailSize` (a number field), this has been replaced with a `thumbnails` object containing `size` and `edge` properties. Your existing `thumbnailSize` value will be automatically migrated to `thumbnails.size` when you run any gallery command.
 
-1. **Gallery-level configuration** (highest priority) - Set in `gallery.json`
-2. **Theme-level configuration** - Set in theme's `themeConfig.json` file
-3. **Built-in defaults** (lowest priority) - 300px on auto (longer edge)
+1. **CLI options** (highest priority) - Passed via `--thumbnail-size` and `--thumbnail-edge` flags
+2. **Gallery-level configuration** - Set in `gallery.json`
+3. **Theme-level configuration** - Set in theme's `themeConfig.json` file
+4. **Built-in defaults** (lowest priority) - 300px on auto (longer edge)
 
 ### Configuration Hierarchy
 
 The thumbnail settings follow this priority order:
 
 ```
-gallery.json > themeConfig.json > built-in defaults
+CLI options > gallery.json > themeConfig.json > built-in defaults
 ```
 
-This means if you specify thumbnail settings in `gallery.json`, those will be used. If not, the theme's `themeConfig.json` will be checked. If neither is set, the built-in defaults (300px, auto edge) will be used.
+This means CLI options always take highest priority, followed by `gallery.json` settings. If not specified in either, the theme's `themeConfig.json` will be checked. If neither is set, the built-in defaults (300px, auto edge) will be used.
+
+When you provide thumbnail settings via CLI flags to the `init`, `thumbnails`, or `build` commands, those settings are saved to `gallery.json` for future builds.
 
 ### Gallery-level Configuration
 
@@ -303,14 +331,22 @@ When thumbnails are configured, they also control the display size in themes:
 - **Modern theme**: `thumbnails.size` becomes the row height (e.g., `size: 200` sets `--row-height: 200px`)
 - **Default behavior** (no thumbnails config): Uses responsive breakpoints (96px on mobile, scaling up to 160px on desktop)
 
-### Interactive Configuration
+### CLI Configuration
 
-When running `gallery init`, you'll be prompted to configure thumbnail settings. You can:
-- Enter a custom size (in pixels)
-- Choose how the size is applied (auto/width/height)
-- Press Enter to skip and use theme/default settings
+You can configure thumbnail settings when running `gallery init`, `gallery thumbnails`, or `gallery build` by using the CLI flags:
 
-Only explicitly set values will be saved to `gallery.json`, keeping the file clean and allowing the configuration hierarchy to work properly.
+```bash
+# Set thumbnail size and edge during init
+gallery init --thumbnail-size 400 --thumbnail-edge height
+
+# Override settings when generating thumbnails
+gallery thumbnails --thumbnail-size 300 --thumbnail-edge auto
+
+# Override settings when building
+gallery build --thumbnail-size 400 --thumbnail-edge height
+```
+
+When provided via CLI, these settings are saved to `gallery.json` for future builds, keeping the configuration hierarchy consistent.
 
 ## Header image variants
 
