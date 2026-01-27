@@ -17,6 +17,12 @@ export interface ScanOptions {
   force: boolean;
   /** Whether to add a Simple Photo Gallery call-to-action banner */
   ctaBanner?: boolean;
+  /** Theme package name or local path to store in gallery.json */
+  theme?: string;
+  /** Thumbnail size in pixels to store in gallery.json */
+  thumbnailSize?: number;
+  /** How thumbnail size should be applied: 'auto', 'width', or 'height' */
+  thumbnailEdge?: 'auto' | 'width' | 'height';
 }
 
 /** Metadata for a sub-gallery */
@@ -57,4 +63,11 @@ export interface GallerySettingsFromUser {
   url: string;
   /** Path to the header image */
   headerImage: string;
+  /** Thumbnail configuration */
+  thumbnails: {
+    /** Size of generated thumbnails in pixels (empty string if not set) */
+    size: string;
+    /** How thumbnail size should be applied: 'auto', 'width', or 'height' (undefined if not set) */
+    edge: 'auto' | 'width' | 'height' | undefined;
+  };
 }

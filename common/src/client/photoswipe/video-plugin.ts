@@ -1,48 +1,6 @@
+import type { Content, EventData, Slide, VideoPluginOptions } from './types';
 import type PhotoSwipe from 'photoswipe';
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
-
-interface Slide {
-  content: Content;
-  height: number;
-  currZoomLevel: number;
-  bounds: { center: { y: number } };
-  placeholder?: { element: HTMLElement };
-  isActive: boolean;
-}
-
-interface Content {
-  data: SlideData;
-  element?: HTMLVideoElement | HTMLImageElement | HTMLDivElement;
-  state?: string;
-  type?: string;
-  isAttached?: boolean;
-  onLoaded?: () => void;
-  appendImage?: () => void;
-  slide?: Slide;
-  _videoPosterImg?: HTMLImageElement;
-}
-
-interface SlideData {
-  type?: string;
-  msrc?: string;
-  videoSrc?: string;
-  videoSources?: Array<{ src: string; type: string }>;
-}
-
-interface VideoPluginOptions {
-  videoAttributes?: Record<string, string>;
-  autoplay?: boolean;
-  preventDragOffset?: number;
-}
-
-interface EventData {
-  content?: Content;
-  slide?: Slide;
-  width?: number;
-  height?: number;
-  originalEvent?: PointerEvent;
-  preventDefault?: () => void;
-}
 
 const defaultOptions: VideoPluginOptions = {
   videoAttributes: { controls: '', playsinline: '', preload: 'auto' },
@@ -262,9 +220,6 @@ class VideoContentSetup {
         content.element.append(sourceEl);
       }
     } else if (content.data.videoSrc) {
-      // Force video preload
-      // https://muffinman.io/blog/hack-for-ios-safari-to-display-html-video-thumbnail/
-      // this.element.src = this.data.videoSrc + '#t=0.001';
       content.element.src = content.data.videoSrc;
     }
   }
@@ -306,7 +261,28 @@ class VideoContentSetup {
   }
 }
 
-class PhotoSwipeVideoPlugin {
+/**
+ * PhotoSwipe plugin that adds video support to the lightbox.
+ * Videos are automatically detected by the `data-pswp-type="video"` attribute
+ * on gallery links.
+ *
+ * @example
+ * ```typescript
+ * import PhotoSwipe from 'photoswipe';
+ * import PhotoSwipeLightbox from 'photoswipe/lightbox';
+ * import { PhotoSwipeVideoPlugin } from '@simple-photo-gallery/common/client';
+ *
+ * const lightbox = new PhotoSwipeLightbox({
+ *   gallery: '.gallery',
+ *   children: 'a',
+ *   pswpModule: PhotoSwipe,
+ * });
+ *
+ * new PhotoSwipeVideoPlugin(lightbox);
+ * lightbox.init();
+ * ```
+ */
+export class PhotoSwipeVideoPlugin {
   constructor(lightbox: PhotoSwipeLightbox, options: VideoPluginOptions = {}) {
     new VideoContentSetup(lightbox, {
       ...defaultOptions,
@@ -314,6 +290,3 @@ class PhotoSwipeVideoPlugin {
     });
   }
 }
-
-export default PhotoSwipeVideoPlugin;
-export type { VideoPluginOptions };

@@ -14,17 +14,20 @@ If you have created the gallery in a different folder from the photos folder, th
 
 ## Options
 
-| Option                        | Description                                 | Default           |
-| ----------------------------- | ------------------------------------------- | ----------------- |
-| `-g, --gallery <path>`        | Path to gallery directory                   | Current directory |
-| `-r, --recursive`             | Build all galleries                         | `false`           |
-| `-b, --base-url <url>`        | Base URL for external hosting               | None              |
-| `-t, --thumbs-base-url <url>` | Base URL for external hosting of thumbnails | None              |
-| `--no-scan`                   | Do not scan for new photos                  | `true`            |
-| `--no-thumbnails`             | Skip creating thumbnails                    | `true`            |
-| `-v, --verbose`               | Show detailed output                        |                   |
-| `-q, --quiet`                 | Only show warnings/errors                   |                   |
-| `-h, --help`                  | Show command help                           |                   |
+| Option                        | Description                                        | Default                                 |
+| ----------------------------- | -------------------------------------------------- | --------------------------------------- |
+| `-g, --gallery <path>`        | Path to gallery directory                          | Current directory                       |
+| `-r, --recursive`             | Build all galleries                                | `false`                                 |
+| `-b, --base-url <url>`        | Base URL for external hosting                      | None                                    |
+| `-t, --thumbs-base-url <url>` | Base URL for external hosting of thumbnails        | None                                    |
+| `--theme <package\|path>`     | Theme package name or local path                   | gallery.json theme or `theme-modern`    |
+| `--thumbnail-size <pixels>`   | Override thumbnail size in pixels                  | From config hierarchy                   |
+| `--thumbnail-edge <mode>`     | Override size mode: auto, width, or height         | From config hierarchy                   |
+| `--no-scan`                   | Do not scan for new photos                         | `true`                                  |
+| `--no-thumbnails`             | Skip creating thumbnails                           | `true`                                  |
+| `-v, --verbose`               | Show detailed output                               |                                         |
+| `-q, --quiet`                 | Only show warnings/errors                          |                                         |
+| `-h, --help`                  | Show command help                                  |                                         |
 
 ## Examples
 
@@ -49,4 +52,22 @@ spg build --no-scan
 
 # Build without creating thumbnails
 spg build --no-thumbnails
+
+# Build with a custom theme package (npm)
+spg build --theme @your-org/your-private-theme
+
+# Build with a local theme (path)
+spg build --theme ./themes/my-local-theme
+
+# Build with custom thumbnail settings (overrides gallery.json and theme)
+spg build --thumbnail-size 400 --thumbnail-edge height
 ```
+
+## Custom Themes
+
+You can use custom themes by specifying the `--theme` option. Themes can be:
+
+- **npm packages**: Install as a dependency and use the package name (e.g., `@your-org/your-private-theme`)
+- **Local paths**: Use a relative or absolute path to a local theme directory (e.g., `./themes/my-local-theme`)
+
+See the [Custom Themes](../themes.md) guide for requirements and how to create your own theme.

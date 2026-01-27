@@ -28,7 +28,7 @@ const eslintConfig = [
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
   {
-    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
+    files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       ecmaVersion: 2020,
       parserOptions: {
@@ -74,6 +74,73 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+      'unicorn/prevent-abbreviations': 'off',
+      'unicorn/no-null': 'off',
+      'import/order': [
+        'warn',
+        {
+          alphabetize: {
+            caseInsensitive: true,
+            order: 'asc',
+          },
+          groups: ['builtin', 'external', 'index', 'sibling', 'parent', 'internal', 'type'],
+          pathGroups: [
+            {
+              pattern: 'react',
+              group: 'external',
+              position: 'before',
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['types'],
+          'newlines-between': 'always',
+        },
+      ],
+      'import/no-named-as-default-member': 'off',
+      'unicorn/filename-case': [
+        'error',
+        {
+          cases: {
+            camelCase: true,
+            pascalCase: true,
+            kebabCase: true,
+          },
+        },
+      ],
+      'unicorn/consistent-function-scoping': 'off',
+    },
+  },
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        ...globals.jest,
+        ...globals.browser,
+        ...globals.node,
+        AddEventListenerOptions: 'readonly',
+        EventListener: 'readonly',
+      },
+    },
+    settings: {
+      'import/resolver': {
+        node: {
+          paths: ['src'],
+          extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx'],
+        },
+        alias: {
+          map: [['@', path.resolve(import.meta.dirname, './src')]],
+          extensions: ['.js', '.jsx', '.ts', '.d.ts', '.tsx'],
+        },
+      },
+    },
+    rules: {
+      'import/no-extraneous-dependencies': 'off',
+      'import/prefer-default-export': 'off',
+      'import/extensions': 'off',
+      'no-undef': 'error',
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/no-null': 'off',
       'import/order': [

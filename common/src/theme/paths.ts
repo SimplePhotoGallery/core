@@ -4,17 +4,18 @@ import path from 'node:path';
  * Normalizes resource paths to be relative to the gallery root directory.
  *
  * @param resourcePath - The resource path (file or directory), typically relative to the gallery.json file
+ * @param galleryJsonPath - Path to the gallery.json file used to resolve relative paths
  * @returns The normalized path relative to the gallery root directory
  */
-export const getRelativePath = (resourcePath: string) => {
-  const galleryConfigPath = path.resolve(process.env.GALLERY_JSON_PATH || '');
+export function getRelativePath(resourcePath: string, galleryJsonPath: string): string {
+  const galleryConfigPath = path.resolve(galleryJsonPath);
   const galleryConfigDir = path.dirname(galleryConfigPath);
 
   const absoluteResourcePath = path.resolve(path.join(galleryConfigDir, resourcePath));
   const baseDir = path.dirname(galleryConfigDir);
 
   return path.relative(baseDir, absoluteResourcePath);
-};
+}
 
 /**
  * Get the path to a thumbnail that is relative to the gallery root directory or the thumbnails base URL.
@@ -24,14 +25,14 @@ export const getRelativePath = (resourcePath: string) => {
  * @param thumbnailBaseUrl - Optional thumbnail-specific base URL that overrides thumbsBaseUrl if provided
  * @returns The normalized path relative to the gallery root directory or the thumbnails base URL
  */
-export const getThumbnailPath = (resourcePath: string, thumbsBaseUrl?: string, thumbnailBaseUrl?: string) => {
+export function getThumbnailPath(resourcePath: string, thumbsBaseUrl?: string, thumbnailBaseUrl?: string): string {
   // If thumbnail-specific baseUrl is provided, use it and combine with the path
   if (thumbnailBaseUrl) {
     return `${thumbnailBaseUrl}/${resourcePath}`;
   }
   // Otherwise, use the gallery-level thumbsBaseUrl if provided
   return thumbsBaseUrl ? `${thumbsBaseUrl}/${resourcePath}` : `gallery/images/${path.basename(resourcePath)}`;
-};
+}
 
 /**
  * Get the path to a photo that is always in the gallery root directory.
@@ -41,14 +42,14 @@ export const getThumbnailPath = (resourcePath: string, thumbsBaseUrl?: string, t
  * @param url - Optional URL that, if provided, will be used directly regardless of base URL or path
  * @returns The normalized path relative to the gallery root directory, or the provided URL
  */
-export const getPhotoPath = (filename: string, mediaBaseUrl?: string, url?: string) => {
+export function getPhotoPath(filename: string, mediaBaseUrl?: string, url?: string): string {
   // If url is provided, always use it regardless of base URL or path
   if (url) {
     return url;
   }
 
   return mediaBaseUrl ? `${mediaBaseUrl}/${filename}` : filename;
-};
+}
 
 /**
  * Get the path to a subgallery thumbnail that is always in the subgallery directory.
@@ -56,18 +57,12 @@ export const getPhotoPath = (filename: string, mediaBaseUrl?: string, url?: stri
  * @param subgalleryHeaderImagePath - The path to the subgallery header image on the hard disk
  * @returns The normalized path relative to the subgallery directory
  */
-export const getSubgalleryThumbnailPath = (subgalleryHeaderImagePath: string) => {
+export function getSubgalleryThumbnailPath(subgalleryHeaderImagePath: string): string {
   const photoBasename = path.basename(subgalleryHeaderImagePath);
   const subgalleryFolderName = path.basename(path.dirname(subgalleryHeaderImagePath));
 
   return path.join(subgalleryFolderName, 'gallery', 'thumbnails', photoBasename);
-};
-
-/** Portrait image sizes for responsive hero images */
-export const PORTRAIT_SIZES = [360, 480, 720, 1080] as const;
-
-/** Landscape image sizes for responsive hero images */
-export const LANDSCAPE_SIZES = [640, 960, 1280, 1920, 2560, 3840] as const;
+}
 
 /**
  * Build a srcset string for responsive images.
@@ -82,7 +77,7 @@ export const LANDSCAPE_SIZES = [640, 960, 1280, 1920, 2560, 3840] as const;
  * @param useDefaultPaths - Whether to use generated paths when no custom variant exists
  * @returns Comma-separated srcset string
  */
-export const buildHeroSrcset = (
+export function buildHeroSrcset(
   variants: Record<number, string | undefined> | undefined,
   sizes: readonly number[],
   thumbnailBasePath: string,
@@ -90,7 +85,7 @@ export const buildHeroSrcset = (
   orientation: 'portrait' | 'landscape',
   format: 'avif' | 'jpg',
   useDefaultPaths: boolean,
-): string => {
+): string {
   return sizes
     .map((size) => {
       const customPath = variants?.[size];
@@ -104,4 +99,4 @@ export const buildHeroSrcset = (
     })
     .filter(Boolean)
     .join(', ');
-};
+}

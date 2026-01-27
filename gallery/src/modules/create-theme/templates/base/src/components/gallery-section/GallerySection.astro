@@ -1,0 +1,71 @@
+---
+import Container from '@/components/container/Container.astro';
+import GallerySectionHeader from '@/components/gallery-section/GallerySectionHeader.astro';
+import GallerySectionItem from '@/components/gallery-section/GallerySectionItem.astro';
+
+import type { ResolvedSection } from '@simple-photo-gallery/common/theme';
+
+interface Props {
+  section: ResolvedSection;
+  sectionIndex: number;
+}
+
+const { section, sectionIndex } = Astro.props;
+
+// Filter to only valid images with proper dimensions
+const validImages = section.images.filter(
+  (image) => image.width > 0 && image.height > 0 && (image.thumbnailWidth || 0) > 0 && (image.thumbnailHeight || 0) > 0,
+);
+---
+
+<section class={`gallery-section gallery-section-${sectionIndex}`}>
+  <Container>
+    <GallerySectionHeader section={section} />
+    <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
+      {validImages.map((image) => <GallerySectionItem image={image} />)}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .gallery-section {
+    padding: 1rem 1rem;
+    background-color: var(--section-bg-color-odd, var(--section-bg-color, #ffffff));
+  }
+
+  .gallery-section:nth-child(even) {
+    background-color: var(--section-bg-color-even, var(--section-bg-color, #f9fafb));
+  }
+
+  /* Opt-in embed mode: transparent backgrounds for iframe embedding */
+  .gallery-section--transparent {
+    background-color: var(--section-bg-color-odd, var(--section-bg-color, transparent));
+  }
+
+  .gallery-section--transparent:nth-child(even) {
+    background-color: var(--section-bg-color-even, var(--section-bg-color, transparent));
+  }
+
+  .gallery-section__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .gallery-section__gallery {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  /* Spacer element to prevent last row items from stretching.
+     Uses a large flex-grow to absorb remaining space, keeping items at natural size.
+     min-width ensures the spacer takes up remaining space on incomplete rows. */
+  .gallery-section__gallery::after {
+    content: '';
+    flex-grow: 999999999;
+    flex-shrink: 0;
+    flex-basis: var(--row-height);
+    min-width: var(--row-height);
+  }
+</style>

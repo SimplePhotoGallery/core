@@ -1,0 +1,61 @@
+---
+import path from 'node:path';
+
+import { loadGalleryData, loadThemeConfig, resolveGalleryData } from '@simple-photo-gallery/common/theme';
+
+import CtaBanner from '@/components/cta/CtaBanner.astro';
+import Footer from '@/components/footer/Footer.astro';
+import GallerySection from '@/components/gallery-section/GallerySection.astro';
+import Hero from '@/components/hero/Hero.astro';
+import PhotoSwipe from '@/components/lightbox/PhotoSwipe.astro';
+import SubGalleries from '@/components/sub-galleries/SubGalleries.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
+
+// Load and resolve gallery data - all paths are pre-computed
+const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
+const raw = loadGalleryData(galleryJsonPath, { validate: true });
+
+// Load theme config from theme root or cwd
+// Try current working directory first, then relative to built theme location
+const themePath = path.resolve(import.meta.dirname, '../..');
+const themeConfig = loadThemeConfig(themePath);
+
+const gallery = await resolveGalleryData(raw, { galleryJsonPath, themeConfig });
+
+const showCtaBanner = gallery.ctaBanner === true;
+---
+
+<script>
+  import { decodeAllBlurhashes } from '@simple-photo-gallery/common/client';
+
+  import { applyQueryParams } from '@/utils/queryParams';
+
+  // Decode all blurhash canvases on the page
+  decodeAllBlurhashes();
+
+  // Apply query parameter customizations
+  applyQueryParams();
+</script>
+
+<MainLayout
+  title={gallery.title}
+  description={gallery.hero.description}
+  metadata={gallery.metadata}
+  url={gallery.url}
+  analyticsScript={gallery.analyticsScript}
+  heroSrcsets={gallery.hero.srcsets}
+  thumbnails={gallery.thumbnails}>
+  <Hero hero={gallery.hero} />
+
+  {
+    gallery.subGalleries && gallery.subGalleries.galleries.length > 0 && (
+      <SubGalleries title={gallery.subGalleries.title} subGalleries={gallery.subGalleries.galleries} />
+    )
+  }
+  {gallery.sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
+
+  {showCtaBanner && <CtaBanner />}
+
+  <Footer />
+  <PhotoSwipe />
+</MainLayout>

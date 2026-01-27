@@ -1,0 +1,77 @@
+---
+
+---
+
+<button class="hero__scroll-to-gallery-btn" aria-label="Scroll to gallery">
+  <span class="hero__scroll-to-gallery-btn-arrow">&#x276F;</span>
+</button>
+
+<script>
+  function initScrollToGallery() {
+    const button = document.querySelector('.hero__scroll-to-gallery-btn');
+    if (button) {
+      button.addEventListener('click', () => {
+        const gallery = document.querySelector('.gallery-section-0');
+        if (gallery) {
+          gallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+  }
+
+  initScrollToGallery();
+</script>
+
+<style>
+  .hero__scroll-to-gallery-btn {
+    margin: auto;
+    bottom: 40px;
+    transform: rotate(90deg);
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    padding: 15px;
+    border-radius: 50%;
+    text-decoration: none;
+    z-index: 10;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    margin-top: 2rem;
+  }
+
+  .hero__scroll-to-gallery-btn:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+    transform: rotate(90deg) scale(1.05);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .hero__scroll-to-gallery-btn-arrow {
+    font-size: 18px;
+    line-height: 0.8;
+    animation: bounce 2s infinite;
+    transform: rotate(90deg);
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateX(0);
+    }
+    40% {
+      transform: translateX(5px);
+    }
+    60% {
+      transform: translateX(3px);
+    }
+  }
+</style>

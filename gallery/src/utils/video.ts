@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import ffprobe from 'node-ffprobe';
 import sharp from 'sharp';
 
-import { resizeImage } from './image';
+import { resizeImage, type ThumbnailSizeDimension } from './image';
 
 import type { Dimensions } from '../types';
 import type { Buffer } from 'node:buffer';
@@ -41,7 +41,8 @@ export async function getVideoDimensions(filePath: string): Promise<Dimensions> 
  * @param videoDimensions - Original video dimensions
  * @param outputPath - Path where thumbnail should be saved
  * @param outputPathRetina - Path where retina thumbnail should be saved
- * @param height - Target height for thumbnail
+ * @param size - Target size for thumbnail
+ * @param sizeDimension - How to apply size: 'auto' (longer edge), 'width', or 'height'
  * @param verbose - Whether to enable verbose ffmpeg output
  * @returns Promise resolving to thumbnail dimensions
  */
@@ -50,12 +51,34 @@ export async function createVideoThumbnails(
   videoDimensions: Dimensions,
   outputPath: string,
   outputPathRetina: string,
-  height: number,
+  size: number,
+  sizeDimension: ThumbnailSizeDimension = 'auto',
   verbose: boolean = false,
 ): Promise<Dimensions> {
-  // Calculate width maintaining aspect ratio
+  // Calculate dimensions maintaining aspect ratio based on sizeDimension
   const aspectRatio = videoDimensions.width / videoDimensions.height;
-  const width = Math.round(height * aspectRatio);
+
+  let width: number;
+  let height: number;
+
+  if (sizeDimension === 'width') {
+    // Apply size to width, calculate height from aspect ratio
+    width = size;
+    height = Math.round(size / aspectRatio);
+  } else if (sizeDimension === 'height') {
+    // Apply size to height, calculate width from aspect ratio
+    width = Math.round(size * aspectRatio);
+    height = size;
+  } else {
+    // 'auto': Apply size to longer edge
+    if (videoDimensions.width > videoDimensions.height) {
+      width = size;
+      height = Math.round(size / aspectRatio);
+    } else {
+      width = Math.round(size * aspectRatio);
+      height = size;
+    }
+  }
 
   // Use ffmpeg to extract first frame as a temporary file, then process with sharp
   const tempFramePath = `${outputPath}.temp.png`;

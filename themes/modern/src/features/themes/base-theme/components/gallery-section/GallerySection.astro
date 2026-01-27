@@ -3,19 +3,18 @@ import Container from '@/features/themes/base-theme/components/container/Contain
 import GallerySectionHeader from '@/features/themes/base-theme/components/gallery-section/GallerySectionHeader.astro';
 import GallerySectionItem from '@/features/themes/base-theme/components/gallery-section/GallerySectionItem.astro';
 
-import type { GallerySection as GallerySectionType } from '@simple-photo-gallery/common/src/gallery';
+import type { ResolvedSection } from '@simple-photo-gallery/common/theme';
 
 interface Props {
-  section: GallerySectionType;
+  section: ResolvedSection;
   sectionIndex: number;
-  mediaBaseUrl?: string;
-  thumbsBaseUrl?: string;
 }
 
-const { section, sectionIndex, mediaBaseUrl, thumbsBaseUrl } = Astro.props;
+const { section, sectionIndex } = Astro.props;
 
+// Filter to only valid images with proper dimensions
 const validImages = section.images.filter(
-  (image) => image.width > 0 && image.height > 0 && (image.thumbnail?.width || 0) > 0 && (image.thumbnail?.height || 0) > 0,
+  (image) => image.width > 0 && image.height > 0 && (image.thumbnailWidth || 0) > 0 && (image.thumbnailHeight || 0) > 0,
 );
 ---
 
@@ -23,16 +22,7 @@ const validImages = section.images.filter(
   <Container>
     <GallerySectionHeader section={section} />
     <div class="gallery-section__gallery" id={`gallery-${sectionIndex}`}>
-      {
-        validImages.map((image) => (
-          <GallerySectionItem
-            image={image}
-            mediaBaseUrl={mediaBaseUrl}
-            thumbsBaseUrl={thumbsBaseUrl}
-            blurHash={image.thumbnail?.blurHash}
-          />
-        ))
-      }
+      {validImages.map((image) => <GallerySectionItem image={image} />)}
     </div>
   </Container>
 </section>
@@ -68,12 +58,14 @@ const validImages = section.images.filter(
     margin-bottom: 1rem;
   }
 
+  /* Spacer element to prevent last row items from stretching.
+     Uses a large flex-grow to absorb remaining space, keeping items at natural size.
+     min-width ensures the spacer takes up remaining space on incomplete rows. */
   .gallery-section__gallery::after {
-    --w: 2;
-    --h: 1;
-    --ratio: calc(var(--w) / var(--h));
     content: '';
-    flex-basis: calc(var(--ratio) * var(--row-height));
-    flex-grow: 1000000;
+    flex-grow: 999999999;
+    flex-shrink: 0;
+    flex-basis: var(--row-height);
+    min-width: var(--row-height);
   }
 </style>

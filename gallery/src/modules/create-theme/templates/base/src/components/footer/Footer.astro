@@ -1,0 +1,43 @@
+---
+// Footer component for Simple Photo Gallery
+---
+
+<footer class="footer">
+  <p class="footer__text">
+    Created with <a href="https://simple.photo" class="footer__link" target="_blank" rel="noopener noreferrer"
+      >Simple Photo Gallery</a
+    >
+  </p>
+</footer>
+
+<style>
+  .footer {
+    padding: 2rem 1.5rem 1.5rem;
+    text-align: center;
+    background-color: var(--section-bg-color-odd, var(--section-bg-color, #ffffff));
+  }
+
+  .footer__text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .footer__link {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer__link:hover {
+    color: #374151;
+    text-decoration: underline;
+  }
+
+  .footer__link:focus {
+    outline: 2px solid #6b7280;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+</style>

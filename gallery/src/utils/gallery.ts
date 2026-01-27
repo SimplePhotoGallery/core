@@ -77,11 +77,17 @@ export function migrateGalleryJson(
     })),
   }));
 
+  // Migrate thumbnailSize to new thumbnails.size format if present
+  const thumbnails =
+    deprecatedGalleryData.thumbnailSize === undefined ? undefined : { size: deprecatedGalleryData.thumbnailSize };
+
   const galleryData = {
     ...deprecatedGalleryData,
+    thumbnailSize: undefined, // Remove old field
     headerImage: path.basename(deprecatedGalleryData.headerImage),
     sections,
     mediaBasePath,
+    thumbnails,
   };
 
   // Backup the old gallery.json file

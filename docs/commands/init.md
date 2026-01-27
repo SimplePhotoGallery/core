@@ -8,25 +8,37 @@ spg init [options]
 
 ## How it works
 
-This command initializes a new gallery by scanning a folder (and optionally its subfolders) for images and videos. The command will prompt you to enter the gallery title, description, header image, and URL where it will be hosted. All of these can later be edited in the `gallery.json` file.
+This command initializes a new gallery by scanning a folder (and optionally its subfolders) for images and videos. The command will prompt you to enter:
+
+- Gallery title
+- Gallery description
+- Header image (selected from your photos)
+- URL where the gallery will be hosted
+
+All of these settings can later be edited in the `gallery.json` file.
 
 > **Note:** The URL is important if you want the automatically generated social media images to work correctly, as it needs to be an absolute URL.
 
-After that, the command will create a `gallery` folder and a `gallery.json` file in it. The `gallery.json` file contains all the information about the gallery, including the title, description, header image, URL and all images and videos in the gallery.
+> **Tip:** Theme and thumbnail settings can be specified via CLI flags (`--theme`, `--thumbnail-size`, `--thumbnail-edge`) for users who know what they want upfront. These are stored in `gallery.json` and follow the [configuration hierarchy](../configuration.md#thumbnail-configuration): CLI → gallery.json → themeConfig.json → built-in defaults.
+
+After that, the command will create a `gallery` folder and a `gallery.json` file in it. The `gallery.json` file contains all the information about the gallery, including the title, description, header image, URL, thumbnail settings (if specified), and all images and videos in the gallery.
 
 ## Options
 
-| Option                 | Description                                      | Default               |
-| ---------------------- | ------------------------------------------------ | --------------------- |
-| `-p, --photos <path>`  | Path to folder containing photos                 | Current directory     |
-| `-g, --gallery <path>` | Where to create the gallery                      | Same as photos folder |
-| `-r, --recursive`      | Create galleries from subdirectories             | `false`               |
-| `-d, --default`        | Use default settings (skip prompts)              | `false`               |
-| `-f, --force`          | Force override existing galleries without asking | `false`               |
-| `--cta-banner`         | Add a Simple Photo Gallery CTA banner to the gallery | `false`           |
-| `-v, --verbose`        | Show detailed output                             |                       |
-| `-q, --quiet`          | Only show warnings/errors                        |                       |
-| `-h, --help`           | Show command help                                |                       |
+| Option                        | Description                                                | Default               |
+| ----------------------------- | ---------------------------------------------------------- | --------------------- |
+| `-p, --photos <path>`         | Path to folder containing photos                           | Current directory     |
+| `-g, --gallery <path>`        | Where to create the gallery                                | Same as photos folder |
+| `-r, --recursive`             | Create galleries from subdirectories                       | `false`               |
+| `-d, --default`               | Use default settings (skip prompts)                        | `false`               |
+| `-f, --force`                 | Force override existing galleries without asking           | `false`               |
+| `--cta-banner`                | Add a Simple Photo Gallery CTA banner to the gallery       | `false`               |
+| `--theme <package\|path>`     | Theme to store in gallery.json                             | None                  |
+| `--thumbnail-size <pixels>`   | Thumbnail size in pixels to store in gallery.json          | Theme/default (300)   |
+| `--thumbnail-edge <mode>`     | Size application mode: auto, width, or height              | Theme/default (auto)  |
+| `-v, --verbose`               | Show detailed output                                       |                       |
+| `-q, --quiet`                 | Only show warnings/errors                                  |                       |
+| `-h, --help`                  | Show command help                                          |                       |
 
 ## Examples
 
@@ -51,6 +63,12 @@ spg init -f
 
 # Combine options
 spg init -r -d -f
+
+# Initialize with a specific theme and thumbnail settings
+spg init --theme @simple-photo-gallery/theme-modern --thumbnail-size 400
+
+# Initialize with custom thumbnail edge mode
+spg init --thumbnail-size 300 --thumbnail-edge height
 ```
 
 ## Creating the gallery in a folder other than the photos folder

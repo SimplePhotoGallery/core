@@ -1,16 +1,11 @@
 ---
 import Container from '@/features/themes/base-theme/components/container/Container.astro';
-import { getRelativePath, getSubgalleryThumbnailPath } from '@/features/themes/base-theme/utils';
 
-interface SubGallery {
-  title: string;
-  headerImage: string;
-  path: string;
-}
+import type { ResolvedSubGallery } from '@simple-photo-gallery/common/theme';
 
 interface Props {
   title?: string;
-  subGalleries: SubGallery[];
+  subGalleries: ResolvedSubGallery[];
 }
 
 const { title, subGalleries } = Astro.props;
@@ -19,18 +14,18 @@ const { title, subGalleries } = Astro.props;
 <section class="sub-galleries">
   <Container>
     {
-      (title) && (
+      title && (
         <div class="sub-galleries__header">
-          {title && <h2 class="sub-galleries__header-title">{title}</h2>}
+          <h2 class="sub-galleries__header-title">{title}</h2>
         </div>
       )
     }
     <div class="sub-galleries__grid">
       {
         subGalleries.map((subgallery) => (
-          <a href={getRelativePath(subgallery.path)} class="sub-galleries__item">
+          <a href={subgallery.resolvedPath || subgallery.path} class="sub-galleries__item">
             <div class="sub-galleries__item-image">
-              <img src={getSubgalleryThumbnailPath(subgallery.headerImage)} alt={subgallery.title} loading="lazy" />
+              <img src={subgallery.thumbnailPath} alt={subgallery.title} loading="lazy" />
             </div>
             <div class="sub-galleries__item-content">
               <h3 class="sub-galleries__item-title">{subgallery.title}</h3>
@@ -88,7 +83,7 @@ const { title, subGalleries } = Astro.props;
   }
 
   .sub-galleries__item:hover {
-    transform: scale(1.02) translateY(-5px);
+    transform: scale(1.002) translateY(-5px);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   }
 
@@ -106,7 +101,7 @@ const { title, subGalleries } = Astro.props;
   }
 
   .sub-galleries__item:hover .sub-galleries__item-image img {
-    transform: scale(1.05);
+    transform: scale(1.005);
   }
 
   .sub-galleries__item-content {
