@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { extractThumbnailConfigFromGallery, mergeThumbnailConfig } from '@simple-photo-gallery/common/theme';
+import { extractThumbnailConfigFromGallery, mergeThumbnailConfig, loadThemeConfig } from '@simple-photo-gallery/common/theme';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { getFileMtime } from './utils';
@@ -12,6 +12,7 @@ import { getImageDescription } from '../../utils/descriptions';
 import { parseGalleryJson } from '../../utils/gallery';
 import { createImageThumbnails, loadImageWithMetadata, type ThumbnailSizeDimension } from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
+import { resolveThemeDir } from '../build';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
@@ -251,9 +252,14 @@ async function processMediaFile(
  * Processes all media files in a gallery to generate thumbnails
  * @param galleryDir - Directory containing the gallery
  * @param ui - ConsolaInstance for logging
+ * @param cliThumbnailConfig - Optional CLI overrides for thumbnail configuration
  * @returns Promise resolving to the number of files processed
  */
-export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaInstance): Promise<number> {
+export async function processGalleryThumbnails(
+  galleryDir: string,
+  ui: ConsolaInstance,
+  cliThumbnailConfig?: ThumbnailConfig,
+): Promise<number> {
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   const thumbnailsPath = path.join(galleryDir, 'gallery', 'images');
 
@@ -269,9 +275,19 @@ export async function processGalleryThumbnails(galleryDir: string, ui: ConsolaIn
     // Extract thumbnail config from gallery.json
     const galleryThumbnailConfig = extractThumbnailConfigFromGallery(galleryData);
 
-    // Merge with defaults (no theme config when running thumbnails command directly)
-    // Hierarchy: gallery.json > built-in defaults
-    const thumbnailConfig = mergeThumbnailConfig(galleryThumbnailConfig);
+    // Load theme config if gallery specifies a theme
+    let themeConfig: ThumbnailConfig | undefined;
+    if (galleryData.theme) {
+      try {
+        const themeDir = await resolveThemeDir(galleryData.theme, ui);
+        themeConfig = loadThemeConfig(themeDir);
+      } catch {
+        ui.debug(`Could not load theme config from ${galleryData.theme}, using defaults`);
+      }
+    }
+
+    // Merge with 4-level hierarchy: CLI > gallery.json > theme > defaults
+    const thumbnailConfig = mergeThumbnailConfig(cliThumbnailConfig, galleryThumbnailConfig, themeConfig);
 
     ui.debug(`Thumbnail config: size=${thumbnailConfig.size}, edge=${thumbnailConfig.edge}`);
 
@@ -314,11 +330,17 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
       return { processedGalleryCount: 0, processedMediaCount: 0 };
     }
 
+    // Create CLI thumbnail config from options (only include values that were provided)
+    const cliThumbnailConfig: ThumbnailConfig | undefined =
+      options.thumbnailSize !== undefined || options.thumbnailEdge !== undefined
+        ? { size: options.thumbnailSize, edge: options.thumbnailEdge }
+        : undefined;
+
     // Process each gallery directory
     let totalGalleries = 0;
     let totalProcessed = 0;
     for (const galleryDir of galleryDirs) {
-      const processed = await processGalleryThumbnails(galleryDir, ui);
+      const processed = await processGalleryThumbnails(galleryDir, ui, cliThumbnailConfig);
 
       if (processed > 0) {
         ++totalGalleries;

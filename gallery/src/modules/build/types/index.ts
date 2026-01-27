@@ -14,4 +14,8 @@ export interface BuildOptions {
   thumbnails: boolean;
   /** Theme package name to use for building (e.g., '@simple-photo-gallery/theme-modern' or '@your-org/your-private-theme') */
   theme?: string;
+  /** Override thumbnail size in pixels */
+  thumbnailSize?: number;
+  /** Override how thumbnail size should be applied: 'auto', 'width', or 'height' */
+  thumbnailEdge?: 'auto' | 'width' | 'height';
 }

@@ -152,6 +152,11 @@ export interface ResolveGalleryDataOptions {
    * Used as fallback when gallery.json doesn't specify thumbnail settings.
    */
   themeConfig?: ThumbnailConfig;
+  /**
+   * CLI-specified thumbnail configuration (highest priority).
+   * Overrides both gallery.json and theme config settings.
+   */
+  cliConfig?: ThumbnailConfig;
 }
 
 /**
@@ -167,7 +172,7 @@ export async function resolveGalleryData(
   options?: ResolveGalleryDataOptions,
 ): Promise<ResolvedGalleryData> {
   const { mediaBaseUrl, thumbsBaseUrl, subGalleries } = gallery;
-  const { galleryJsonPath, themeConfig } = options ?? {};
+  const { galleryJsonPath, themeConfig, cliConfig } = options ?? {};
 
   const hero = await resolveHero(gallery);
   const sections = await Promise.all(
@@ -181,9 +186,9 @@ export async function resolveGalleryData(
       }
     : undefined;
 
-  // Merge thumbnail config: gallery.json > themeConfig > defaults
+  // Merge thumbnail config: CLI > gallery.json > themeConfig > defaults
   const galleryThumbnailConfig = extractThumbnailConfigFromGallery(gallery);
-  const thumbnails = mergeThumbnailConfig(galleryThumbnailConfig, themeConfig);
+  const thumbnails = mergeThumbnailConfig(cliConfig, galleryThumbnailConfig, themeConfig);
 
   return {
     title: gallery.title,

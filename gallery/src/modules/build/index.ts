@@ -20,6 +20,7 @@ import { processGalleryThumbnails } from '../thumbnails';
 import type { BuildOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
 import type { GalleryData } from '@simple-photo-gallery/common';
+import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
 
 /**
  * Copies photos from gallery subdirectory to main directory when needed
@@ -113,6 +114,8 @@ async function scanAndAppendNewFiles(
  * @param ui - ConsolaInstance for logging
  * @param baseUrl - Optional base URL for hosting photos
  * @param thumbsBaseUrl - Optional base URL for hosting thumbnails
+ * @param cliThumbnailConfig - Optional CLI overrides for thumbnail configuration
+ * @param cliTheme - Optional CLI theme identifier to save to gallery.json
  */
 async function buildGallery(
   galleryDir: string,
@@ -122,6 +125,8 @@ async function buildGallery(
   ui: ConsolaInstance,
   baseUrl?: string,
   thumbsBaseUrl?: string,
+  cliThumbnailConfig?: ThumbnailConfig,
+  cliTheme?: string,
 ): Promise<void> {
   ui.start(`Building gallery ${galleryDir}`);
 
@@ -206,6 +211,30 @@ async function buildGallery(
     fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
   }
 
+  // If the theme is provided via CLI, update the gallery.json file if needed
+  if (cliTheme && galleryData.theme !== cliTheme) {
+    ui.debug('Updating gallery.json with theme');
+    galleryData.theme = cliTheme;
+    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  }
+
+  // If thumbnail settings are provided via CLI, update the gallery.json file if needed
+  if (cliThumbnailConfig) {
+    const needsUpdate =
+      (cliThumbnailConfig.size !== undefined && galleryData.thumbnails?.size !== cliThumbnailConfig.size) ||
+      (cliThumbnailConfig.edge !== undefined && galleryData.thumbnails?.edge !== cliThumbnailConfig.edge);
+
+    if (needsUpdate) {
+      ui.debug('Updating gallery.json with thumbnail settings');
+      galleryData.thumbnails = {
+        ...galleryData.thumbnails,
+        ...(cliThumbnailConfig.size !== undefined && { size: cliThumbnailConfig.size }),
+        ...(cliThumbnailConfig.edge !== undefined && { edge: cliThumbnailConfig.edge }),
+      };
+      fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    }
+  }
+
   // Set the social media card URL if changed
 
   if (!galleryData.metadata.image) {
@@ -219,7 +248,7 @@ async function buildGallery(
 
   // Generate the thumbnails if needed
   if (shouldCreateThumbnails) {
-    await processGalleryThumbnails(galleryDir, ui);
+    await processGalleryThumbnails(galleryDir, ui, cliThumbnailConfig);
   }
 
   // Build the template
@@ -271,7 +300,7 @@ function isLocalThemePath(theme: string): boolean {
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to the theme directory path
  */
-async function resolveThemeDir(theme: string, ui: ConsolaInstance): Promise<string> {
+export async function resolveThemeDir(theme: string, ui: ConsolaInstance): Promise<string> {
   if (isLocalThemePath(theme)) {
     // Resolve local path
     const themeDir = path.resolve(theme);
@@ -301,21 +330,30 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
       return { processedGalleryCount: 0 };
     }
 
-    // Get the theme identifier (default to the modern theme)
-    const themeIdentifier = options.theme || '@simple-photo-gallery/theme-modern';
-
-    // Resolve the theme directory (supports both local paths and npm packages)
-    const themeDir = await resolveThemeDir(themeIdentifier, ui);
+    // Create CLI thumbnail config from options (only include values that were provided)
+    const cliThumbnailConfig: ThumbnailConfig | undefined =
+      options.thumbnailSize !== undefined || options.thumbnailEdge !== undefined
+        ? { size: options.thumbnailSize, edge: options.thumbnailEdge }
+        : undefined;
 
     // Process each gallery directory
     let totalGalleries = 0;
     for (const dir of galleryDirs) {
+      const galleryJsonPath = path.join(dir, 'gallery', 'gallery.json');
+      const galleryData = parseGalleryJson(galleryJsonPath, ui);
+
+      // Theme resolution: CLI option > gallery.json > default
+      const themeIdentifier = options.theme || galleryData.theme || '@simple-photo-gallery/theme-modern';
+
+      // Resolve the theme directory (supports both local paths and npm packages)
+      const themeDir = await resolveThemeDir(themeIdentifier, ui);
+
       const baseUrl = options.baseUrl ? `${options.baseUrl}${path.relative(options.gallery, dir)}` : undefined;
       const thumbsBaseUrl = options.thumbsBaseUrl
         ? `${options.thumbsBaseUrl}${path.relative(options.gallery, dir)}`
         : undefined;
 
-      await buildGallery(path.resolve(dir), themeDir, options.scan, options.thumbnails, ui, baseUrl, thumbsBaseUrl);
+      await buildGallery(path.resolve(dir), themeDir, options.scan, options.thumbnails, ui, baseUrl, thumbsBaseUrl, cliThumbnailConfig, options.theme);
 
       ++totalGalleries;
     }

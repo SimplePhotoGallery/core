@@ -17,6 +17,12 @@ export interface ScanOptions {
   force: boolean;
   /** Whether to add a Simple Photo Gallery call-to-action banner */
   ctaBanner?: boolean;
+  /** Theme package name or local path to store in gallery.json */
+  theme?: string;
+  /** Thumbnail size in pixels to store in gallery.json */
+  thumbnailSize?: number;
+  /** How thumbnail size should be applied: 'auto', 'width', or 'height' */
+  thumbnailEdge?: 'auto' | 'width' | 'height';
 }
 
 /** Metadata for a sub-gallery */

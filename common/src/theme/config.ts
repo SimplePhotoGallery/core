@@ -37,20 +37,23 @@ export function extractThumbnailConfigFromGallery(gallery: { thumbnails?: Thumbn
 
 /**
  * Merges thumbnail configurations with hierarchy:
- * 1. CLI flags / gallery.json (highest precedence)
- * 2. themeConfig.json (theme defaults)
- * 3. Built-in defaults (lowest)
+ * 1. CLI flags (highest precedence)
+ * 2. gallery.json settings
+ * 3. themeConfig.json (theme defaults)
+ * 4. Built-in defaults (lowest)
  *
- * @param galleryConfig - Config from gallery.json or CLI flags
+ * @param cliConfig - Config from CLI flags (optional)
+ * @param galleryConfig - Config from gallery.json (optional)
  * @param themeConfig - Config from themeConfig.json (optional)
  * @returns Merged thumbnail configuration with all values resolved
  */
 export function mergeThumbnailConfig(
+  cliConfig?: ThumbnailConfig,
   galleryConfig?: ThumbnailConfig,
   themeConfig?: ThumbnailConfig,
 ): Required<ThumbnailConfig> {
   return {
-    size: galleryConfig?.size ?? themeConfig?.size ?? DEFAULT_THUMBNAIL_CONFIG.size,
-    edge: galleryConfig?.edge ?? themeConfig?.edge ?? DEFAULT_THUMBNAIL_CONFIG.edge,
+    size: cliConfig?.size ?? galleryConfig?.size ?? themeConfig?.size ?? DEFAULT_THUMBNAIL_CONFIG.size,
+    edge: cliConfig?.edge ?? galleryConfig?.edge ?? themeConfig?.edge ?? DEFAULT_THUMBNAIL_CONFIG.edge,
   };
 }
