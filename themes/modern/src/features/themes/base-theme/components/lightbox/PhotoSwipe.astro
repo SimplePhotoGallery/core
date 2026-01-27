@@ -1,75 +1,13 @@
 <script>
-  import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
+  import { createGalleryLightbox, setupDeepLinking, restoreFromURL } from '@simple-photo-gallery/common/client';
   import 'photoswipe/style.css';
   import '@simple-photo-gallery/common/styles/photoswipe';
 
-  const lightbox = await createGalleryLightbox({
-    gallerySelector: '.gallery-section__gallery',
-  });
+  const gallerySelector = '.gallery-section__gallery';
 
-  // ============================================================================
-  // URL Deep Linking (theme-specific feature)
-  // ============================================================================
+  const lightbox = await createGalleryLightbox({ gallerySelector });
 
-  function updateURL(imageId: string | null) {
-    const url = new URL(globalThis.location.href);
-    if (imageId) {
-      url.searchParams.set('image', imageId);
-    } else {
-      url.searchParams.delete('image');
-    }
-    globalThis.history.replaceState({}, '', url.toString());
-  }
-
-  function getImageIdFromURL(): string | null {
-    const params = new URLSearchParams(globalThis.location.search);
-    return params.get('image');
-  }
-
-  function openImageById(imageId: string) {
-    const galleries = document.querySelectorAll('.gallery-section__gallery');
-    const allItems: HTMLAnchorElement[] = [];
-
-    for (const gallery of galleries) {
-      const items = gallery.querySelectorAll<HTMLAnchorElement>('a');
-      allItems.push(...items);
-    }
-
-    for (const [i, item] of allItems.entries()) {
-      const itemId = item.dataset.imageId || '';
-      if (itemId === imageId) {
-        lightbox.loadAndOpen(i);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Update URL when image changes
-  lightbox.on('change', () => {
-    if (lightbox.pswp) {
-      const currSlideElement = lightbox.pswp.currSlide?.data.element as HTMLAnchorElement | undefined;
-      const imageId = currSlideElement?.dataset.imageId ?? null;
-      updateURL(imageId);
-    }
-  });
-
-  // Clear URL parameter when lightbox closes
-  lightbox.on('close', () => {
-    updateURL(null);
-  });
-
+  setupDeepLinking(lightbox, { gallerySelector });
   lightbox.init();
-
-  // Check for image parameter in URL on page load
-  const imageIdFromURL = getImageIdFromURL();
-  if (imageIdFromURL) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => openImageById(imageIdFromURL), 100);
-      });
-    } else {
-      setTimeout(() => openImageById(imageIdFromURL), 100);
-    }
-  }
+  restoreFromURL(lightbox, { gallerySelector });
 </script>
