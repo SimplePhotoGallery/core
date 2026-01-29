@@ -19,6 +19,7 @@ module.exports = {
         useESM: true,
         tsconfig: {
           module: 'ES2022',
+          moduleResolution: 'NodeNext',
         },
       },
     ],
