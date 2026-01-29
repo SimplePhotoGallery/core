@@ -34,7 +34,7 @@ jobs:
 
       - name: Run checks (common)
         working-directory: ./common
-        run: yarn check
+        run: yarn check && yarn build
 
       - name: Run checks (gallery)
         working-directory: ./gallery
