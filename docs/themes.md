@@ -102,7 +102,7 @@ Your theme package must be a valid npm package with:
   "files": ["public", "src", "astro.config.ts", "tsconfig.json"],
   "dependencies": {
     "astro": "^5.11.0",
-    "@simple-photo-gallery/common": "^1.0.5"
+    "@simple-photo-gallery/common": "^2.1.0"
   }
 }
 ```
@@ -127,9 +127,7 @@ if (!sourceGalleryPath) {
   throw new Error("GALLERY_JSON_PATH environment variable is not set");
 }
 
-const outputDir =
-  process.env.GALLERY_OUTPUT_DIR ||
-  sourceGalleryPath.replace("gallery.json", "");
+const outputDir = process.env.GALLERY_OUTPUT_DIR || sourceGalleryPath.replace("gallery.json", "");
 
 export default defineConfig({
   output: "static",
@@ -187,10 +185,10 @@ This means users can override your theme defaults per gallery, while your theme 
 Use the `loadThemeConfig()` utility from `@simple-photo-gallery/common/theme`:
 
 ```typescript
-import path from 'node:path';
-import { loadThemeConfig } from '@simple-photo-gallery/common/theme';
+import path from "node:path";
+import { loadThemeConfig } from "@simple-photo-gallery/common/theme";
 
-const themePath = path.resolve(import.meta.dirname, '../..');
+const themePath = path.resolve(import.meta.dirname, "../..");
 const themeConfig = loadThemeConfig(themePath);
 ```
 
@@ -318,6 +316,7 @@ const { title, description, sections } = gallery;
 ### Gallery Data Structure
 
 > **Important:** There are two data structures to understand:
+>
 > - **`GalleryData`** - Raw structure from `gallery.json` (manual approach)
 > - **`ResolvedGalleryData`** - Transformed structure with pre-computed paths (recommended approach)
 >
@@ -392,26 +391,27 @@ The `@simple-photo-gallery/common` package provides utilities that make theme de
 **`loadGalleryData()`** - Load gallery.json with optional validation:
 
 ```typescript
-import { loadGalleryData } from '@simple-photo-gallery/common/theme';
+import { loadGalleryData } from "@simple-photo-gallery/common/theme";
 
-const gallery = loadGalleryData('./gallery.json', { validate: true });
+const gallery = loadGalleryData("./gallery.json", { validate: true });
 ```
 
 **`resolveGalleryData()`** - Transform raw data into resolved structure:
 
 ```typescript
-import { resolveGalleryData } from '@simple-photo-gallery/common/theme';
+import { resolveGalleryData } from "@simple-photo-gallery/common/theme";
 
-const resolved = await resolveGalleryData(gallery, { galleryJsonPath: './gallery.json' });
+const resolved = await resolveGalleryData(gallery, { galleryJsonPath: "./gallery.json" });
 
 // Access pre-computed data
-resolved.hero.src              // Computed hero image path
-resolved.hero.srcsets          // Responsive image srcsets
-resolved.sections[0].parsedDescription  // HTML from markdown
-resolved.sections[0].images[0].imagePath  // Computed image path
+resolved.hero.src; // Computed hero image path
+resolved.hero.srcsets; // Responsive image srcsets
+resolved.sections[0].parsedDescription; // HTML from markdown
+resolved.sections[0].images[0].imagePath; // Computed image path
 ```
 
 **Benefits of using the resolver:**
+
 - All image paths pre-computed (no manual path logic)
 - Responsive srcsets built automatically
 - Markdown descriptions parsed to HTML
@@ -422,42 +422,46 @@ resolved.sections[0].images[0].imagePath  // Computed image path
 The `@simple-photo-gallery/common/client` module provides browser-side utilities:
 
 **PhotoSwipe Lightbox:**
+
 ```typescript
-import { createGalleryLightbox } from '@simple-photo-gallery/common/client';
+import { createGalleryLightbox } from "@simple-photo-gallery/common/client";
 
 const lightbox = createGalleryLightbox({
-  gallery: '#gallery',
-  children: 'a'
+  gallery: "#gallery",
+  children: "a",
 });
 lightbox.init();
 ```
 
 **Blurhash Decoding:**
+
 ```typescript
-import { decodeAllBlurhashes } from '@simple-photo-gallery/common/client';
+import { decodeAllBlurhashes } from "@simple-photo-gallery/common/client";
 
 // Decodes all canvas elements with data-blurhash attribute
 decodeAllBlurhashes();
 ```
 
 **Hero Image Fallback:**
+
 ```typescript
-import { initHeroImageFallback } from '@simple-photo-gallery/common/client';
+import { initHeroImageFallback } from "@simple-photo-gallery/common/client";
 
 // Smooth transition from blurhash to actual image
 initHeroImageFallback();
 ```
 
 **CSS Utilities:**
+
 ```typescript
-import { setCSSVar, deriveOpacityColor } from '@simple-photo-gallery/common/client';
+import { setCSSVar, deriveOpacityColor } from "@simple-photo-gallery/common/client";
 
 // Set CSS custom properties dynamically
-setCSSVar('--primary-color', '#007bff');
+setCSSVar("--primary-color", "#007bff");
 
 // Create semi-transparent colors
-const bgColor = deriveOpacityColor('#007bff', 0.1);
-setCSSVar('--bg-color', bgColor);
+const bgColor = deriveOpacityColor("#007bff", 0.1);
+setCSSVar("--bg-color", bgColor);
 ```
 
 #### Complete API Reference
