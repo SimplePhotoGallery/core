@@ -41,11 +41,6 @@ const captionHtml = parsedCaption ? `<div class="image-caption markdown-content"
 </a>
 
 <style>
-  /* Default row-height fallback - can be overridden via inline style on body from thumbnail config */
-  :root {
-    --row-height: 6rem;
-  }
-
   .gallery-section__item {
     --ratio: calc(var(--w) / var(--h));
     flex-basis: calc(var(--ratio) * var(--row-height));
