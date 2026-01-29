@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { extractThumbnailConfigFromGallery, mergeThumbnailConfig, loadThemeConfig } from '@simple-photo-gallery/common/theme';
+import {
+  extractThumbnailConfigFromGallery,
+  mergeThumbnailConfig,
+  loadThemeConfig,
+} from '@simple-photo-gallery/common/theme';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { getFileMtime } from './utils';

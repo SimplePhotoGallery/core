@@ -353,7 +353,17 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
         ? `${options.thumbsBaseUrl}${path.relative(options.gallery, dir)}`
         : undefined;
 
-      await buildGallery(path.resolve(dir), themeDir, options.scan, options.thumbnails, ui, baseUrl, thumbsBaseUrl, cliThumbnailConfig, options.theme);
+      await buildGallery(
+        path.resolve(dir),
+        themeDir,
+        options.scan,
+        options.thumbnails,
+        ui,
+        baseUrl,
+        thumbsBaseUrl,
+        cliThumbnailConfig,
+        options.theme,
+      );
 
       ++totalGalleries;
     }

@@ -40,11 +40,7 @@ export function getImageIdFromURL(paramName: string = 'image'): string | null {
  *
  * @returns true if image was found and opened, false otherwise
  */
-export function openImageById(
-  lightbox: PhotoSwipeLightbox,
-  imageId: string,
-  options: DeepLinkingOptions = {}
-): boolean {
+export function openImageById(lightbox: PhotoSwipeLightbox, imageId: string, options: DeepLinkingOptions = {}): boolean {
   const gallerySelector = options.gallerySelector ?? '.gallery-grid';
   const itemSelector = options.itemSelector ?? 'a';
 

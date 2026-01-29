@@ -33,9 +33,10 @@ const applyTransparentBackground = (params: URLSearchParams): void => {
   root.style.background = bgValue;
   body.style.background = bgValue;
 
-  for (const section of document.querySelectorAll('.gallery-section')) {
+  // eslint-disable-next-line
+  document.querySelectorAll('.gallery-section').forEach((section) => {
     section.classList.toggle('gallery-section--transparent', isTransparent);
-  }
+  });
 };
 
 /**

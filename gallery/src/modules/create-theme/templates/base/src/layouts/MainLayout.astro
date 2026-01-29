@@ -19,13 +19,7 @@ const { title, description, metadata, url, analyticsScript, heroSrcsets, thumbna
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead
-    title={title}
-    description={description}
-    metadata={metadata}
-    url={url}
-    heroSrcsets={heroSrcsets}
-  />
+  <MainHead title={title} description={description} metadata={metadata} url={url} heroSrcsets={heroSrcsets} />
   <body style={thumbnails ? `--row-height: ${thumbnails.size}px` : undefined}>
     <slot />
 

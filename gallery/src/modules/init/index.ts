@@ -176,6 +176,7 @@ async function createGalleryJson(
     );
 
     // Extract thumbnail settings (no longer prompted, but structure preserved for compatibility)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { thumbnails, ...otherSettings } = userSettings;
 
     galleryData = {
@@ -286,7 +287,16 @@ async function processDirectory(
       await fs.mkdir(galleryPath, { recursive: true });
 
       // Create gallery.json for this directory
-      await createGalleryJson(mediaFiles, galleryJsonPath, scanPath, subGalleries, useDefaultSettings, ctaBanner, configOptions, ui);
+      await createGalleryJson(
+        mediaFiles,
+        galleryJsonPath,
+        scanPath,
+        subGalleries,
+        useDefaultSettings,
+        ctaBanner,
+        configOptions,
+        ui,
+      );
 
       ui.success(
         `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
