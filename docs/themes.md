@@ -102,7 +102,7 @@ Your theme package must be a valid npm package with:
   "files": ["public", "src", "astro.config.ts", "tsconfig.json"],
   "dependencies": {
     "astro": "^5.11.0",
-    "@simple-photo-gallery/common": "^2.1.0"
+    "@simple-photo-gallery/common": "^2.1.2"
   }
 }
 ```
