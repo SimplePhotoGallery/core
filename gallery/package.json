@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -10,8 +10,7 @@
   },
   "homepage": "https://simple.photo",
   "files": [
-    "dist",
-    "src/modules/create-theme/templates"
+    "dist"
   ],
   "bin": {
     "simple-photo-gallery": "./dist/index.js",

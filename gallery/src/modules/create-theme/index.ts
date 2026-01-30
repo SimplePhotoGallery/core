@@ -126,32 +126,69 @@ async function copyDirectory(src: string, dest: string, ui: ConsolaInstance): Pr
   }
 }
 
+/** Package name used to identify this package when resolving package root */
+const PACKAGE_NAME = 'simple-photo-gallery';
+
+/**
+ * Find the package root by walking up from a directory until we find package.json with this package name.
+ */
+function findPackageRoot(startDir: string): string | undefined {
+  let dir = path.resolve(startDir);
+
+  while (true) {
+    const pkgPath = path.join(dir, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as { name?: string };
+        if (pkg?.name === PACKAGE_NAME) {
+          return dir;
+        }
+      } catch {
+        // Ignore JSON parse errors
+      }
+    }
+
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      return undefined;
+    }
+    dir = parent;
+  }
+}
+
 /**
  * Find the base theme directory path
- * Looks for templates/base relative to this module, with fallback to workspace themes/base for development
+ * Templates are copied into dist/templates at build time so they are always shipped with the package.
  */
 function findBaseThemePath(): string {
-  // Primary: Look for templates bundled with the package (for npm users)
-  // When installed from npm: dist/modules/create-theme/index.js -> src/modules/create-theme/templates/base
   const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-  const bundledTemplatePath = path.resolve(moduleDir, '../../../src/modules/create-theme/templates/base');
 
-  if (fs.existsSync(bundledTemplatePath)) {
-    return bundledTemplatePath;
+  // 1. Bundled templates (published package): dist/base — copied via tsup publicDir at build time
+  const distTemplatesPath = path.join(moduleDir, 'base');
+  if (fs.existsSync(distTemplatesPath)) {
+    return distTemplatesPath;
   }
 
-  // Fallback: Try to find from workspace root (for local development)
-  // This allows developers to modify themes/base and test changes
+  // 2. Source templates (local dev without build): package root src/modules/create-theme/templates/base
+  const packageRoot = findPackageRoot(moduleDir);
+  if (packageRoot) {
+    const srcTemplatesPath = path.join(packageRoot, 'src/modules/create-theme/templates/base');
+    if (fs.existsSync(srcTemplatesPath)) {
+      return srcTemplatesPath;
+    }
+  }
+
+  // 3. Workspace fallback: themes/base at monorepo root (for theme development)
   const monorepoRoot = findMonorepoRoot(process.cwd());
   const workspaceRoot = monorepoRoot ?? process.cwd();
   const workspaceBaseThemePath = path.join(workspaceRoot, 'themes', 'base');
-
   if (fs.existsSync(workspaceBaseThemePath)) {
     return workspaceBaseThemePath;
   }
 
+  const srcPath = packageRoot ? path.join(packageRoot, 'src/modules/create-theme/templates/base') : 'N/A';
   throw new Error(
-    `Base theme template not found. Tried:\n  - ${bundledTemplatePath}\n  - ${workspaceBaseThemePath}\n\nPlease ensure the templates are included in the package or themes/base exists in the workspace.`,
+    `Base theme template not found. Tried:\n  - ${distTemplatesPath}\n  - ${srcPath}\n  - ${workspaceBaseThemePath}\n\nPlease ensure the package is built (templates are copied to dist) or themes/base exists in the workspace.`,
   );
 }
 
