@@ -113,6 +113,12 @@ const eslintConfig = [
       'unicorn/consistent-function-scoping': 'off',
     },
   },
+  {
+    files: ['**/*.astro'],
+    rules: {
+      'import/namespace': 'off',
+    },
+  },
 ];
 
 export default eslintConfig;

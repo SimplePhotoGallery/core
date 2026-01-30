@@ -7,6 +7,7 @@ import { createConsola, LogLevels, type ConsolaInstance } from 'consola';
 
 import { build } from './modules/build';
 import { clean } from './modules/clean';
+import { createTheme } from './modules/create-theme';
 import { init } from './modules/init';
 import { telemetry } from './modules/telemetry';
 import { TelemetryService } from './modules/telemetry/service';
@@ -161,6 +162,9 @@ program
   .option('-d, --default', 'Use default gallery settings instead of asking the user', false)
   .option('-f, --force', 'Force override existing galleries without asking', false)
   .option('--cta-banner', 'Add a Simple Photo Gallery call-to-action banner to the end of the gallery', false)
+  .option('--theme <package|path>', 'Theme package name or local path to store in gallery.json')
+  .option('--thumbnail-size <pixels>', 'Thumbnail size in pixels to store in gallery.json', Number.parseInt)
+  .option('--thumbnail-edge <mode>', 'How thumbnail size is applied: auto, width, or height')
   .action(withCommandContext((options, ui) => init(options, ui)));
 
 program
@@ -168,6 +172,8 @@ program
   .description('Create thumbnails for all media files in the gallery')
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
+  .option('--thumbnail-size <pixels>', 'Override thumbnail size in pixels', Number.parseInt)
+  .option('--thumbnail-edge <mode>', 'Override how thumbnail size is applied: auto, width, or height')
   .action(withCommandContext((options, ui) => thumbnails(options, ui)));
 
 program
@@ -179,6 +185,12 @@ program
   .option('-t, --thumbs-base-url <url>', 'Base URL where the thumbnails are hosted')
   .option('--no-thumbnails', 'Skip creating thumbnails when building the gallery', true)
   .option('--no-scan', 'Do not scan for new photos when building the gallery', true)
+  .option(
+    '--theme <package|path>',
+    'Theme package name (e.g., @simple-photo-gallery/theme-modern) or local path (e.g., ./themes/my-theme)',
+  )
+  .option('--thumbnail-size <pixels>', 'Override thumbnail size in pixels', Number.parseInt)
+  .option('--thumbnail-edge <mode>', 'Override how thumbnail size is applied: auto, width, or height')
   .action(withCommandContext((options, ui) => build(options, ui)));
 
 program
@@ -187,6 +199,16 @@ program
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Clean subdirectories recursively', false)
   .action(withCommandContext((options, ui) => clean(options, ui)));
+
+program
+  .command('create-theme')
+  .description('Create a new theme template')
+  .argument('<name>', 'Name of the theme to create')
+  .option('-p, --path <path>', 'Path where the theme should be created. Default: ./themes/<name>')
+  .action(async (name, options, command) => {
+    const handler = withCommandContext((opts: { path?: string }, ui) => createTheme({ name, path: opts.path }, ui));
+    await handler(options, command);
+  });
 
 program
   .command('telemetry')

@@ -1,6 +1,6 @@
 {
   "name": "simple-photo-gallery",
-  "version": "2.0.18",
+  "version": "2.1.0",
   "description": "Simple Photo Gallery CLI",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -10,7 +10,8 @@
   },
   "homepage": "https://simple.photo",
   "files": [
-    "dist"
+    "dist",
+    "src/modules/create-theme/templates"
   ],
   "bin": {
     "simple-photo-gallery": "./dist/index.js",
@@ -47,8 +48,8 @@
     "prepublish": "yarn build"
   },
   "dependencies": {
-    "@simple-photo-gallery/common": "1.0.6",
-    "@simple-photo-gallery/theme-modern": "2.0.18",
+    "@simple-photo-gallery/common": "2.1.0",
+    "@simple-photo-gallery/theme-modern": "2.1.0",
     "axios": "^1.12.2",
     "blurhash": "^2.0.5",
     "commander": "^12.0.0",

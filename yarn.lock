@@ -1652,13 +1652,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simple-photo-gallery/common@npm:1.0.6, @simple-photo-gallery/common@workspace:common":
+"@simple-photo-gallery/common@npm:2.1.0, @simple-photo-gallery/common@workspace:common":
   version: 0.0.0-use.local
   resolution: "@simple-photo-gallery/common@workspace:common"
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:^9.30.1"
     "@types/node": "npm:^24.0.10"
+    "@types/photoswipe": "npm:^4.1.6"
     "@typescript-eslint/eslint-plugin": "npm:^8.38.0"
     "@typescript-eslint/parser": "npm:^8.38.0"
     eslint: "npm:^9.30.1"
@@ -1668,22 +1669,31 @@ __metadata:
     eslint-plugin-import: "npm:^2.31.0"
     eslint-plugin-prettier: "npm:^5.5.1"
     eslint-plugin-unicorn: "npm:^59.0.1"
+    marked: "npm:^16.0.0"
     prettier: "npm:^3.4.2"
     tsup: "npm:^8.5.0"
     tsx: "npm:^4.20.3"
     typescript: "npm:^5.9.0"
     typescript-eslint: "npm:^8.38.0"
     zod: "npm:^4.0.14"
+  peerDependencies:
+    blurhash: ^2.0.5
+    photoswipe: ^5.4.4
+  peerDependenciesMeta:
+    blurhash:
+      optional: true
+    photoswipe:
+      optional: true
   languageName: unknown
   linkType: soft
 
-"@simple-photo-gallery/theme-modern@npm:2.0.18, @simple-photo-gallery/theme-modern@workspace:themes/modern":
+"@simple-photo-gallery/theme-modern@npm:2.1.0, @simple-photo-gallery/theme-modern@workspace:themes/modern":
   version: 0.0.0-use.local
   resolution: "@simple-photo-gallery/theme-modern@workspace:themes/modern"
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:^9.30.1"
-    "@simple-photo-gallery/common": "npm:1.0.6"
+    "@simple-photo-gallery/common": "npm:2.1.0"
     "@types/photoswipe": "npm:^4.1.6"
     "@typescript-eslint/eslint-plugin": "npm:^8.35.1"
     "@typescript-eslint/parser": "npm:^8.35.1"
@@ -1698,7 +1708,6 @@ __metadata:
     eslint-plugin-import: "npm:^2.31.0"
     eslint-plugin-prettier: "npm:^5.5.1"
     eslint-plugin-unicorn: "npm:^60.0.0"
-    marked: "npm:^16.4.0"
     photoswipe: "npm:^5.4.4"
     prettier: "npm:^3.4.2"
     prettier-plugin-astro: "npm:^0.14.1"
@@ -6395,12 +6404,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^16.4.0":
-  version: 16.4.0
-  resolution: "marked@npm:16.4.0"
+"marked@npm:^16.0.0":
+  version: 16.4.2
+  resolution: "marked@npm:16.4.2"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/5d5e34a913e888b3ec42b9ad69409cc674d3fb91c75fd66749280c5f0c6cf69de9f3a2076af2a952ca577dd226f05b2f3d00d6850df71c37e662f3492377a582
+  checksum: 10c0/fc6051142172454f2023f3d6b31cca92879ec8e1b96457086a54c70354c74b00e1b6543a76a1fad6d399366f52b90a848f6ffb8e1d65a5baff87f3ba9b8f1847
   languageName: node
   linkType: hard
 
@@ -8561,8 +8570,8 @@ __metadata:
   dependencies:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:^9.30.1"
-    "@simple-photo-gallery/common": "npm:1.0.6"
-    "@simple-photo-gallery/theme-modern": "npm:2.0.18"
+    "@simple-photo-gallery/common": "npm:2.1.0"
+    "@simple-photo-gallery/theme-modern": "npm:2.1.0"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jest": "npm:^30.0.0"
     "@types/node": "npm:^24.0.10"

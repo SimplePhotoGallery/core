@@ -1,157 +1,59 @@
 ---
-import path from 'node:path';
-
-import { buildHeroSrcset, getPhotoPath, LANDSCAPE_SIZES, PORTRAIT_SIZES } from '../../utils';
-
 import HeroScrollToGalleryBtn from '@/features/themes/base-theme/components/hero/HeroScrollToGalleryBtn.astro';
-import { renderMarkdown } from '@/lib/markdown';
 
-import type { HeaderImageVariants } from '@simple-photo-gallery/common';
+import type { ResolvedHero } from '@simple-photo-gallery/common/theme';
 
 interface Props {
-  title: string;
-  description?: string;
-  thumbsBaseUrl?: string;
-  headerImage?: string;
-  headerImageBlurHash?: string;
-  headerImageVariants?: HeaderImageVariants;
-  mediaBaseUrl?: string;
+  hero: ResolvedHero;
 }
 
-const { title, description, thumbsBaseUrl, headerImage, headerImageBlurHash, headerImageVariants, mediaBaseUrl } =
-  Astro.props;
-
-// Parse description as Markdown if it exists
-const parsedDescription: string = description ? await renderMarkdown(description) : '';
-
-// Extract basename from headerImage filename, fallback to generic name
-const imgBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : 'header';
-
-// Get the base path for the thumbnails
-const thumbnailBasePath = thumbsBaseUrl || 'gallery/images';
-
-// Original header photo
-const headerPhotoPath = getPhotoPath(headerImage || '', mediaBaseUrl);
-
-// Determine which sources to show based on headerImageVariants
-// If headerImageVariants is not set, use all generated paths (default behavior)
-// If headerImageVariants is set, only show sources for formats that are explicitly provided
-const useDefaultPaths = !headerImageVariants;
-
-// Pre-compute all srcsets - only render sources when srcset is non-empty
-// This handles edge cases like empty format objects: { avif: {} }
-const portraitAvifSrcset = buildHeroSrcset(headerImageVariants?.portrait?.avif, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'avif', useDefaultPaths);
-const portraitJpgSrcset = buildHeroSrcset(headerImageVariants?.portrait?.jpg, PORTRAIT_SIZES, thumbnailBasePath, imgBasename, 'portrait', 'jpg', useDefaultPaths);
-const landscapeAvifSrcset = buildHeroSrcset(headerImageVariants?.landscape?.avif, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'avif', useDefaultPaths);
-const landscapeJpgSrcset = buildHeroSrcset(headerImageVariants?.landscape?.jpg, LANDSCAPE_SIZES, thumbnailBasePath, imgBasename, 'landscape', 'jpg', useDefaultPaths);
+const { hero } = Astro.props;
 ---
 
 <section class="hero">
   <div class="hero__bg-wrapper">
-    {headerImageBlurHash && <canvas data-blur-hash={headerImageBlurHash} width={32} height={32} />}
+    {hero.headerImageBlurHash && <canvas data-blur-hash={hero.headerImageBlurHash} width={32} height={32} />}
     <picture class="hero__bg" id="hero-bg-picture">
       {/* Portrait */}
-      {portraitAvifSrcset && (
-        <source
-          type="image/avif"
-          media="(max-aspect-ratio: 3/4)"
-          srcset={portraitAvifSrcset}
-          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-        />
-      )}
-      {portraitJpgSrcset && (
-        <source
-          type="image/jpeg"
-          media="(max-aspect-ratio: 3/4)"
-          srcset={portraitJpgSrcset}
-          sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
-        />
-      )}
+      {
+        hero.srcsets.portraitAvif && (
+          <source
+            type="image/avif"
+            media="(max-aspect-ratio: 3/4)"
+            srcset={hero.srcsets.portraitAvif}
+            sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+          />
+        )
+      }
+      {
+        hero.srcsets.portraitJpg && (
+          <source
+            type="image/jpeg"
+            media="(max-aspect-ratio: 3/4)"
+            srcset={hero.srcsets.portraitJpg}
+            sizes="(max-aspect-ratio: 3/4) 160vw, 100vw"
+          />
+        )
+      }
 
       {/* Landscape */}
-      {landscapeAvifSrcset && <source type="image/avif" srcset={landscapeAvifSrcset} sizes="100vw" />}
-      {landscapeJpgSrcset && <source type="image/jpeg" srcset={landscapeJpgSrcset} sizes="100vw" />}
+      {hero.srcsets.landscapeAvif && <source type="image/avif" srcset={hero.srcsets.landscapeAvif} sizes="100vw" />}
+      {hero.srcsets.landscapeJpg && <source type="image/jpeg" srcset={hero.srcsets.landscapeJpg} sizes="100vw" />}
 
       {/* Fallback */}
-      <img src={headerPhotoPath} class="hero__bg-img" />
+      <img src={hero.headerPhotoPath} class="hero__bg-img" />
     </picture>
-    <script is:inline>
-      (function () {
-        const picture = document.querySelector('#hero-bg-picture');
-        const img = picture?.querySelector('img.hero__bg-img');
-        const canvas = document.querySelector('canvas[data-blur-hash]');
-        if (!img) return;
+    <script>
+      import { initHeroImageFallback } from '@simple-photo-gallery/common/client';
 
-        const fallbackSrc = img.getAttribute('src') || '';
-        let didFallback = false;
-
-        // Hide blurhash when image loads successfully
-        const hideBlurhash = () => {
-          if (canvas) {
-            canvas.style.display = 'none';
-          }
-        };
-
-        // Check if image already loaded or failed before script runs
-        if (img.complete) {
-          if (img.naturalWidth === 0) {
-            // Image failed to load
-            if (!didFallback) {
-              didFallback = true;
-              for (const sourceEl of picture.querySelectorAll('source')) {
-                sourceEl.remove();
-              }
-              const current = img.getAttribute('src') || '';
-              img.setAttribute('src', '');
-              img.setAttribute('src', fallbackSrc || current);
-            }
-          } else {
-            // Image loaded successfully
-            hideBlurhash();
-          }
-        } else {
-          // Image is still loading, wait for load or error
-          img.addEventListener('load', hideBlurhash, { once: true });
-        }
-
-        // Handle error event
-        img.addEventListener(
-          'error',
-          () => {
-            if (didFallback) return;
-            didFallback = true;
-
-            // Remove all <source> elements so the browser does not retry them
-            for (const sourceEl of picture.querySelectorAll('source')) {
-              sourceEl.remove();
-            }
-
-            // Force reload using the <img> src as the final fallback
-            const current = img.getAttribute('src') || '';
-            img.setAttribute('src', '');
-            img.setAttribute('src', fallbackSrc || current);
-
-            // If fallback also fails, keep blurhash visible
-            img.addEventListener(
-              'error',
-              () => {
-                // Final fallback failed, blurhash stays visible
-              },
-              { once: true },
-            );
-
-            // If fallback succeeds, hide blurhash
-            img.addEventListener('load', hideBlurhash, { once: true });
-          },
-          { once: true },
-        );
-      })();
+      // Initialize hero image fallback behavior
+      initHeroImageFallback();
     </script>
   </div>
   <div class="hero__overlay"></div>
   <div class="hero__content">
-    <h1 class="hero__title">{title}</h1>
-    {parsedDescription && <div class="hero__description markdown-content" set:html={parsedDescription} />}
+    <h1 class="hero__title">{hero.title}</h1>
+    {hero.parsedDescription && <div class="hero__description markdown-content" set:html={hero.parsedDescription} />}
     <HeroScrollToGalleryBtn />
   </div>
 </section>

@@ -1,5 +1,7 @@
 ---
-import fs from 'node:fs';
+import path from 'node:path';
+
+import { loadGalleryData, loadThemeConfig, resolveGalleryData } from '@simple-photo-gallery/common/theme';
 
 import CtaBanner from '@/features/themes/base-theme/components/cta/CtaBanner.astro';
 import Footer from '@/features/themes/base-theme/components/footer/Footer.astro';
@@ -9,91 +11,48 @@ import PhotoSwipe from '@/features/themes/base-theme/components/lightbox/PhotoSw
 import SubGalleries from '@/features/themes/base-theme/components/sub-galleries/SubGalleries.astro';
 import MainLayout from '@/features/themes/base-theme/layouts/MainLayout.astro';
 
-import type { GalleryData } from '@simple-photo-gallery/common/src/gallery';
+// Load and resolve gallery data - all paths are pre-computed
+const galleryJsonPath = import.meta.env.GALLERY_JSON_PATH || './gallery.json';
+const raw = loadGalleryData(galleryJsonPath, { validate: true });
 
-// Dynamically import gallery.json from source path or fallback to local
-const galleryJsonPath = process.env.GALLERY_JSON_PATH || './gallery.json';
-const galleryData = JSON.parse(fs.readFileSync(galleryJsonPath, 'utf8'));
+// Load theme config from theme root or cwd
+// Try current working directory first, then relative to built theme location
+const themePath = path.resolve(import.meta.dirname, '../../../..');
+const themeConfig = loadThemeConfig(themePath);
 
-const gallery = galleryData as GalleryData;
+const gallery = await resolveGalleryData(raw, { galleryJsonPath, themeConfig });
 
-const {
-  title,
-  description,
-  metadata,
-  sections,
-  subGalleries,
-  mediaBaseUrl,
-  thumbsBaseUrl,
-  url,
-  analyticsScript,
-  headerImage,
-  headerImageBlurHash,
-  headerImageVariants,
-  ctaBanner,
-} = gallery;
-
-const showCtaBanner = ctaBanner === true;
+const showCtaBanner = gallery.ctaBanner === true;
 ---
 
 <script>
-  import { decode } from 'blurhash';
+  import { decodeAllBlurhashes } from '@simple-photo-gallery/common/client';
 
   import { applyQueryParams } from '@/features/themes/base-theme/utils/queryParams';
 
-  const blurHashCanvases = document.querySelectorAll<HTMLCanvasElement>('canvas[data-blur-hash]');
+  // Decode all blurhash canvases on the page
+  decodeAllBlurhashes();
 
-  for (const canvas of blurHashCanvases) {
-    const blurHashValue = canvas.dataset.blurHash;
-
-    if (blurHashValue) {
-      const pixels = decode(blurHashValue, 32, 32);
-      const ctx = canvas.getContext('2d');
-
-      if (pixels && ctx) {
-        const imageData = new ImageData(new Uint8ClampedArray(pixels), 32, 32);
-        ctx.putImageData(imageData, 0, 0);
-      }
-    }
-  }
-
+  // Apply query parameter customizations
   applyQueryParams();
 </script>
 
 <MainLayout
-  title={title}
-  description={description}
-  metadata={metadata}
-  url={url}
-  thumbsBaseUrl={thumbsBaseUrl}
-  analyticsScript={analyticsScript}
-  headerImage={headerImage}
-  headerImageVariants={headerImageVariants}>
-  <Hero
-    title={title}
-    description={description}
-    headerImage={headerImage}
-    headerImageBlurHash={headerImageBlurHash}
-    headerImageVariants={headerImageVariants}
-    thumbsBaseUrl={thumbsBaseUrl}
-    mediaBaseUrl={mediaBaseUrl}
-  />
+  title={gallery.title}
+  description={gallery.hero.description}
+  metadata={gallery.metadata}
+  url={gallery.url}
+  analyticsScript={gallery.analyticsScript}
+  heroSrcsets={gallery.hero.srcsets}
+  thumbnails={gallery.thumbnails}>
+  <Hero hero={gallery.hero} />
 
   {
-    subGalleries && subGalleries.galleries.length > 0 && (
-      <SubGalleries title={subGalleries.title} subGalleries={subGalleries.galleries} />
+    gallery.subGalleries && gallery.subGalleries.galleries.length > 0 && (
+      <SubGalleries title={gallery.subGalleries.title} subGalleries={gallery.subGalleries.galleries} />
     )
   }
-  {
-    sections.map((section, sectionIndex) => (
-      <GallerySection
-        section={section}
-        sectionIndex={sectionIndex}
-        mediaBaseUrl={mediaBaseUrl}
-        thumbsBaseUrl={thumbsBaseUrl}
-      />
-    ))
-  }
+  {gallery.sections.map((section, sectionIndex) => <GallerySection section={section} sectionIndex={sectionIndex} />)}
 
   {showCtaBanner && <CtaBanner />}
 

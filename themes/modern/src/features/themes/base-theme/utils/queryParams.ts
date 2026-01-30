@@ -1,61 +1,10 @@
+import { deriveOpacityColor, parseColor, setCSSVar } from '@simple-photo-gallery/common/client';
+
 const TYPOGRAPHY_MODERN_THEME_PRESETS: Record<string, { title: string; description: string }> = {
   light: { title: 'rgba(255, 255, 255, 0.95)', description: 'rgba(255, 255, 255, 0.75)' },
   white: { title: 'rgba(255, 255, 255, 0.95)', description: 'rgba(255, 255, 255, 0.75)' },
   dark: { title: '#111827', description: '#6b7280' },
   black: { title: '#111827', description: '#6b7280' },
-};
-
-/**
- * Normalizes hex color values to 6-digit format (e.g., #abc -> #aabbcc).
- * Returns null if the hex value is invalid.
- */
-const normalizeHex = (hex: string): string | null => {
-  hex = hex.replace('#', '');
-  if (hex.length === 3) hex = [...hex].map((c) => c + c).join('');
-  return hex.length === 6 && /^[0-9A-Fa-f]{6}$/.test(hex) ? `#${hex}` : null;
-};
-
-/**
- * Parses and validates a color value from query parameters.
- * Supports CSS color names, hex values, rgb/rgba, and 'transparent'.
- * Returns null if the color is invalid.
- */
-const parseColor = (colorParam: string | null): string | null => {
-  if (!colorParam) return null;
-  const normalized = colorParam.toLowerCase().trim();
-  if (normalized === 'transparent') return 'transparent';
-
-  const testEl = document.createElement('div');
-  testEl.style.color = normalized;
-  if (testEl.style.color) return normalized;
-
-  return normalizeHex(colorParam);
-};
-
-/**
- * Sets or removes a CSS custom property (variable) on an element.
- * Removes the property if value is null.
- */
-const setCSSVar = (root: HTMLElement, name: string, value: string | null): void => {
-  if (value) {
-    root.style.setProperty(name, value);
-  } else {
-    root.style.removeProperty(name);
-  }
-};
-
-/**
- * Derives a description color from a title color by adjusting opacity to 0.8.
- * Converts rgb to rgba if needed, otherwise returns the original color.
- */
-const deriveDescriptionColor = (titleColor: string): string => {
-  if (titleColor.startsWith('rgba')) {
-    return titleColor.replace(/,\s*[\d.]+\)$/, ', 0.8)');
-  }
-  if (titleColor.startsWith('rgb')) {
-    return titleColor.replace('rgb', 'rgba').replace(')', ', 0.8)');
-  }
-  return titleColor;
 };
 
 /**
@@ -116,7 +65,7 @@ const applyTypographyColors = (params: URLSearchParams): void => {
   const color = parseColor(typographyParam);
   if (color) {
     setCSSVar(root, '--typography-color-title', color);
-    setCSSVar(root, '--typography-color-description', deriveDescriptionColor(color));
+    setCSSVar(root, '--typography-color-description', deriveOpacityColor(color, 0.8));
   } else {
     setCSSVar(root, '--typography-color-title', null);
     setCSSVar(root, '--typography-color-description', null);

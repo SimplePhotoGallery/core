@@ -1,26 +1,22 @@
 ---
-import path from 'node:path';
-
 import MainHead from '@/features/themes/base-theme/layouts/MainHead.astro';
 
-import type { GalleryMetadata, HeaderImageVariants } from '@simple-photo-gallery/common/src/gallery';
+import type { GalleryMetadata } from '@simple-photo-gallery/common';
+import type { ResolvedHero, ThumbnailConfig } from '@simple-photo-gallery/common/theme';
 
 interface Props {
   title: string;
   description?: string;
   url?: string;
-  thumbsBaseUrl?: string;
   metadata?: GalleryMetadata;
   analyticsScript?: string;
-  headerImage?: string;
-  headerImageVariants?: HeaderImageVariants;
+  heroSrcsets: ResolvedHero['srcsets'];
+  thumbnails?: Required<ThumbnailConfig>;
 }
 
-const { title, description, metadata, url, thumbsBaseUrl, analyticsScript, headerImage, headerImageVariants } =
-  Astro.props;
+const { title, description, metadata, url, analyticsScript, heroSrcsets, thumbnails } = Astro.props;
 
-// Extract basename from headerImage filename
-const headerImageBasename = headerImage ? path.basename(headerImage, path.extname(headerImage)) : undefined;
+const rowHeightMax = thumbnails?.size ?? 160;
 ---
 
 <!doctype html>
@@ -30,11 +26,9 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
     description={description}
     metadata={metadata}
     url={url}
-    thumbsBaseUrl={thumbsBaseUrl}
-    headerImageBasename={headerImageBasename}
-    headerImageVariants={headerImageVariants}
+    heroSrcsets={heroSrcsets}
   />
-  <body>
+  <body style={`--row-height-max: ${rowHeightMax}px`}>
     <slot />
 
     {analyticsScript && <Fragment set:html={analyticsScript} />}
@@ -63,6 +57,29 @@ const headerImageBasename = headerImage ? path.basename(headerImage, path.extnam
 
   body.embed-transparent {
     background: transparent;
+  }
+
+  /* Gallery row height: thumbnails.size or 160px. Smaller screens use 60% → 80% → 90% → 100% (same ratios as former 6/8/9/10 rem). */
+  body {
+    --row-height: calc(var(--row-height-max) * 0.6);
+  }
+
+  @media (min-width: 640px) {
+    body {
+      --row-height: calc(var(--row-height-max) * 0.8);
+    }
+  }
+
+  @media (min-width: 768px) {
+    body {
+      --row-height: calc(var(--row-height-max) * 0.9);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      --row-height: var(--row-height-max);
+    }
   }
 
   /* Markdown content styles */

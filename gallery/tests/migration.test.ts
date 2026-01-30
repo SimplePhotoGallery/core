@@ -618,7 +618,7 @@ describe('Gallery JSON Migration', () => {
       expect(migratedData.title).toBe('My Gallery Title');
       expect(migratedData.description).toBe('My Gallery Description');
       expect(migratedData.url).toBe('https://example.com');
-      expect(migratedData.thumbnailSize).toBe(300);
+      expect(migratedData.thumbnails?.size).toBe(300);
       expect(migratedData.analyticsScript).toBe('analytics.js');
       expect(migratedData.metadata.image).toBe('/gallery/images/social.jpg');
       expect(migratedData.metadata.ogUrl).toBe('https://example.com/gallery');

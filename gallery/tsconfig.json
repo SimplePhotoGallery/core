@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "lib": ["ES2021", "DOM"],
     "types": ["node", "jest"],
     "declaration": true,
     "declarationMap": true,
