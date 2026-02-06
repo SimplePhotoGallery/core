@@ -28,6 +28,61 @@ export interface GalleryLightboxOptions {
   enableCaptions?: boolean;
 }
 
+const CAPTION_SAMPLE_SIZE = 50;
+const CAPTION_SAMPLE_HEIGHT_RATIO = 0.15;
+
+/* Caption background endpoints for brightness interpolation (0=dark image, 1=light image) */
+const CAPTION_BG_DARK = { r: 255, g: 255, b: 255, a: 0.5 }; // white frost on dark images
+const CAPTION_BG_LIGHT = { r: 0, g: 0, b: 0, a: 0.8 }; // dark frost on light images
+
+function interpolateCaptionBg(brightness: number): string {
+  const t = Math.min(1, Math.max(0, brightness / 255));
+  const r = Math.round(CAPTION_BG_DARK.r + (CAPTION_BG_LIGHT.r - CAPTION_BG_DARK.r) * t);
+  const g = Math.round(CAPTION_BG_DARK.g + (CAPTION_BG_LIGHT.g - CAPTION_BG_DARK.g) * t);
+  const b = Math.round(CAPTION_BG_DARK.b + (CAPTION_BG_LIGHT.b - CAPTION_BG_DARK.b) * t);
+  const a = +(CAPTION_BG_DARK.a + (CAPTION_BG_LIGHT.a - CAPTION_BG_DARK.a) * t).toFixed(3);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+/**
+ * Creates a reusable function that samples the average brightness
+ * of the bottom strip of an image using an offscreen canvas.
+ */
+function createCaptionBrightnessSampler() {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return null;
+
+  canvas.width = CAPTION_SAMPLE_SIZE;
+  canvas.height = CAPTION_SAMPLE_SIZE;
+
+  return (img: HTMLImageElement): number | null => {
+    if (!img.complete || img.naturalWidth === 0 || img.naturalHeight === 0) return null;
+
+    const srcWidth = img.naturalWidth;
+    const srcHeight = img.naturalHeight;
+    const sampleHeight = Math.max(1, Math.round(srcHeight * CAPTION_SAMPLE_HEIGHT_RATIO));
+    const srcY = Math.max(0, srcHeight - sampleHeight);
+
+    try {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, srcY, srcWidth, sampleHeight, 0, 0, canvas.width, canvas.height);
+
+      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let sum = 0;
+      let count = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        count++;
+      }
+
+      return count ? sum / count : null;
+    } catch {
+      return null;
+    }
+  };
+}
+
 /**
  * Create a PhotoSwipe lightbox with sensible defaults and video support.
  * Returns the lightbox instance for further customization before calling init().
@@ -62,6 +117,7 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
   const PhotoSwipe = photoswipeModule.default;
   const lightboxModule = await import('photoswipe/lightbox');
   const PhotoSwipeLightboxModule = lightboxModule.default;
+  const sampleBrightness = createCaptionBrightnessSampler();
 
   const lightbox = new PhotoSwipeLightboxModule({
     gallery: options.gallerySelector ?? '.gallery-grid',
@@ -102,6 +158,26 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
             if (currSlideElement) {
               const caption = (currSlideElement as HTMLElement).dataset.pswpCaption;
               el.innerHTML = caption || currSlideElement.querySelector('img')?.alt || '';
+
+              // Adapt caption background based on image brightness
+              if (sampleBrightness) {
+                const img = currSlideElement.querySelector('img');
+                const apply = () => {
+                  if (!img) return;
+                  const brightness = sampleBrightness(img);
+                  if (brightness === null) {
+                    el.style.removeProperty('--pswp-caption-bg');
+                  } else {
+                    el.style.setProperty('--pswp-caption-bg', interpolateCaptionBg(brightness));
+                  }
+                };
+
+                if (img && (!img.complete || img.naturalWidth === 0)) {
+                  img.addEventListener('load', apply, { once: true });
+                } else {
+                  apply();
+                }
+              }
             }
           });
         },
