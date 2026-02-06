@@ -13,7 +13,7 @@
   --pswp-counter-font-size: 1rem;
 
   /* Caption container */
-  --pswp-caption-bg: rgba(128, 128, 128, 0.3);
+  --pswp-caption-bg: rgba(128, 128, 128, 0.35);
   --pswp-caption-blur: 8px;
   --pswp-caption-color: white;
   --pswp-caption-padding: 16px;
@@ -79,6 +79,7 @@
   border-radius: var(--pswp-caption-radius);
   margin: var(--pswp-caption-margin);
   box-shadow: var(--pswp-caption-shadow);
+  transition: background 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -99,14 +100,14 @@
   font-size: var(--pswp-caption-title-size);
   font-weight: var(--pswp-caption-title-weight);
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 .pswp__caption p {
   font-size: var(--pswp-caption-text-size);
   opacity: 0.95;
   line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   font-weight: 400;
 }
 
