@@ -6,6 +6,9 @@ Complete documentation for the Simple Photo Gallery CLI tool.
 
 - **[Commands](./commands/README.md)** - All CLI commands and options
 - **[Gallery Configuration](./configuration.md)** - Manual editing of gallery.json
+- **[Custom Themes](./themes.md)** - Create and use custom themes
+- **[Architecture](./architecture.md)** - Multi-theme system design and package structure
+- **[Common Package API](../common/README.md)** - Utilities and types for theme development
 - **[Deployment](./deployment.md)** - Hosting and deployment options
 - **[Embedding](./embedding.md)** - Customize the gallery when embedding in another site
 

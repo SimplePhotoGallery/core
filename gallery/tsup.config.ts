@@ -11,6 +11,8 @@ export default defineConfig({
   target: 'node20',
   outDir: 'dist',
   treeshake: true,
+  // Copy create-theme base template into dist so it ships with the package (dist/base/)
+  publicDir: 'src/modules/create-theme/templates',
   external: [
     '@simple-photo-gallery/theme-modern',
     '@simple-photo-gallery/common',

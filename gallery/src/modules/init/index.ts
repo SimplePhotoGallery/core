@@ -85,7 +85,23 @@ async function getGallerySettingsFromUser(
     placeholder: defaultImage,
   });
 
-  return { title, description, url, headerImage };
+  return {
+    title,
+    description,
+    url,
+    headerImage,
+    thumbnails: {
+      size: '',
+      edge: undefined,
+    },
+  };
+}
+
+/** CLI options for theme and thumbnail configuration */
+interface InitConfigOptions {
+  theme?: string;
+  thumbnailSize?: number;
+  thumbnailEdge?: 'auto' | 'width' | 'height';
 }
 
 /**
@@ -96,6 +112,7 @@ async function getGallerySettingsFromUser(
  * @param subGalleries - Array of sub-galleries to include
  * @param useDefaultSettings - Whether to use default settings or prompt user
  * @param ctaBanner - Whether to add a Simple Photo Gallery call-to-action banner
+ * @param configOptions - CLI options for theme and thumbnail configuration
  * @param ui - ConsolaInstance for prompting and logging
  */
 async function createGalleryJson(
@@ -105,6 +122,7 @@ async function createGalleryJson(
   subGalleries: SubGallery[] = [],
   useDefaultSettings: boolean,
   ctaBanner: boolean | undefined,
+  configOptions: InitConfigOptions,
   ui: ConsolaInstance,
 ): Promise<void> {
   const galleryDir = path.dirname(galleryJsonPath);
@@ -119,12 +137,25 @@ async function createGalleryJson(
     headerImage: subGallery.headerImage ? path.relative(galleryDir, subGallery.headerImage) : '',
   }));
 
+  // Build thumbnails config from CLI options
+  const thumbnailsConfig: { size?: number; edge?: 'auto' | 'width' | 'height' } = {};
+  if (configOptions.thumbnailSize !== undefined) {
+    thumbnailsConfig.size = configOptions.thumbnailSize;
+  }
+  if (configOptions.thumbnailEdge !== undefined) {
+    thumbnailsConfig.edge = configOptions.thumbnailEdge;
+  }
+
   let galleryData = {
     title: 'My Gallery',
     description: 'My gallery with fantastic photos.',
     headerImage: mediaFiles[0]?.filename || '',
     mediaBasePath: mediaBasePath,
     metadata: {},
+    // Include theme if provided via CLI
+    ...(configOptions.theme && { theme: configOptions.theme }),
+    // Include thumbnails if any values were set via CLI
+    ...(Object.keys(thumbnailsConfig).length > 0 && { thumbnails: thumbnailsConfig }),
     sections: [
       {
         images: mediaFiles,
@@ -138,13 +169,19 @@ async function createGalleryJson(
   };
 
   if (!useDefaultSettings) {
+    const userSettings = await getGallerySettingsFromUser(
+      path.basename(path.join(galleryDir, '..')),
+      path.basename(mediaFiles[0]?.filename || ''),
+      ui,
+    );
+
+    // Extract thumbnail settings (no longer prompted, but structure preserved for compatibility)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { thumbnails, ...otherSettings } = userSettings;
+
     galleryData = {
       ...galleryData,
-      ...(await getGallerySettingsFromUser(
-        path.basename(path.join(galleryDir, '..')),
-        path.basename(mediaFiles[0]?.filename || ''),
-        ui,
-      )),
+      ...otherSettings,
     };
   }
 
@@ -176,6 +213,7 @@ async function galleryExists(outputPath: string): Promise<boolean> {
  * @param useDefaultSettings - Whether to use default settings or prompt user
  * @param force - Whether to force override existing galleries without prompting
  * @param ctaBanner - Whether to add a Simple Photo Gallery call-to-action banner
+ * @param configOptions - CLI options for theme and thumbnail configuration
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to processing results
  */
@@ -186,6 +224,7 @@ async function processDirectory(
   useDefaultSettings: boolean,
   force: boolean,
   ctaBanner: boolean | undefined,
+  configOptions: InitConfigOptions,
   ui: ConsolaInstance,
 ): Promise<ProcessDirectoryResult> {
   ui.start(`Scanning ${scanPath}`);
@@ -208,6 +247,7 @@ async function processDirectory(
         useDefaultSettings,
         force,
         ctaBanner,
+        configOptions,
         ui,
       );
 
@@ -247,7 +287,16 @@ async function processDirectory(
       await fs.mkdir(galleryPath, { recursive: true });
 
       // Create gallery.json for this directory
-      await createGalleryJson(mediaFiles, galleryJsonPath, scanPath, subGalleries, useDefaultSettings, ctaBanner, ui);
+      await createGalleryJson(
+        mediaFiles,
+        galleryJsonPath,
+        scanPath,
+        subGalleries,
+        useDefaultSettings,
+        ctaBanner,
+        configOptions,
+        ui,
+      );
 
       ui.success(
         `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
@@ -284,6 +333,13 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<C
     const scanPath = path.resolve(options.photos);
     const outputPath = options.gallery ? path.resolve(options.gallery) : scanPath;
 
+    // Extract CLI config options for theme and thumbnails
+    const configOptions: InitConfigOptions = {
+      theme: options.theme,
+      thumbnailSize: options.thumbnailSize,
+      thumbnailEdge: options.thumbnailEdge,
+    };
+
     // Process the directory tree with the specified recursion setting
     const result = await processDirectory(
       scanPath,
@@ -292,6 +348,7 @@ export async function init(options: ScanOptions, ui: ConsolaInstance): Promise<C
       options.default,
       options.force,
       options.ctaBanner,
+      configOptions,
       ui,
     );
 

@@ -79,13 +79,17 @@ export async function cropAndResizeImage(
     .toFile(outputPath);
 }
 
+/** Type for how thumbnail size should be applied */
+export type ThumbnailSizeDimension = 'auto' | 'width' | 'height';
+
 /**
  * Creates regular and retina thumbnails for an image while maintaining aspect ratio
  * @param image - Sharp image instance
  * @param metadata - Image metadata containing dimensions
  * @param outputPath - Path where thumbnail should be saved
  * @param outputPathRetina - Path where retina thumbnail should be saved
- * @param size - Target size of the longer side of the thumbnail
+ * @param size - Target size for the thumbnail
+ * @param sizeDimension - How to apply the size: 'auto' (longer edge), 'width', or 'height'
  * @returns Promise resolving to thumbnail dimensions
  */
 export async function createImageThumbnails(
@@ -94,6 +98,7 @@ export async function createImageThumbnails(
   outputPath: string,
   outputPathRetina: string,
   size: number,
+  sizeDimension: ThumbnailSizeDimension = 'auto',
 ): Promise<Dimensions> {
   // Get the original dimensions
   const originalWidth = metadata.width || 0;
@@ -109,12 +114,23 @@ export async function createImageThumbnails(
   let width: number;
   let height: number;
 
-  if (originalWidth > originalHeight) {
+  if (sizeDimension === 'width') {
+    // Apply size to width, calculate height from aspect ratio
     width = size;
     height = Math.round(size / aspectRatio);
-  } else {
+  } else if (sizeDimension === 'height') {
+    // Apply size to height, calculate width from aspect ratio
     width = Math.round(size * aspectRatio);
     height = size;
+  } else {
+    // 'auto': Apply size to longer edge (original behavior)
+    if (originalWidth > originalHeight) {
+      width = size;
+      height = Math.round(size / aspectRatio);
+    } else {
+      width = Math.round(size * aspectRatio);
+      height = size;
+    }
   }
 
   // Resize the image and create the thumbnails

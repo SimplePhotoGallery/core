@@ -29,6 +29,31 @@ Additionally, the following parameters are automatically generated, but you can 
 - `ogImageWidth` - The width of the image
 - `ogImageHeight` - The height of the image
 
+## Theme
+
+You can specify the theme to use for your gallery by setting the `theme` field in `gallery.json`. This allows each gallery to use a different theme without needing to specify it via CLI each time.
+
+```json
+{
+  "title": "My Gallery",
+  "theme": "@simple-photo-gallery/theme-modern"
+}
+```
+
+The theme can be specified as:
+- An npm package name (e.g., `@simple-photo-gallery/theme-modern`)
+- A local path (e.g., `./themes/my-custom-theme`)
+
+### Theme Resolution Priority
+
+When building a gallery, the theme is resolved in this order:
+
+1. **CLI option** (highest priority) - `--theme` flag
+2. **gallery.json** - The `theme` field in your gallery configuration
+3. **Default theme** (lowest priority) - `@simple-photo-gallery/theme-modern`
+
+When you specify a theme via the CLI `--theme` flag, it is saved to `gallery.json` for future builds.
+
 ## Sections
 
 Sections can be used to group your photos with their own titles and descriptions. This is useful if you have a large gallery and want to split it into smaller sections.
@@ -95,11 +120,13 @@ The final URL will always be `"https://special-cdn.example.com/custom-path/photo
 By default, thumbnail URLs are constructed by combining the `thumbsBaseUrl` (if set at the gallery level) with the thumbnail `path` or `pathRetina`. However, you can override this for individual thumbnails by setting a `baseUrl` property directly on the thumbnail object.
 
 **Priority order for thumbnail URLs:**
+
 1. If a thumbnail has a `baseUrl` property, it will be used to construct the URL: `${thumbnail.baseUrl}/${path}` or `${thumbnail.baseUrl}/${pathRetina}`
 2. Otherwise, if `thumbsBaseUrl` is set at the gallery level, it will be used: `${thumbsBaseUrl}/${path}` or `${thumbsBaseUrl}/${pathRetina}`
 3. Otherwise, thumbnails will use the default relative path: `gallery/images/${path}`
 
 **Example with gallery-level thumbsBaseUrl:**
+
 ```json
 {
   "thumbsBaseUrl": "https://cdn.example.com/thumbs",
@@ -125,10 +152,12 @@ By default, thumbnail URLs are constructed by combining the `thumbsBaseUrl` (if 
 ```
 
 The thumbnail URLs will be:
+
 - Regular: `https://cdn.example.com/thumbs/photo-001.avif`
 - Retina: `https://cdn.example.com/thumbs/photo-001@2x.avif`
 
 **Example with thumbnail-specific baseUrl:**
+
 ```json
 {
   "thumbsBaseUrl": "https://cdn.example.com/thumbs",
@@ -155,6 +184,7 @@ The thumbnail URLs will be:
 ```
 
 The thumbnail URLs will be:
+
 - Regular: `https://special-cdn.example.com/custom-thumbs/photo-001.avif`
 - Retina: `https://special-cdn.example.com/custom-thumbs/photo-001@2x.avif`
 
@@ -232,9 +262,182 @@ Markdown formatting is available in:
 - **Images** and **tables** are not supported for security and layout consistency
 - **HTML tags** are stripped for security
 
-## Thumbnail size
+## Thumbnail Configuration
 
-Thumbnails will automatically be generated using sizes that fit the theme (300px height and 600px height for retina displays). If you want, you can change the size using the `thumbnailSize` attribute in the `gallery.json` file.
+Thumbnail generation and display can be configured through a hierarchical configuration system:
+
+> **Migration Note:** If you're upgrading from an older version that used `thumbnailSize` (a number field), this has been replaced with a `thumbnails` object containing `size` and `edge` properties. Your existing `thumbnailSize` value will be automatically migrated to `thumbnails.size` when you run any gallery command.
+
+1. **CLI options** (highest priority) - Passed via `--thumbnail-size` and `--thumbnail-edge` flags
+2. **Gallery-level configuration** - Set in `gallery.json`
+3. **Theme-level configuration** - Set in theme's `themeConfig.json` file
+4. **Built-in defaults** (lowest priority) - 300px on auto (longer edge)
+
+### Configuration Hierarchy
+
+The thumbnail settings follow this priority order:
+
+```
+CLI options > gallery.json > themeConfig.json > built-in defaults
+```
+
+This means CLI options always take highest priority, followed by `gallery.json` settings. If not specified in either, the theme's `themeConfig.json` will be checked. If neither is set, the built-in defaults (300px, auto edge) will be used.
+
+When you provide thumbnail settings via CLI flags to the `init`, `thumbnails`, or `build` commands, those settings are saved to `gallery.json` for future builds.
+
+### Gallery-level Configuration
+
+You can override thumbnail settings per gallery by adding a `thumbnails` object to your `gallery.json`:
+
+```json
+{
+  "title": "My Gallery",
+  "thumbnails": {
+    "size": 400,
+    "edge": "height"
+  }
+}
+```
+
+**Options:**
+
+- `size` (number): The thumbnail size in pixels. Default: `300`
+- `edge` (string): How the size is applied. Default: `"auto"`
+  - `"auto"` - Applied to the longer edge (default behavior)
+  - `"width"` - Applied to width (good for masonry layouts)
+  - `"height"` - Applied to height (good for row-based layouts like modern theme)
+
+### Theme-level Configuration
+
+Themes can provide their own default thumbnail settings by including a `themeConfig.json` file in the theme root directory:
+
+```json
+{
+  "thumbnails": {
+    "size": 300,
+    "edge": "height"
+  }
+}
+```
+
+This allows theme authors to set optimal defaults for their specific layout while still allowing users to override these settings per gallery.
+
+**For theme developers:** Place `themeConfig.json` in your theme's root directory (same level as `package.json`). The configuration will be automatically loaded when the theme is used.
+
+### Display Behavior
+
+When thumbnails are configured, they also control the display size in themes:
+
+- **Modern theme**: `thumbnails.size` becomes the row height (e.g., `size: 200` sets `--row-height: 200px`)
+- **Default behavior** (no thumbnails config): Uses responsive breakpoints (96px on mobile, scaling up to 160px on desktop)
+
+### CLI Configuration
+
+You can configure thumbnail settings when running `gallery init`, `gallery thumbnails`, or `gallery build` by using the CLI flags:
+
+```bash
+# Set thumbnail size and edge during init
+gallery init --thumbnail-size 400 --thumbnail-edge height
+
+# Override settings when generating thumbnails
+gallery thumbnails --thumbnail-size 300 --thumbnail-edge auto
+
+# Override settings when building
+gallery build --thumbnail-size 400 --thumbnail-edge height
+```
+
+When provided via CLI, these settings are saved to `gallery.json` for future builds, keeping the configuration hierarchy consistent.
+
+## Header image variants
+
+By default, the hero section generates responsive image paths based on the `headerImage` filename using a naming convention (e.g., `photo_portrait_360.avif`, `photo_landscape_1920.jpg`). If you need to specify custom paths for the hero image variants, you can use the `headerImageVariants` configuration.
+
+When `headerImageVariants` is set, only the formats and sizes you explicitly specify will be rendered. Any format or orientation not included will be omitted from the HTML output entirely.
+
+### Structure
+
+All fields are optional. You only need to include the formats and sizes you want to use:
+
+```json
+{
+  "headerImageVariants": {
+    "portrait": {
+      "avif": {
+        "360": "path/to/portrait_360.avif",
+        "480": "path/to/portrait_480.avif",
+        "720": "path/to/portrait_720.avif",
+        "1080": "path/to/portrait_1080.avif"
+      },
+      "jpg": {
+        "360": "path/to/portrait_360.jpg",
+        "480": "path/to/portrait_480.jpg",
+        "720": "path/to/portrait_720.jpg",
+        "1080": "path/to/portrait_1080.jpg"
+      }
+    },
+    "landscape": {
+      "avif": {
+        "640": "path/to/landscape_640.avif",
+        "960": "path/to/landscape_960.avif",
+        "1280": "path/to/landscape_1280.avif",
+        "1920": "path/to/landscape_1920.avif",
+        "2560": "path/to/landscape_2560.avif",
+        "3840": "path/to/landscape_3840.avif"
+      },
+      "jpg": {
+        "640": "path/to/landscape_640.jpg",
+        "960": "path/to/landscape_960.jpg",
+        "1280": "path/to/landscape_1280.jpg",
+        "1920": "path/to/landscape_1920.jpg",
+        "2560": "path/to/landscape_2560.jpg",
+        "3840": "path/to/landscape_3840.jpg"
+      }
+    }
+  }
+}
+```
+
+### Examples
+
+**AVIF only (no JPG fallback):**
+
+```json
+{
+  "headerImageVariants": {
+    "landscape": {
+      "avif": {
+        "1920": "hero/landscape_1920.avif",
+        "3840": "hero/landscape_3840.avif"
+      }
+    }
+  }
+}
+```
+
+This will only render the landscape AVIF source element with the specified sizes. No portrait sources or JPG fallbacks will be included.
+
+**Landscape only (for wide hero images):**
+
+```json
+{
+  "headerImageVariants": {
+    "landscape": {
+      "avif": {
+        "1280": "https://cdn.example.com/hero_1280.avif",
+        "1920": "https://cdn.example.com/hero_1920.avif"
+      },
+      "jpg": {
+        "1280": "https://cdn.example.com/hero_1280.jpg",
+        "1920": "https://cdn.example.com/hero_1920.jpg"
+      }
+    }
+  }
+}
+```
+
+This configuration omits portrait variants entirely, which is useful when your hero image is designed only for landscape orientations.
+
+> **Note:** The `headerImage` field is still used as the fallback `<img>` source when responsive images fail to load. Make sure it points to a valid image.
 
 ## Analytics script
 

@@ -11,6 +11,44 @@ import { cropAndResizeImage, loadImage } from '../../../utils/image';
 import type { ConsolaInstance } from 'consola';
 
 /**
+ * Wraps text into multiple lines based on a maximum character width
+ * @param text - The text to wrap
+ * @param maxCharsPerLine - Maximum number of characters per line (approximate)
+ * @returns Array of text lines
+ */
+function wrapText(text: string, maxCharsPerLine: number): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+
+    // If a single word is longer than max, force it on its own line
+    if (word.length > maxCharsPerLine) {
+      if (currentLine) {
+        lines.push(currentLine);
+        currentLine = '';
+      }
+      lines.push(word);
+    } else if (testLine.length > maxCharsPerLine && currentLine) {
+      // If the test line is too long and we have words in current line, start new line
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+
+  // Add the last line
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
+}
+
+/**
  * Creates a social media card image for a gallery
  * @param headerPhotoPath - Path to the header photo
  * @param title - Title of the gallery
@@ -41,15 +79,56 @@ export async function createGallerySocialMediaCardImage(
   const outputPath = ouputPath;
   await sharp(resizedImageBuffer).toFile(outputPath);
 
-  // Create SVG with title and description
+  // Configuration for text rendering
+  const CANVAS_WIDTH = 1200;
+  const CANVAS_HEIGHT = 631;
+  const FONT_SIZE = 72;
+  const MARGIN = 50; // Margin from edges
+  const CHAR_WIDTH_RATIO = 0.6; // Approximate ratio of character width to font size for Arial bold
+
+  // Calculate maximum characters per line based on canvas width and font size
+  const usableWidth = CANVAS_WIDTH - 2 * MARGIN;
+  const maxCharsPerLine = Math.floor(usableWidth / (FONT_SIZE * CHAR_WIDTH_RATIO));
+  const lines = wrapText(title, maxCharsPerLine);
+
+  // Calculate vertical positioning for bottom-left alignment
+  const lineHeight = FONT_SIZE * 1.2; // 20% spacing between lines
+  const totalTextHeight = FONT_SIZE + (lines.length - 1) * lineHeight; // First line + spacing for additional lines
+  const startY = CANVAS_HEIGHT - MARGIN - totalTextHeight + FONT_SIZE; // Bottom aligned with margin
+
+  // Create SVG with title split into multiple lines using tspan elements (left aligned)
+  const leftX = MARGIN;
+  const tspanElements = lines
+    .map((line, index) => {
+      const yPosition = startY + index * lineHeight;
+      // Escape special XML characters in the line text
+      /* eslint-disable unicorn/prefer-string-replace-all */
+      const escapedLine = line
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+      /* eslint-enable unicorn/prefer-string-replace-all */
+      return `<tspan x="${leftX}" y="${yPosition}">${escapedLine}</tspan>`;
+    })
+    .join('\n      ');
+
   const svgText = `
-    <svg width="1200" height="631" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <linearGradient id="darkGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgb(0,0,0);stop-opacity:0" />
+          <stop offset="100%" style="stop-color:rgb(0,0,0);stop-opacity:0.65" />
+        </linearGradient>
         <style>
-          .title { font-family: 'Arial, sans-serif'; font-size: 96px; font-weight: bold; fill: white; stroke: black; stroke-width: 5; paint-order: stroke; text-anchor: middle; }
+          .title { font-family: 'Arial, sans-serif'; font-size: ${FONT_SIZE}px; font-weight: bold; fill: white; text-anchor: start; }
         </style>
       </defs>
-      <text x="600" y="250" class="title">${title}</text>
+      <rect x="0" y="0" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}" fill="url(#darkGradient)" />
+      <text x="${leftX}" class="title">
+      ${tspanElements}
+      </text>
     </svg>
   `;
 

@@ -2,6 +2,17 @@ import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+// Only processImage() is under test; it doesn't use theme or build. Mock them so we don't
+// pull in marked (via common/theme → markdown) or import.meta (via build).
+jest.mock('@simple-photo-gallery/common/theme', () => ({
+  extractThumbnailConfigFromGallery: jest.fn(),
+  mergeThumbnailConfig: jest.fn(),
+  loadThemeConfig: jest.fn(),
+}));
+jest.mock('../src/modules/build', () => ({
+  resolveThemeDir: jest.fn().mockResolvedValue('/tmp/theme'),
+}));
+
 import { processImage } from '../src/modules/thumbnails';
 
 const fixturesPath = path.resolve(process.cwd(), 'tests', 'fixtures', 'images');
