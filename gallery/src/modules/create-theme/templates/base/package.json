@@ -27,7 +27,7 @@
     "photoswipe": "^5.4.4"
   },
   "peerDependencies": {
-    "@simple-photo-gallery/common": "^2.1.3"
+    "@simple-photo-gallery/common": "^2.1.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

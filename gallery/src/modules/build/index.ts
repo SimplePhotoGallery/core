@@ -172,16 +172,20 @@ async function buildGallery(
     }
 
     // Create the gallery social media card image
-    await createGallerySocialMediaCardImage(headerImagePath, galleryData.title, socialMediaCardImagePath, ui);
+    if (galleryData.headerImage) {
+      await createGallerySocialMediaCardImage(headerImagePath, galleryData.title, socialMediaCardImagePath, ui);
 
-    // Create optimized header image and generate blurhash
-    const { blurHash } = await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
+      // Create optimized header image and generate blurhash
+      const { blurHash } = await createOptimizedHeaderImage(headerImagePath, imagesFolder, ui);
 
-    // Save the blurhash to gallery.json if it changed
-    if (galleryData.headerImageBlurHash !== blurHash) {
-      ui.debug('Updating gallery.json with header image blurhash');
-      galleryData.headerImageBlurHash = blurHash;
-      fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+      // Save the blurhash to gallery.json if it changed
+      if (galleryData.headerImageBlurHash !== blurHash) {
+        ui.debug('Updating gallery.json with header image blurhash');
+        galleryData.headerImageBlurHash = blurHash;
+        fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+      }
+    } else {
+      ui.warn('No header image provided, skipping social media card image creation');
     }
   }
 
@@ -236,8 +240,7 @@ async function buildGallery(
   }
 
   // Set the social media card URL if changed
-
-  if (!galleryData.metadata.image) {
+  if (!galleryData.metadata.image && galleryData.headerImage) {
     ui.debug('Updating gallery.json with social media card URL');
 
     galleryData.metadata.image = thumbsBaseUrl
