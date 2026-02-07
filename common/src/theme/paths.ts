@@ -54,14 +54,16 @@ export function getPhotoPath(filename: string, mediaBaseUrl?: string, url?: stri
 /**
  * Get the path to a subgallery thumbnail that is always in the subgallery directory.
  *
- * @param subgalleryHeaderImagePath - The path to the subgallery header image on the hard disk
- * @returns The normalized path relative to the subgallery directory
+ * @param headerImageFilename - The filename of the subgallery header image
+ * @param resolvedSubgalleryPath - The resolved subgallery path relative to the gallery root
+ * @returns The normalized path relative to the gallery root directory
  */
-export function getSubgalleryThumbnailPath(subgalleryHeaderImagePath: string): string {
-  const photoBasename = path.basename(subgalleryHeaderImagePath);
-  const subgalleryFolderName = path.basename(path.dirname(subgalleryHeaderImagePath));
+export function getSubgalleryThumbnailPath(headerImageFilename: string, resolvedSubgalleryPath?: string): string {
+  const basename = path.basename(headerImageFilename, path.extname(headerImageFilename));
+  const thumbnailFilename = `${basename}.avif`;
+  const subgalleryFolder = resolvedSubgalleryPath || path.basename(path.dirname(headerImageFilename));
 
-  return path.join(subgalleryFolderName, 'gallery', 'thumbnails', photoBasename);
+  return path.join(subgalleryFolder, 'gallery', 'images', thumbnailFilename);
 }
 
 /**

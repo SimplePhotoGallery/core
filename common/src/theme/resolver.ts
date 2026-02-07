@@ -61,12 +61,13 @@ async function resolveSection(
  * Resolve a sub-gallery with computed thumbnail path and optional resolved path.
  */
 function resolveSubGallery(subGallery: SubGallery, galleryJsonPath?: string): ResolvedSubGallery {
+  const resolvedPath = galleryJsonPath ? getRelativePath(subGallery.path, galleryJsonPath) : undefined;
   return {
     title: subGallery.title,
     headerImage: subGallery.headerImage,
     path: subGallery.path,
-    thumbnailPath: getSubgalleryThumbnailPath(subGallery.headerImage),
-    resolvedPath: galleryJsonPath ? getRelativePath(subGallery.path, galleryJsonPath) : undefined,
+    thumbnailPath: getSubgalleryThumbnailPath(subGallery.headerImage, resolvedPath),
+    resolvedPath,
   };
 }
 
