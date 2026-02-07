@@ -102,7 +102,7 @@ Your theme package must be a valid npm package with:
   "files": ["public", "src", "astro.config.ts", "tsconfig.json"],
   "dependencies": {
     "astro": "^5.11.0",
-    "@simple-photo-gallery/common": "^2.1.2"
+    "@simple-photo-gallery/common": "^2.1.3"
   }
 }
 ```
@@ -127,7 +127,9 @@ if (!sourceGalleryPath) {
   throw new Error("GALLERY_JSON_PATH environment variable is not set");
 }
 
-const outputDir = process.env.GALLERY_OUTPUT_DIR || sourceGalleryPath.replace("gallery.json", "");
+const outputDir =
+  process.env.GALLERY_OUTPUT_DIR ||
+  sourceGalleryPath.replace("gallery.json", "");
 
 export default defineConfig({
   output: "static",
@@ -401,7 +403,9 @@ const gallery = loadGalleryData("./gallery.json", { validate: true });
 ```typescript
 import { resolveGalleryData } from "@simple-photo-gallery/common/theme";
 
-const resolved = await resolveGalleryData(gallery, { galleryJsonPath: "./gallery.json" });
+const resolved = await resolveGalleryData(gallery, {
+  galleryJsonPath: "./gallery.json",
+});
 
 // Access pre-computed data
 resolved.hero.src; // Computed hero image path
@@ -454,7 +458,10 @@ initHeroImageFallback();
 **CSS Utilities:**
 
 ```typescript
-import { setCSSVar, deriveOpacityColor } from "@simple-photo-gallery/common/client";
+import {
+  setCSSVar,
+  deriveOpacityColor,
+} from "@simple-photo-gallery/common/client";
 
 // Set CSS custom properties dynamically
 setCSSVar("--primary-color", "#007bff");
