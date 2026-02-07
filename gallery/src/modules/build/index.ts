@@ -240,8 +240,7 @@ async function buildGallery(
   }
 
   // Set the social media card URL if changed
-
-  if (!galleryData.metadata.image) {
+  if (!galleryData.metadata.image && galleryData.headerImage) {
     ui.debug('Updating gallery.json with social media card URL');
 
     galleryData.metadata.image = thumbsBaseUrl
