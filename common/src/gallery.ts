@@ -85,6 +85,7 @@ export const GalleryDataSchema = z.object({
   thumbsBaseUrl: z.string().optional(),
   analyticsScript: z.string().optional(),
   ctaBanner: z.boolean().optional(),
+  customStyles: z.record(z.string(), z.string()).optional(),
   sections: z.array(GallerySectionSchema),
   subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });
@@ -120,6 +121,9 @@ export type GalleryMetadata = z.infer<typeof GalleryMetadataSchema>;
 
 /** TypeScript type for complete gallery data structure */
 export type GalleryData = z.infer<typeof GalleryDataSchema>;
+
+/** TypeScript type for custom styles (CSS variable overrides) */
+export type CustomStyles = GalleryData['customStyles'];
 
 /** Deprecated types */
 export type MediaFileWithPath = z.infer<typeof MediaFileDeprecatedSchema>;
