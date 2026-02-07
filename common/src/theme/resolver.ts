@@ -202,5 +202,6 @@ export async function resolveGalleryData(
     mediaBaseUrl,
     thumbsBaseUrl,
     thumbnails,
+    customStyles: gallery.customStyles,
   };
 }

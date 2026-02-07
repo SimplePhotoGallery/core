@@ -74,4 +74,6 @@ export interface ResolvedGalleryData {
    * Themes should use this for display sizing (e.g., row-height for modern theme).
    */
   thumbnails?: Required<ThumbnailConfig>;
+  /** Custom CSS variable overrides from gallery.json, passed through for theme injection. */
+  customStyles?: Record<string, string>;
 }
