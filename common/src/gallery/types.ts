@@ -50,3 +50,6 @@ export type GallerySectionDeprecated = z.infer<typeof GallerySectionDeprecatedSc
  * @deprecated Use GalleryData instead which includes mediaBasePath and headerImageVariants.
  */
 export type GalleryDataDeprecated = z.infer<typeof GalleryDataDeprecatedSchema>;
+
+/** TypeScript type for custom styles (CSS variable overrides) */
+export type CustomStyles = GalleryData['customStyles'];
