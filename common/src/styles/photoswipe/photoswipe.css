@@ -120,6 +120,32 @@
   font-style: italic;
 }
 
+/* Override built-in preloader: centered, larger, subtler */
+.pswp__preloader {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  overflow: visible;
+  --pswp-icon-stroke-width: 1px;
+}
+
+.pswp__preloader .pswp__icn {
+  width: 64px;
+  height: 64px;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: pswp-clockwise 1.1s linear infinite;
+}
+
+.pswp__preloader--active .pswp__icn {
+  opacity: 0.3;
+}
+
 /* Slide-in animation */
 .pswp__img {
   opacity: 0;
