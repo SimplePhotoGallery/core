@@ -383,10 +383,10 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
       } else if (error.message.includes('Theme directory not found') || error.message.includes('package.json not found')) {
         ui.error(error.message);
       } else {
-        ui.error('Error building gallery');
+        ui.error(`Error building gallery: ${error.message}`);
       }
     } else {
-      ui.error('Error building gallery');
+      ui.error(`Error building gallery: ${error}`);
     }
 
     throw error;
