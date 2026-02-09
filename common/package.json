@@ -1,6 +1,6 @@
 {
   "name": "@simple-photo-gallery/common",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Shared utilities and types for Simple Photo Gallery",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",

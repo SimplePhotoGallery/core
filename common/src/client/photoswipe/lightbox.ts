@@ -31,17 +31,13 @@ export interface GalleryLightboxOptions {
 const CAPTION_SAMPLE_SIZE = 50;
 const CAPTION_SAMPLE_HEIGHT_RATIO = 0.15;
 
-/* Caption background endpoints for brightness interpolation (0=dark image, 1=light image) */
-const CAPTION_BG_DARK = { r: 255, g: 255, b: 255, a: 0.5 }; // white frost on dark images
-const CAPTION_BG_LIGHT = { r: 0, g: 0, b: 0, a: 0.8 }; // dark frost on light images
+/* Caption backgrounds chosen based on image brightness */
+const CAPTION_BG_DARK = 'rgba(255, 255, 255, 0.5)'; // white frost on dark images
+const CAPTION_BG_LIGHT = 'rgba(0, 0, 0, 0.8)'; // dark frost on light images
+const BRIGHTNESS_THRESHOLD = 80;
 
-function interpolateCaptionBg(brightness: number): string {
-  const t = Math.min(1, Math.max(0, brightness / 255));
-  const r = Math.round(CAPTION_BG_DARK.r + (CAPTION_BG_LIGHT.r - CAPTION_BG_DARK.r) * t);
-  const g = Math.round(CAPTION_BG_DARK.g + (CAPTION_BG_LIGHT.g - CAPTION_BG_DARK.g) * t);
-  const b = Math.round(CAPTION_BG_DARK.b + (CAPTION_BG_LIGHT.b - CAPTION_BG_DARK.b) * t);
-  const a = +(CAPTION_BG_DARK.a + (CAPTION_BG_LIGHT.a - CAPTION_BG_DARK.a) * t).toFixed(3);
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
+function captionBgForBrightness(brightness: number): string {
+  return brightness >= BRIGHTNESS_THRESHOLD ? CAPTION_BG_LIGHT : CAPTION_BG_DARK;
 }
 
 /**
@@ -168,7 +164,7 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
                   if (brightness === null) {
                     el.style.removeProperty('--pswp-caption-bg');
                   } else {
-                    el.style.setProperty('--pswp-caption-bg', interpolateCaptionBg(brightness));
+                    el.style.setProperty('--pswp-caption-bg', captionBgForBrightness(brightness));
                   }
                 };
 
