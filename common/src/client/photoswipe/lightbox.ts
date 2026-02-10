@@ -1,3 +1,5 @@
+import { decode } from 'blurhash';
+
 import { PhotoSwipeVideoPlugin } from './video-plugin';
 
 import type { VideoPluginOptions } from './types';
@@ -28,7 +30,6 @@ export interface GalleryLightboxOptions {
   enableCaptions?: boolean;
 }
 
-const CAPTION_SAMPLE_SIZE = 50;
 const CAPTION_SAMPLE_HEIGHT_RATIO = 0.15;
 
 /* Caption backgrounds chosen based on image brightness */
@@ -41,42 +42,26 @@ function captionBgForBrightness(brightness: number): string {
 }
 
 /**
- * Creates a reusable function that samples the average brightness
- * of the bottom strip of an image using an offscreen canvas.
+ * Samples the average brightness of the bottom strip of an image
+ * by decoding its BlurHash. This avoids CORS issues with cross-origin images.
  */
-function createCaptionBrightnessSampler() {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) return null;
-
-  canvas.width = CAPTION_SAMPLE_SIZE;
-  canvas.height = CAPTION_SAMPLE_SIZE;
-
-  return (img: HTMLImageElement): number | null => {
-    if (!img.complete || img.naturalWidth === 0 || img.naturalHeight === 0) return null;
-
-    const srcWidth = img.naturalWidth;
-    const srcHeight = img.naturalHeight;
-    const sampleHeight = Math.max(1, Math.round(srcHeight * CAPTION_SAMPLE_HEIGHT_RATIO));
-    const srcY = Math.max(0, srcHeight - sampleHeight);
-
-    try {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, srcY, srcWidth, sampleHeight, 0, 0, canvas.width, canvas.height);
-
-      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      let sum = 0;
-      let count = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+function sampleBlurHashBrightness(blurHash: string, width = 32, height = 32): number | null {
+  try {
+    const pixels = decode(blurHash, width, height);
+    const startRow = Math.max(0, Math.floor(height * (1 - CAPTION_SAMPLE_HEIGHT_RATIO)));
+    let sum = 0;
+    let count = 0;
+    for (let y = startRow; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        sum += 0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2];
         count++;
       }
-
-      return count ? sum / count : null;
-    } catch {
-      return null;
     }
-  };
+    return count ? sum / count : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -113,8 +98,6 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
   const PhotoSwipe = photoswipeModule.default;
   const lightboxModule = await import('photoswipe/lightbox');
   const PhotoSwipeLightboxModule = lightboxModule.default;
-  const sampleBrightness = createCaptionBrightnessSampler();
-
   const lightbox = new PhotoSwipeLightboxModule({
     gallery: options.gallerySelector ?? '.gallery-grid',
     children: options.childrenSelector ?? 'a',
@@ -155,23 +138,14 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
               const caption = (currSlideElement as HTMLElement).dataset.pswpCaption;
               el.innerHTML = caption || currSlideElement.querySelector('img')?.alt || '';
 
-              // Adapt caption background based on image brightness
-              if (sampleBrightness) {
-                const img = currSlideElement.querySelector('img');
-                const apply = () => {
-                  if (!img) return;
-                  const brightness = sampleBrightness(img);
-                  if (brightness === null) {
-                    el.style.removeProperty('--pswp-caption-bg');
-                  } else {
-                    el.style.setProperty('--pswp-caption-bg', captionBgForBrightness(brightness));
-                  }
-                };
-
-                if (img && (!img.complete || img.naturalWidth === 0)) {
-                  img.addEventListener('load', apply, { once: true });
+              // Adapt caption background based on image brightness (via BlurHash)
+              const blurHash = currSlideElement.querySelector<HTMLCanvasElement>('canvas[data-blur-hash]')?.dataset.blurHash;
+              if (blurHash) {
+                const brightness = sampleBlurHashBrightness(blurHash);
+                if (brightness === null) {
+                  el.style.removeProperty('--pswp-caption-bg');
                 } else {
-                  apply();
+                  el.style.setProperty('--pswp-caption-bg', captionBgForBrightness(brightness));
                 }
               }
             }
