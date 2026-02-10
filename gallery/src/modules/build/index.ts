@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 import { LogLevels, type ConsolaInstance } from 'consola';
 
@@ -318,7 +319,7 @@ export async function resolveThemeDir(theme: string, ui: ConsolaInstance): Promi
   } else {
     // Resolve npm package
     const themePath = await import.meta.resolve(`${theme}/package.json`);
-    const themeDir = path.dirname(new URL(themePath).pathname);
+    const themeDir = path.dirname(fileURLToPath(themePath));
     ui.debug(`Using npm theme package: ${theme} (${themeDir})`);
     return themeDir;
   }
