@@ -130,6 +130,7 @@
   margin: -32px 0 0 -32px;
   overflow: visible;
   --pswp-icon-stroke-width: 1px;
+  pointer-events: none;
 }
 
 .pswp__preloader .pswp__icn {
