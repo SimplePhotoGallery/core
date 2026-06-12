@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { existsSync, rmSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -757,14 +757,15 @@ describe('Clean command', () => {
   });
 
   describe('single gallery clean', () => {
-    test('should remove index.html and gallery directory while preserving photos', () => {
+    test('should remove generated files while preserving gallery.json and photos', () => {
       // Copy fixture and initialize gallery
       copySync(singleFixturePath, cleanTestPath);
       runCliCommand(`${tsxPath} ${cliPath} init --photos ${cleanTestPath} -d`);
 
-      // Create an index.html file to simulate build output
+      // Create an index.html file and a thumbnails directory to simulate build output
       const indexPath = path.resolve(cleanTestPath, 'index.html');
       const galleryPath = path.resolve(cleanTestPath, 'gallery');
+      const imagesPath = path.resolve(galleryPath, 'images');
 
       // Verify initial state - photos exist and gallery exists
       const photoCount = readdirSync(cleanTestPath).filter((file) => file.endsWith('.jpg')).length;
@@ -772,12 +773,39 @@ describe('Clean command', () => {
       expect(existsSync(galleryPath)).toBe(true);
 
       writeFileSync(indexPath, '<html><body>Test Gallery</body></html>');
+      mkdirSync(imagesPath, { recursive: true });
+      writeFileSync(path.resolve(imagesPath, 'photo.avif'), 'thumbnail');
       expect(existsSync(indexPath)).toBe(true);
 
       // Run clean command
       runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanTestPath}`);
 
-      // Verify gallery files are removed
+      // Verify generated files are removed but gallery.json is preserved
+      expect(existsSync(indexPath)).toBe(false);
+      expect(existsSync(imagesPath)).toBe(false);
+      expect(existsSync(path.resolve(galleryPath, 'gallery.json'))).toBe(true);
+
+      // Verify photos are still there
+      const photoFiles = readdirSync(cleanTestPath).filter((file) => file.endsWith('.jpg'));
+      expect(photoFiles.length).toBe(3);
+    });
+
+    test('should remove the gallery directory including gallery.json with --all --force', () => {
+      // Clean up from previous test and copy fresh fixture
+      if (existsSync(cleanTestPath)) {
+        rmSync(cleanTestPath, { recursive: true, force: true });
+      }
+      copySync(singleFixturePath, cleanTestPath);
+      runCliCommand(`${tsxPath} ${cliPath} init --photos ${cleanTestPath} -d`);
+
+      const indexPath = path.resolve(cleanTestPath, 'index.html');
+      const galleryPath = path.resolve(cleanTestPath, 'gallery');
+      writeFileSync(indexPath, '<html><body>Test Gallery</body></html>');
+
+      // Run clean command with --all --force
+      runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanTestPath} --all --force`);
+
+      // Verify the whole gallery directory is removed
       expect(existsSync(indexPath)).toBe(false);
       expect(existsSync(galleryPath)).toBe(false);
 
@@ -821,13 +849,13 @@ describe('Clean command', () => {
       // Run recursive clean
       runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanMultiTestPath} -r`);
 
-      // Verify all gallery files and directories are removed
+      // Verify all generated files are removed while gallery.json files are preserved
       expect(existsSync(path.resolve(cleanMultiTestPath, 'index.html'))).toBe(false);
-      expect(existsSync(path.resolve(cleanMultiTestPath, 'gallery'))).toBe(false);
+      expect(existsSync(path.resolve(cleanMultiTestPath, 'gallery', 'gallery.json'))).toBe(true);
       expect(existsSync(path.resolve(cleanMultiTestPath, 'first', 'index.html'))).toBe(false);
-      expect(existsSync(path.resolve(cleanMultiTestPath, 'first', 'gallery'))).toBe(false);
+      expect(existsSync(path.resolve(cleanMultiTestPath, 'first', 'gallery', 'gallery.json'))).toBe(true);
       expect(existsSync(path.resolve(cleanMultiTestPath, 'second', 'index.html'))).toBe(false);
-      expect(existsSync(path.resolve(cleanMultiTestPath, 'second', 'gallery'))).toBe(false);
+      expect(existsSync(path.resolve(cleanMultiTestPath, 'second', 'gallery', 'gallery.json'))).toBe(true);
 
       // Verify photos are still there
       const rootPhotos = readdirSync(cleanMultiTestPath).filter((file) => file.endsWith('.jpg'));
@@ -855,9 +883,9 @@ describe('Clean command', () => {
       // Run non-recursive clean
       runCliCommand(`${tsxPath} ${cliPath} clean --gallery ${cleanMultiTestPath}`);
 
-      // Verify only root gallery is cleaned
+      // Verify only root gallery is cleaned, with gallery.json preserved
       expect(existsSync(path.resolve(cleanMultiTestPath, 'index.html'))).toBe(false);
-      expect(existsSync(path.resolve(cleanMultiTestPath, 'gallery'))).toBe(false);
+      expect(existsSync(path.resolve(cleanMultiTestPath, 'gallery', 'gallery.json'))).toBe(true);
 
       // Verify subdirectory galleries remain
       expect(existsSync(path.resolve(cleanMultiTestPath, 'first', 'index.html'))).toBe(true);
