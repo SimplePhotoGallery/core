@@ -53,6 +53,10 @@ export async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promi
     throw error;
   }
 
+  // Sort the results for a deterministic gallery order; fs.readdir order depends on the file system
+  mediaFiles.sort((a, b) => a.filename.localeCompare(b.filename, undefined, { numeric: true }));
+  subGalleryDirectories.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
   return { mediaFiles, subGalleryDirectories };
 }
 
