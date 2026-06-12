@@ -1,6 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+import { toUrlPath } from '@simple-photo-gallery/common/theme';
+
 import { capitalizeTitle, getMediaFileType } from './utils';
 
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
@@ -131,10 +133,10 @@ async function createGalleryJson(
   const isSameLocation = path.relative(scanPath, path.join(galleryDir, '..')) === '';
   const mediaBasePath = isSameLocation ? undefined : scanPath;
 
-  // Convert subGallery header image paths to be relative to gallery.json
+  // Convert subGallery header image paths to be relative to gallery.json, using forward slashes for portability
   const relativeSubGalleries = subGalleries.map((subGallery) => ({
     ...subGallery,
-    headerImage: subGallery.headerImage ? path.relative(galleryDir, subGallery.headerImage) : '',
+    headerImage: subGallery.headerImage ? toUrlPath(path.relative(galleryDir, subGallery.headerImage)) : '',
   }));
 
   // Build thumbnails config from CLI options
@@ -316,7 +318,7 @@ async function processDirectory(
     result.subGallery = {
       title: capitalizeTitle(dirName),
       headerImage: mediaFiles[0]?.filename || '',
-      path: path.join('..', dirName),
+      path: `../${dirName}`,
     };
   }
 

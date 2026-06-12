@@ -18,7 +18,15 @@ export { LANDSCAPE_SIZES, PORTRAIT_SIZES } from './constants';
 export { renderMarkdown } from './markdown';
 
 // Path utilities
-export { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
+export {
+  buildHeroSrcset,
+  getPhotoPath,
+  getRelativePath,
+  getSubgalleryThumbnailPath,
+  getThumbnailPath,
+  joinUrl,
+  toUrlPath,
+} from './paths';
 
 // Gallery loading
 export type { LoadGalleryDataOptions } from './loader';

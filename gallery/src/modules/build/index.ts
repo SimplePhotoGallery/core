@@ -4,6 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
+import { joinUrl, toUrlPath } from '@simple-photo-gallery/common/theme';
 import { LogLevels, type ConsolaInstance } from 'consola';
 
 import {
@@ -352,10 +353,10 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
       // Resolve the theme directory (supports both local paths and npm packages)
       const themeDir = await resolveThemeDir(themeIdentifier, ui);
 
-      const baseUrl = options.baseUrl ? `${options.baseUrl}${path.relative(options.gallery, dir)}` : undefined;
-      const thumbsBaseUrl = options.thumbsBaseUrl
-        ? `${options.thumbsBaseUrl}${path.relative(options.gallery, dir)}`
-        : undefined;
+      // Build URLs with forward slashes; path.relative uses backslashes on Windows
+      const relativeDirUrl = toUrlPath(path.relative(options.gallery, dir));
+      const baseUrl = options.baseUrl ? joinUrl(options.baseUrl, relativeDirUrl) : undefined;
+      const thumbsBaseUrl = options.thumbsBaseUrl ? joinUrl(options.thumbsBaseUrl, relativeDirUrl) : undefined;
 
       await buildGallery(
         path.resolve(dir),
