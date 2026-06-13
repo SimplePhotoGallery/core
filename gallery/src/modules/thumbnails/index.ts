@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import process from 'node:process';
 
 import {
   extractThumbnailConfigFromGallery,
@@ -328,22 +329,61 @@ export async function processGalleryThumbnails(
     // If the mediaBasePath is not set, use the gallery directory
     const mediaBasePath = galleryData.mediaBasePath ?? path.join(galleryDir);
 
+    // Persist gallery.json atomically (write to a temp file then rename) so an interruption can never
+    // leave a truncated gallery.json behind.
+    const writeGalleryData = (): void => {
+      const tempPath = `${galleryJsonPath}.tmp`;
+      fs.writeFileSync(tempPath, JSON.stringify(galleryData, null, 2));
+      fs.renameSync(tempPath, galleryJsonPath);
+    };
+
+    // On interruption (e.g. Ctrl-C) flush the progress made so far before exiting. Each completed file
+    // records its lastMediaTimestamp, so a subsequent run skips everything already finished instead of
+    // starting the whole gallery over.
+    const flushAndExit = (exitCode: number) => (): void => {
+      writeGalleryData();
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit(exitCode);
+    };
+    const onSigint = flushAndExit(130);
+    const onSigterm = flushAndExit(143);
+    process.once('SIGINT', onSigint);
+    process.once('SIGTERM', onSigterm);
+
     // Process media files in parallel. Thumbnailing is IO/CPU bound (Sharp and ffmpeg release the JS
     // thread), so a worker pool sized to the available cores processes a large gallery several times
     // faster than the previous one-at-a-time loop while keeping per-file error isolation.
     const concurrency = Math.max(2, os.cpus().length - 1);
 
+    // Flush progress to disk every PROGRESS_WRITE_INTERVAL files so a long run that is interrupted can
+    // resume instead of redoing all the thumbnails already on disk.
+    const PROGRESS_WRITE_INTERVAL = 16;
     let processedCount = 0;
-    for (const section of galleryData.sections) {
-      section.images = await mapWithConcurrency(section.images, concurrency, (mediaFile) =>
-        processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui),
-      );
+    let processedSinceWrite = 0;
 
-      processedCount += section.images.length;
+    try {
+      for (const section of galleryData.sections) {
+        await mapWithConcurrency(section.images, concurrency, async (mediaFile, index) => {
+          const updated = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui);
+          section.images[index] = updated;
+
+          processedCount += 1;
+          processedSinceWrite += 1;
+          if (processedSinceWrite >= PROGRESS_WRITE_INTERVAL) {
+            processedSinceWrite = 0;
+            writeGalleryData();
+          }
+
+          return updated;
+        });
+      }
+    } finally {
+      process.removeListener('SIGINT', onSigint);
+      process.removeListener('SIGTERM', onSigterm);
     }
 
-    // Write updated gallery.json
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    // Write the final gallery.json with all processed files
+    writeGalleryData();
 
     ui.success(`Created thumbnails for ${processedCount} media files`);
 
