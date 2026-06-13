@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 import {
@@ -12,6 +13,7 @@ import { getFileMtime } from './utils';
 
 import { findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
+import { mapWithConcurrency } from '../../utils/concurrency';
 import { getImageDescription } from '../../utils/descriptions';
 import { parseGalleryJson } from '../../utils/gallery';
 import { createImageThumbnails, loadImageWithMetadata, type ThumbnailSizeDimension } from '../../utils/image';
@@ -298,12 +300,16 @@ export async function processGalleryThumbnails(
     // If the mediaBasePath is not set, use the gallery directory
     const mediaBasePath = galleryData.mediaBasePath ?? path.join(galleryDir);
 
-    // Process all sections and their images
+    // Process media files in parallel. Thumbnailing is IO/CPU bound (Sharp and ffmpeg release the JS
+    // thread), so a worker pool sized to the available cores processes a large gallery several times
+    // faster than the previous one-at-a-time loop while keeping per-file error isolation.
+    const concurrency = Math.max(2, os.cpus().length - 1);
+
     let processedCount = 0;
     for (const section of galleryData.sections) {
-      for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui);
-      }
+      section.images = await mapWithConcurrency(section.images, concurrency, (mediaFile) =>
+        processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui),
+      );
 
       processedCount += section.images.length;
     }
