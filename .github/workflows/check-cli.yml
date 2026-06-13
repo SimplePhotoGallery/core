@@ -1,11 +1,9 @@
-name: Run Checks and Tests for the CLI
+name: Run Checks and Tests
 
 on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
-    paths:
-      - "gallery/**"
 
 jobs:
   test:
@@ -39,6 +37,10 @@ jobs:
       - name: Run checks (gallery)
         working-directory: ./gallery
         run: yarn check
+
+      - name: Run checks (theme-modern)
+        working-directory: ./themes/modern
+        run: yarn lint && yarn format
 
       - name: Run tests
         working-directory: ./gallery

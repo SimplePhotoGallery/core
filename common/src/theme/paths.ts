@@ -3,11 +3,37 @@ import path from 'node:path';
 import { getThumbnailExtension, type ThumbnailFormat } from './config';
 
 /**
+ * Converts a filesystem path to a URL path by replacing backslashes with forward slashes.
+ * Paths produced by the path module on Windows use backslashes, which are not valid URL separators.
+ *
+ * @param fsPath - The filesystem path to convert
+ * @returns The path with forward slashes only
+ */
+export function toUrlPath(fsPath: string): string {
+  return fsPath.replaceAll('\\', '/');
+}
+
+/**
+ * Joins a base URL with additional path segments using forward slashes.
+ * Trailing slashes on the base URL and backslashes in segments are normalized, and empty segments are skipped.
+ *
+ * @param baseUrl - The base URL to join the segments to
+ * @param segments - Path segments to append to the base URL
+ * @returns The joined URL
+ */
+export function joinUrl(baseUrl: string, ...segments: string[]): string {
+  const trimmedBase = baseUrl.replace(/\/+$/, '');
+  const parts = segments.map((segment) => toUrlPath(segment)).filter((segment) => segment.length > 0);
+
+  return [trimmedBase, ...parts].join('/');
+}
+
+/**
  * Normalizes resource paths to be relative to the gallery root directory.
  *
  * @param resourcePath - The resource path (file or directory), typically relative to the gallery.json file
  * @param galleryJsonPath - Path to the gallery.json file used to resolve relative paths
- * @returns The normalized path relative to the gallery root directory
+ * @returns The normalized path relative to the gallery root directory, using forward slashes
  */
 export function getRelativePath(resourcePath: string, galleryJsonPath: string): string {
   const galleryConfigPath = path.resolve(galleryJsonPath);
@@ -16,7 +42,7 @@ export function getRelativePath(resourcePath: string, galleryJsonPath: string): 
   const absoluteResourcePath = path.resolve(path.join(galleryConfigDir, resourcePath));
   const baseDir = path.dirname(galleryConfigDir);
 
-  return path.relative(baseDir, absoluteResourcePath);
+  return toUrlPath(path.relative(baseDir, absoluteResourcePath));
 }
 
 /**
@@ -59,7 +85,7 @@ export function getPhotoPath(filename: string, mediaBaseUrl?: string, url?: stri
  * @param headerImageFilename - The filename of the subgallery header image
  * @param resolvedSubgalleryPath - The resolved subgallery path relative to the gallery root
  * @param format - The thumbnail output format used to derive the file extension (defaults to 'avif')
- * @returns The normalized path relative to the gallery root directory
+ * @returns The normalized URL path relative to the gallery root directory
  */
 export function getSubgalleryThumbnailPath(
   headerImageFilename: string,
@@ -70,7 +96,7 @@ export function getSubgalleryThumbnailPath(
   const thumbnailFilename = `${basename}.${getThumbnailExtension(format)}`;
   const subgalleryFolder = resolvedSubgalleryPath || path.basename(path.dirname(headerImageFilename));
 
-  return path.join(subgalleryFolder, 'gallery', 'images', thumbnailFilename);
+  return path.posix.join(toUrlPath(subgalleryFolder), 'gallery', 'images', thumbnailFilename);
 }
 
 /**

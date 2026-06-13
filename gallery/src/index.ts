@@ -201,9 +201,13 @@ program
 
 program
   .command('clean')
-  .description('Remove all gallery files and folders (index.html, gallery/)')
+  .description(
+    'Remove generated gallery files (index.html, thumbnails, built assets). Keeps gallery.json unless --all is used',
+  )
   .option('-g, --gallery <path>', 'Path to the directory of the gallery. Default: current working directory', process.cwd())
   .option('-r, --recursive', 'Clean subdirectories recursively', false)
+  .option('--all', 'Also remove gallery.json, including all titles, descriptions and sections', false)
+  .option('-f, --force', 'Skip the confirmation prompt when using --all', false)
   .action(withCommandContext((options, ui) => clean(options, ui)));
 
 program

@@ -21,13 +21,7 @@ const rowHeightMax = thumbnails?.size ?? 160;
 
 <!doctype html>
 <html lang={metadata?.language || 'en'}>
-  <MainHead
-    title={title}
-    description={description}
-    metadata={metadata}
-    url={url}
-    heroSrcsets={heroSrcsets}
-  />
+  <MainHead title={title} description={description} metadata={metadata} url={url} heroSrcsets={heroSrcsets} />
   <body style={`--row-height-max: ${rowHeightMax}px`}>
     <slot />
 

@@ -44,7 +44,7 @@
     "format:fix": "prettier --write .",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "prepublish": "yarn build"
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@simple-photo-gallery/common": "2.1.7",

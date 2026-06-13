@@ -39,7 +39,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:fix": "prettier --write .",
-    "prepublish": "yarn build"
+    "prepack": "yarn build"
   },
   "dependencies": {
     "marked": "^16.0.0",
