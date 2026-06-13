@@ -9,6 +9,9 @@
     "url": "https://github.com/SimplePhotoGallery/core"
   },
   "homepage": "https://simple.photo",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "files": [
     "dist"
   ],

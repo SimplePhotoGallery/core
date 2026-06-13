@@ -45,6 +45,21 @@ function setupGallery(rootDir: string, filenames: string[]): void {
   writeFileSync(path.join(rootDir, 'gallery', 'gallery.json'), JSON.stringify(galleryData, null, 2));
 }
 
+function setupGalleryJson(rootDir: string, filenames: string[]): void {
+  mkdirSync(path.join(rootDir, 'gallery'), { recursive: true });
+
+  const galleryData = {
+    title: 'Test',
+    description: 'Test gallery',
+    headerImage: filenames[0],
+    metadata: {},
+    sections: [{ images: filenames.map((filename) => ({ type: 'image', filename, width: 0, height: 0 })) }],
+    subGalleries: { title: 'Sub', galleries: [] },
+  };
+
+  writeFileSync(path.join(rootDir, 'gallery', 'gallery.json'), JSON.stringify(galleryData, null, 2));
+}
+
 function readGalleryJson(rootDir: string): { sections: { images: Record<string, unknown>[] }[] } {
   return JSON.parse(readFileSync(path.join(rootDir, 'gallery', 'gallery.json'), 'utf8'));
 }
@@ -100,5 +115,21 @@ describe('processGalleryThumbnails progress persistence', () => {
     // Already-processed files are skipped, so the thumbnails and their recorded timestamps are unchanged
     expect(secondRun).toEqual(firstRun);
     expect(secondTimestamps).toEqual(firstTimestamps);
+  });
+
+  test('reports failed media files and exits non-zero', async () => {
+    rmSync(tempDir, { recursive: true, force: true });
+    tempDir = mkdtempSync(path.join(os.tmpdir(), 'spg-progress-'));
+    copyFileSync(path.join(fixtureImages, 'img_1.jpg'), path.join(tempDir, 'img_1.jpg'));
+    setupGalleryJson(tempDir, ['img_1.jpg', 'missing.jpg']);
+    const ui = createMockUI();
+
+    await expect(processGalleryThumbnails(tempDir, ui)).rejects.toThrow('Failed to process 1 media file');
+
+    expect(ui.warn).toHaveBeenCalledWith(expect.stringContaining('missing.jpg'));
+
+    const data = readGalleryJson(tempDir);
+    expect(data.sections[0].images[0].thumbnail).toBeDefined();
+    expect(data.sections[0].images[1].thumbnail).toBeUndefined();
   });
 });

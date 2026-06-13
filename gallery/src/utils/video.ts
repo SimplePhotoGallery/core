@@ -1,5 +1,6 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
+import process from 'node:process';
 
 import ffprobe from 'node-ffprobe';
 import sharp from 'sharp';
@@ -8,6 +9,44 @@ import { resizeImage, type ImageEncodeOptions, type ThumbnailSizeDimension } fro
 
 import type { Dimensions } from '../types';
 import type { Buffer } from 'node:buffer';
+
+export interface VideoToolchainStatus {
+  available: boolean;
+  missing: string[];
+  installHint: string;
+}
+
+/**
+ * Checks whether the external ffmpeg tools required for video thumbnails are available.
+ * @returns Availability, missing executable names, and a platform-specific install hint
+ */
+export function checkVideoToolchain(): VideoToolchainStatus {
+  const requiredTools = ['ffmpeg', 'ffprobe'];
+  const missing = requiredTools.filter((tool) => {
+    const result = spawnSync(tool, ['-version'], { stdio: 'ignore' });
+    return Boolean(result.error) || result.status !== 0;
+  });
+
+  return {
+    available: missing.length === 0,
+    missing,
+    installHint: getFfmpegInstallHint(),
+  };
+}
+
+function getFfmpegInstallHint(): string {
+  switch (process.platform) {
+    case 'darwin': {
+      return 'Install ffmpeg with: brew install ffmpeg';
+    }
+    case 'win32': {
+      return 'Install ffmpeg with: winget install Gyan.FFmpeg';
+    }
+    default: {
+      return 'Install ffmpeg with your package manager, for example: sudo apt install ffmpeg';
+    }
+  }
+}
 
 /**
  * Gets video dimensions using ffprobe
@@ -44,6 +83,7 @@ export async function getVideoDimensions(filePath: string): Promise<Dimensions> 
  * @param size - Target size for thumbnail
  * @param sizeDimension - How to apply size: 'auto' (longer edge), 'width', or 'height'
  * @param verbose - Whether to enable verbose ffmpeg output
+ * @param onStderr - Optional handler for ffmpeg stderr output when verbose
  * @param encodeOptions - Encoding options (format, quality, effort)
  * @returns Promise resolving to thumbnail dimensions
  */
@@ -55,6 +95,7 @@ export async function createVideoThumbnails(
   size: number,
   sizeDimension: ThumbnailSizeDimension = 'auto',
   verbose: boolean = false,
+  onStderr?: (message: string) => void,
   encodeOptions: ImageEncodeOptions = {},
 ): Promise<Dimensions> {
   // Calculate dimensions maintaining aspect ratio based on sizeDimension
@@ -99,8 +140,9 @@ export async function createVideoThumbnails(
     ]);
 
     ffmpeg.stderr.on('data', (data: Buffer) => {
-      // FFmpeg writes normal output to stderr, so we don't treat this as an error
-      console.log(`ffmpeg: ${data.toString()}`);
+      if (verbose) {
+        onStderr?.(data.toString());
+      }
     });
 
     ffmpeg.on('close', async (code: number) => {

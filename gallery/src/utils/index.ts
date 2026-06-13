@@ -6,6 +6,8 @@ import { THUMBNAIL_FORMATS } from '@simple-photo-gallery/common/theme';
 import type { ThumbnailConfig, ThumbnailFormat } from '@simple-photo-gallery/common/theme';
 import type { ConsolaInstance } from 'consola';
 
+const SKIPPED_DIRECTORY_NAMES = new Set(['gallery', 'node_modules']);
+
 /**
  * Finds all gallery directories that contain a gallery/gallery.json file.
  *
@@ -27,7 +29,7 @@ export function findGalleries(basePath: string, recursive: boolean): string[] {
     try {
       const entries = fs.readdirSync(basePath, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.isDirectory() && entry.name !== 'gallery') {
+        if (entry.isDirectory() && !shouldSkipDirectory(entry.name)) {
           const subPath = path.join(basePath, entry.name);
           const subResults = findGalleries(subPath, recursive);
           galleryDirs.push(...subResults);
@@ -39,6 +41,15 @@ export function findGalleries(basePath: string, recursive: boolean): string[] {
   }
 
   return galleryDirs;
+}
+
+/**
+ * Returns whether a directory should be excluded from gallery scans and recursive discovery.
+ * @param directoryName - Directory basename
+ * @returns true when the directory should be skipped
+ */
+export function shouldSkipDirectory(directoryName: string): boolean {
+  return directoryName.startsWith('.') || SKIPPED_DIRECTORY_NAMES.has(directoryName);
 }
 
 /**

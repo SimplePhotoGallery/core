@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /** Zod schema for thumbnail metadata including path and dimensions */
-export const ThumbnailSchema = z.object({
+export const ThumbnailSchema = z.looseObject({
   baseUrl: z.string().optional(),
   path: z.string(),
   pathRetina: z.string(),
@@ -11,7 +11,7 @@ export const ThumbnailSchema = z.object({
 });
 
 /** Zod schema for media file metadata including type, dimensions, and thumbnail info */
-export const MediaFileSchema = z.object({
+export const MediaFileSchema = z.looseObject({
   type: z.enum(['image', 'video']),
   filename: z.string(),
   url: z.string().optional(),
@@ -26,7 +26,7 @@ export const MediaFileSchema = z.object({
  * Zod schema for media file with path.
  * @deprecated Use MediaFileSchema instead which uses 'filename' instead of 'path'.
  */
-export const MediaFileDeprecatedSchema = z.object({
+export const MediaFileDeprecatedSchema = z.looseObject({
   type: z.enum(['image', 'video']),
   path: z.string(),
   alt: z.string().optional(),
@@ -37,7 +37,7 @@ export const MediaFileDeprecatedSchema = z.object({
 });
 
 /** Zod schema for a gallery section containing title, description, and media files */
-export const GallerySectionSchema = z.object({
+export const GallerySectionSchema = z.looseObject({
   title: z.string().optional(),
   description: z.string().optional(),
   images: z.array(MediaFileSchema),
@@ -47,14 +47,14 @@ export const GallerySectionSchema = z.object({
  * Zod schema for a gallery section containing title, description, and media files.
  * @deprecated Use GallerySectionSchema instead which uses MediaFileSchema.
  */
-export const GallerySectionDeprecatedSchema = z.object({
+export const GallerySectionDeprecatedSchema = z.looseObject({
   title: z.string().optional(),
   description: z.string().optional(),
   images: z.array(MediaFileDeprecatedSchema),
 });
 
 /** Zod schema for sub-gallery metadata including title, header image, and path */
-export const SubGallerySchema = z.object({
+export const SubGallerySchema = z.looseObject({
   title: z.string(),
   headerImage: z.string(),
   path: z.string(),
@@ -79,15 +79,15 @@ const LandscapeSizesSchema = z.object({
 });
 
 /** Zod schema for header image variants allowing explicit specification of responsive hero images */
-export const HeaderImageVariantsSchema = z.object({
+export const HeaderImageVariantsSchema = z.looseObject({
   portrait: z
-    .object({
+    .looseObject({
       avif: PortraitSizesSchema.optional(),
       jpg: PortraitSizesSchema.optional(),
     })
     .optional(),
   landscape: z
-    .object({
+    .looseObject({
       avif: LandscapeSizesSchema.optional(),
       jpg: LandscapeSizesSchema.optional(),
     })
@@ -95,7 +95,7 @@ export const HeaderImageVariantsSchema = z.object({
 });
 
 /** Zod schema for complete gallery data including metadata, sections, and sub-galleries */
-export const GalleryMetadataSchema = z.object({
+export const GalleryMetadataSchema = z.looseObject({
   image: z.string().optional(),
   imageWidth: z.number().optional(),
   imageHeight: z.number().optional(),
@@ -112,7 +112,7 @@ export const GalleryMetadataSchema = z.object({
 });
 
 /** Zod schema for complete gallery data including metadata, sections, and sub-galleries */
-export const GalleryDataSchema = z.object({
+export const GalleryDataSchema = z.looseObject({
   title: z.string(),
   description: z.string(),
   mediaBasePath: z.string().optional(),
@@ -122,7 +122,7 @@ export const GalleryDataSchema = z.object({
   headerImageVariants: HeaderImageVariantsSchema.optional(),
   theme: z.string().optional(),
   thumbnails: z
-    .object({
+    .looseObject({
       size: z.number().optional(),
       edge: z.enum(['auto', 'width', 'height']).optional(),
       format: z.enum(['avif', 'webp', 'jpeg']).optional(),
@@ -137,14 +137,14 @@ export const GalleryDataSchema = z.object({
   ctaBanner: z.boolean().optional(),
   customStyles: z.record(z.string(), z.string()).optional(),
   sections: z.array(GallerySectionSchema),
-  subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
+  subGalleries: z.looseObject({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });
 
 /**
  * Zod schema for complete gallery data without mediaBasePath.
  * @deprecated Use GalleryDataSchema instead which includes mediaBasePath and headerImageVariants.
  */
-export const GalleryDataDeprecatedSchema = z.object({
+export const GalleryDataDeprecatedSchema = z.looseObject({
   title: z.string(),
   description: z.string(),
   url: z.string().optional(),
@@ -154,5 +154,5 @@ export const GalleryDataDeprecatedSchema = z.object({
   mediaBaseUrl: z.string().optional(),
   analyticsScript: z.string().optional(),
   sections: z.array(GallerySectionDeprecatedSchema),
-  subGalleries: z.object({ title: z.string(), galleries: z.array(SubGallerySchema) }),
+  subGalleries: z.looseObject({ title: z.string(), galleries: z.array(SubGallerySchema) }),
 });

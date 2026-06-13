@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { scanDirectory } from '../src/modules/init';
+import { init, scanDirectory } from '../src/modules/init';
+import { capitalizeTitle } from '../src/modules/init/utils';
 
 import type { ConsolaInstance } from 'consola';
 
@@ -71,5 +72,56 @@ describe('scanDirectory', () => {
     const { mediaFiles } = await scanDirectory(tempDir, createMockUI());
 
     expect(mediaFiles.map((file) => file.filename)).toEqual(['photo.jpg']);
+  });
+
+  test('should ignore generated, dependency, and dot directories', async () => {
+    for (const dirName of ['gallery', 'node_modules', '.cache', '.git', 'album']) {
+      fs.mkdirSync(path.join(tempDir, dirName));
+    }
+
+    const { subGalleryDirectories } = await scanDirectory(tempDir, createMockUI());
+
+    expect(subGalleryDirectories).toEqual([path.join(tempDir, 'album')]);
+  });
+});
+
+describe('init', () => {
+  let tempDir: string;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'spg-init-test-'));
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  test('should report zero galleries for an empty directory', async () => {
+    const ui = {
+      ...createMockUI(),
+      box: jest.fn(),
+    };
+
+    const result = await init(
+      {
+        photos: tempDir,
+        recursive: false,
+        default: true,
+        force: false,
+      },
+      ui as unknown as ConsolaInstance,
+    );
+
+    expect(result).toEqual({ processedMediaCount: 0, processedGalleryCount: 0 });
+    expect(ui.box).toHaveBeenCalledWith('Created 0 galleries with 0 media files');
+    expect(fs.existsSync(path.join(tempDir, 'gallery', 'gallery.json'))).toBe(false);
+  });
+});
+
+describe('capitalizeTitle', () => {
+  test('should replace all dashes and underscores', () => {
+    expect(capitalizeTitle('my-summer_trip-2026')).toBe('My Summer Trip 2026');
   });
 });

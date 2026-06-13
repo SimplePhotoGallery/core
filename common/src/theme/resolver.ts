@@ -80,6 +80,10 @@ function resolveSubGallery(
   };
 }
 
+function getHeroVariantSources(variants: unknown): Record<number, string | undefined> | undefined {
+  return variants && typeof variants === 'object' ? (variants as Record<number, string | undefined>) : undefined;
+}
+
 /**
  * Resolve hero data with all paths computed and srcsets built.
  */
@@ -97,7 +101,7 @@ async function resolveHero(gallery: GalleryData): Promise<ResolvedHero> {
 
   const srcsets = {
     portraitAvif: buildHeroSrcset(
-      headerImageVariants?.portrait?.avif,
+      getHeroVariantSources(headerImageVariants?.portrait?.avif),
       PORTRAIT_SIZES,
       thumbnailBasePath,
       imgBasename,
@@ -106,7 +110,7 @@ async function resolveHero(gallery: GalleryData): Promise<ResolvedHero> {
       useDefaultPaths,
     ),
     portraitJpg: buildHeroSrcset(
-      headerImageVariants?.portrait?.jpg,
+      getHeroVariantSources(headerImageVariants?.portrait?.jpg),
       PORTRAIT_SIZES,
       thumbnailBasePath,
       imgBasename,
@@ -115,7 +119,7 @@ async function resolveHero(gallery: GalleryData): Promise<ResolvedHero> {
       useDefaultPaths,
     ),
     landscapeAvif: buildHeroSrcset(
-      headerImageVariants?.landscape?.avif,
+      getHeroVariantSources(headerImageVariants?.landscape?.avif),
       LANDSCAPE_SIZES,
       thumbnailBasePath,
       imgBasename,
@@ -124,7 +128,7 @@ async function resolveHero(gallery: GalleryData): Promise<ResolvedHero> {
       useDefaultPaths,
     ),
     landscapeJpg: buildHeroSrcset(
-      headerImageVariants?.landscape?.jpg,
+      getHeroVariantSources(headerImageVariants?.landscape?.jpg),
       LANDSCAPE_SIZES,
       thumbnailBasePath,
       imgBasename,

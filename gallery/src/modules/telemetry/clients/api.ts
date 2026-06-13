@@ -1,7 +1,5 @@
 import process from 'node:process';
 
-import axios from 'axios';
-
 import type { TelemetryClient, TelemetryEvent } from '../types';
 
 /**
@@ -12,11 +10,14 @@ export class ApiTelemetryClient implements TelemetryClient {
 
   async record(event: TelemetryEvent): Promise<void> {
     try {
-      axios.post(this.endpoint, event, {
+      await fetch(this.endpoint, {
+        method: 'POST',
         headers: {
           'content-type': 'application/json',
           'user-agent': `simple-photo-gallery/${event.packageVersion} (${process.platform}; ${process.arch})`,
         },
+        body: JSON.stringify(event),
+        signal: AbortSignal.timeout(3000),
       });
     } catch {
       // Swallow network errors - telemetry must never interrupt the CLI flow.

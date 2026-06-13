@@ -1,9 +1,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 
 import { toUrlPath } from '@simple-photo-gallery/common/theme';
 
 import { capitalizeTitle, getMediaFileType } from './utils';
+
+import { shouldSkipDirectory } from '../../utils';
 
 import type { GallerySettingsFromUser, ProcessDirectoryResult, ScanDirectoryResult, ScanOptions, SubGallery } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
@@ -37,7 +40,7 @@ export async function scanDirectory(dirPath: string, ui: ConsolaInstance): Promi
 
           mediaFiles.push(mediaFile);
         }
-      } else if (entry.isDirectory() && entry.name !== 'gallery') {
+      } else if (entry.isDirectory() && !shouldSkipDirectory(entry.name)) {
         subGalleryDirectories.push(path.join(dirPath, entry.name));
       }
     }
@@ -236,8 +239,9 @@ async function processDirectory(
   ui.start(`Scanning ${scanPath}`);
 
   let totalFiles = 0;
-  let totalGalleries = 1;
+  let totalGalleries = 0;
   const subGalleries: SubGallery[] = [];
+  let createdCurrentGallery = false;
 
   // Scan current directory for media files
   const { mediaFiles, subGalleryDirectories } = await scanDirectory(scanPath, ui);
@@ -276,6 +280,10 @@ async function processDirectory(
     const exists = await galleryExists(outputPath);
 
     if (exists && !force) {
+      if (!process.stdout.isTTY) {
+        throw new Error(`Gallery already exists at ${galleryJsonPath}. Use --force to overwrite it.`);
+      }
+
       // Ask user if they want to override
       const shouldOverride = await ui.prompt(`Gallery already exists at ${galleryJsonPath}. Do you want to override it?`, {
         type: 'confirm',
@@ -284,7 +292,7 @@ async function processDirectory(
 
       if (!shouldOverride) {
         ui.info('Skipping gallery creation');
-        return { totalFiles: 0, totalGalleries: 0 };
+        return { totalFiles: totalFiles - mediaFiles.length, totalGalleries };
       }
     }
 
@@ -304,8 +312,11 @@ async function processDirectory(
         ui,
       );
 
+      createdCurrentGallery = true;
+      totalGalleries += 1;
+
       ui.success(
-        `Create gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
+        `Created gallery with ${mediaFiles.length} files and ${subGalleries.length} subgalleries at: ${galleryJsonPath}`,
       );
     } catch (error) {
       ui.error(`Error creating gallery.json at ${galleryJsonPath}`);
@@ -313,11 +324,11 @@ async function processDirectory(
     }
   }
 
-  // Return result with suGgallery info if this directory has media files
+  // Return result with subgallery info if this directory has media files
   const result: ProcessDirectoryResult = { totalFiles, totalGalleries };
 
-  // If this directory has media files or subGalleries, create a subGallery in the result
-  if (mediaFiles.length > 0 || subGalleries.length > 0) {
+  // If this directory created a gallery, create a subGallery in the result
+  if (createdCurrentGallery) {
     const dirName = path.basename(scanPath);
     result.subGallery = {
       title: capitalizeTitle(dirName),

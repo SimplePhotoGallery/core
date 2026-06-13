@@ -12,8 +12,12 @@ export interface BuildOptions {
   thumbsBaseUrl?: string;
   /** Scan for new photos */
   scan: boolean;
+  /** Remove gallery entries for missing source files during scan */
+  prune: boolean;
   /** Create thumbnails */
   thumbnails: boolean;
+  /** Answer yes to build confirmations */
+  yes: boolean;
   /** Theme package name to use for building (e.g., '@simple-photo-gallery/theme-modern' or '@your-org/your-private-theme') */
   theme?: string;
   /** Override thumbnail size in pixels */

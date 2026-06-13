@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { compareSemVer, parseSemVer } from 'semver-parser';
 
 import type { ConsolaInstance } from 'consola';
@@ -19,15 +18,21 @@ interface PackageInfo {
 async function fetchLatestStableVersion(packageName: string): Promise<string | undefined> {
   try {
     // Use abbreviated metadata endpoint for faster response
-    const response = await axios.get<PackageInfo>(`${NPM_REGISTRY_URL}/${packageName}`, {
-      timeout: CHECK_TIMEOUT_MS,
+    const response = await fetch(`${NPM_REGISTRY_URL}/${packageName}`, {
+      signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
       headers: {
         Accept: 'application/vnd.npm.install-v1+json',
       },
     });
 
+    if (!response.ok) {
+      return undefined;
+    }
+
+    const packageInfo = (await response.json()) as PackageInfo;
+
     // Get all version numbers
-    const versions = Object.keys(response.data.versions);
+    const versions = Object.keys(packageInfo.versions);
 
     // Filter to only stable versions (no pre-release identifiers)
     const stableVersions = versions.filter((version) => {

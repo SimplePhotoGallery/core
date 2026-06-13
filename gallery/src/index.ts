@@ -27,7 +27,7 @@ const program = new Command();
 const telemetryService = new TelemetryService(packageJson.name, packageJson.version, createConsolaUI(program.opts()));
 
 program
-  .name('gallery')
+  .name('spg')
   .description('Simple Photo Gallery CLI')
   .version(packageJson.version)
   .option('-v, --verbose', 'Verbose output (debug level)', false)
@@ -188,6 +188,8 @@ program
   .option('-t, --thumbs-base-url <url>', 'Base URL where the thumbnails are hosted')
   .option('--no-thumbnails', 'Skip creating thumbnails when building the gallery', true)
   .option('--no-scan', 'Do not scan for new photos when building the gallery', true)
+  .option('--prune', 'Remove gallery entries whose source files are missing when scanning', false)
+  .option('-y, --yes', 'Answer yes to build confirmations, including copying photos from mediaBasePath', false)
   .option(
     '--theme <package|path>',
     'Theme package name (e.g., @simple-photo-gallery/theme-modern) or local path (e.g., ./themes/my-theme)',

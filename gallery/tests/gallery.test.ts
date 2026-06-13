@@ -563,8 +563,8 @@ describe('Separate gallery directory', () => {
         runCliCommand(`${tsxPath} ${cliPath} thumbnails --gallery ${separateGalleryPath}`);
       }
 
-      // Run build command (automatically answer 'y' to photo copy confirmation)
-      runCliCommand(`echo "y" | ${tsxPath} ${cliPath} build --gallery ${separateGalleryPath}`);
+      // Run build command with explicit non-interactive confirmation for copying photos
+      runCliCommand(`${tsxPath} ${cliPath} build --gallery ${separateGalleryPath} --yes`);
 
       // Validate build output using separate gallery helper
       validateSeparateBuildOutput(separateGalleryPath, galleryPath);
