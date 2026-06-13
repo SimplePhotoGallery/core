@@ -1,5 +1,7 @@
 import path from 'node:path';
 
+import { getThumbnailExtension, type ThumbnailFormat } from './config';
+
 /**
  * Converts a filesystem path to a URL path by replacing backslashes with forward slashes.
  * Paths produced by the path module on Windows use backslashes, which are not valid URL separators.
@@ -82,11 +84,16 @@ export function getPhotoPath(filename: string, mediaBaseUrl?: string, url?: stri
  *
  * @param headerImageFilename - The filename of the subgallery header image
  * @param resolvedSubgalleryPath - The resolved subgallery path relative to the gallery root
+ * @param format - The thumbnail output format used to derive the file extension (defaults to 'avif')
  * @returns The normalized URL path relative to the gallery root directory
  */
-export function getSubgalleryThumbnailPath(headerImageFilename: string, resolvedSubgalleryPath?: string): string {
+export function getSubgalleryThumbnailPath(
+  headerImageFilename: string,
+  resolvedSubgalleryPath?: string,
+  format: ThumbnailFormat = 'avif',
+): string {
   const basename = path.basename(headerImageFilename, path.extname(headerImageFilename));
-  const thumbnailFilename = `${basename}.avif`;
+  const thumbnailFilename = `${basename}.${getThumbnailExtension(format)}`;
   const subgalleryFolder = resolvedSubgalleryPath || path.basename(path.dirname(headerImageFilename));
 
   return path.posix.join(toUrlPath(subgalleryFolder), 'gallery', 'images', thumbnailFilename);

@@ -14,7 +14,7 @@ import {
   hasOldHeaderImages,
 } from './utils';
 
-import { findGalleries } from '../../utils';
+import { buildCliThumbnailConfig, findGalleries } from '../../utils';
 import { parseGalleryJson } from '../../utils/gallery';
 import { scanDirectory } from '../init';
 import { processGalleryThumbnails } from '../thumbnails';
@@ -226,17 +226,13 @@ async function buildGallery(
 
   // If thumbnail settings are provided via CLI, update the gallery.json file if needed
   if (cliThumbnailConfig) {
-    const needsUpdate =
-      (cliThumbnailConfig.size !== undefined && galleryData.thumbnails?.size !== cliThumbnailConfig.size) ||
-      (cliThumbnailConfig.edge !== undefined && galleryData.thumbnails?.edge !== cliThumbnailConfig.edge);
+    const currentThumbnails = galleryData.thumbnails ?? {};
+    const cliKeys = Object.keys(cliThumbnailConfig) as (keyof typeof cliThumbnailConfig)[];
+    const needsUpdate = cliKeys.some((key) => currentThumbnails[key] !== cliThumbnailConfig[key]);
 
     if (needsUpdate) {
       ui.debug('Updating gallery.json with thumbnail settings');
-      galleryData.thumbnails = {
-        ...galleryData.thumbnails,
-        ...(cliThumbnailConfig.size !== undefined && { size: cliThumbnailConfig.size }),
-        ...(cliThumbnailConfig.edge !== undefined && { edge: cliThumbnailConfig.edge }),
-      };
+      galleryData.thumbnails = { ...currentThumbnails, ...cliThumbnailConfig };
       fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
     }
   }
@@ -336,10 +332,7 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
     }
 
     // Create CLI thumbnail config from options (only include values that were provided)
-    const cliThumbnailConfig: ThumbnailConfig | undefined =
-      options.thumbnailSize !== undefined || options.thumbnailEdge !== undefined
-        ? { size: options.thumbnailSize, edge: options.thumbnailEdge }
-        : undefined;
+    const cliThumbnailConfig = buildCliThumbnailConfig(options);
 
     // Process each gallery directory
     let totalGalleries = 0;

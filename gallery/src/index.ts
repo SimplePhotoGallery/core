@@ -12,7 +12,7 @@ import { init } from './modules/init';
 import { telemetry } from './modules/telemetry';
 import { TelemetryService } from './modules/telemetry/service';
 import { thumbnails } from './modules/thumbnails';
-import { parseTelemetryOption } from './utils';
+import { parseTelemetryOption, parseThumbnailFormat } from './utils';
 import { checkForUpdates, displayUpdateNotification, waitForUpdateCheck } from './utils/version';
 
 import packageJson from '../package.json' with { type: 'json' };
@@ -174,6 +174,9 @@ program
   .option('-r, --recursive', 'Scan subdirectories recursively', false)
   .option('--thumbnail-size <pixels>', 'Override thumbnail size in pixels', Number.parseInt)
   .option('--thumbnail-edge <mode>', 'Override how thumbnail size is applied: auto, width, or height')
+  .option('--thumbnail-format <format>', 'Override thumbnail output format: avif, webp, or jpeg', parseThumbnailFormat)
+  .option('--thumbnail-quality <number>', 'Override thumbnail output quality (1-100)', Number.parseInt)
+  .option('--thumbnail-effort <number>', 'Override thumbnail encoder effort (higher is slower but smaller)', Number.parseInt)
   .action(withCommandContext((options, ui) => thumbnails(options, ui)));
 
 program
@@ -191,6 +194,9 @@ program
   )
   .option('--thumbnail-size <pixels>', 'Override thumbnail size in pixels', Number.parseInt)
   .option('--thumbnail-edge <mode>', 'Override how thumbnail size is applied: auto, width, or height')
+  .option('--thumbnail-format <format>', 'Override thumbnail output format: avif, webp, or jpeg', parseThumbnailFormat)
+  .option('--thumbnail-quality <number>', 'Override thumbnail output quality (1-100)', Number.parseInt)
+  .option('--thumbnail-effort <number>', 'Override thumbnail encoder effort (higher is slower but smaller)', Number.parseInt)
   .action(withCommandContext((options, ui) => build(options, ui)));
 
 program

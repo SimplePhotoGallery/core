@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import ffprobe from 'node-ffprobe';
 import sharp from 'sharp';
 
-import { resizeImage, type ThumbnailSizeDimension } from './image';
+import { resizeImage, type ImageEncodeOptions, type ThumbnailSizeDimension } from './image';
 
 import type { Dimensions } from '../types';
 import type { Buffer } from 'node:buffer';
@@ -44,6 +44,7 @@ export async function getVideoDimensions(filePath: string): Promise<Dimensions> 
  * @param size - Target size for thumbnail
  * @param sizeDimension - How to apply size: 'auto' (longer edge), 'width', or 'height'
  * @param verbose - Whether to enable verbose ffmpeg output
+ * @param encodeOptions - Encoding options (format, quality, effort)
  * @returns Promise resolving to thumbnail dimensions
  */
 export async function createVideoThumbnails(
@@ -54,6 +55,7 @@ export async function createVideoThumbnails(
   size: number,
   sizeDimension: ThumbnailSizeDimension = 'auto',
   verbose: boolean = false,
+  encodeOptions: ImageEncodeOptions = {},
 ): Promise<Dimensions> {
   // Calculate dimensions maintaining aspect ratio based on sizeDimension
   const aspectRatio = videoDimensions.width / videoDimensions.height;
@@ -104,10 +106,12 @@ export async function createVideoThumbnails(
     ffmpeg.on('close', async (code: number) => {
       if (code === 0) {
         try {
-          // Process the extracted frame with sharp
-          const frameImage = sharp(tempFramePath);
-          await resizeImage(frameImage, outputPath, width, height);
-          await resizeImage(frameImage, outputPathRetina, width * 2, height * 2);
+          // Read the extracted frame once and decode both thumbnails from memory instead of re-reading
+          // the temporary file from disk for each output
+          const frameBuffer = await fs.readFile(tempFramePath);
+          const frameImage = sharp(frameBuffer);
+          await resizeImage(frameImage, outputPath, width, height, encodeOptions);
+          await resizeImage(frameImage, outputPathRetina, width * 2, height * 2, encodeOptions);
 
           // Clean up temporary file
           try {

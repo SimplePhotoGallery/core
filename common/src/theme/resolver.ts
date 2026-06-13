@@ -1,6 +1,11 @@
 import path from 'node:path';
 
-import { extractThumbnailConfigFromGallery, mergeThumbnailConfig, type ThumbnailConfig } from './config';
+import {
+  extractThumbnailConfigFromGallery,
+  mergeThumbnailConfig,
+  type ThumbnailConfig,
+  type ThumbnailFormat,
+} from './config';
 import { LANDSCAPE_SIZES, PORTRAIT_SIZES } from './constants';
 import { renderMarkdown } from './markdown';
 import { buildHeroSrcset, getPhotoPath, getRelativePath, getSubgalleryThumbnailPath, getThumbnailPath } from './paths';
@@ -60,13 +65,17 @@ async function resolveSection(
 /**
  * Resolve a sub-gallery with computed thumbnail path and optional resolved path.
  */
-function resolveSubGallery(subGallery: SubGallery, galleryJsonPath?: string): ResolvedSubGallery {
+function resolveSubGallery(
+  subGallery: SubGallery,
+  galleryJsonPath?: string,
+  thumbnailFormat?: ThumbnailFormat,
+): ResolvedSubGallery {
   const resolvedPath = galleryJsonPath ? getRelativePath(subGallery.path, galleryJsonPath) : undefined;
   return {
     title: subGallery.title,
     headerImage: subGallery.headerImage,
     path: subGallery.path,
-    thumbnailPath: getSubgalleryThumbnailPath(subGallery.headerImage, resolvedPath),
+    thumbnailPath: getSubgalleryThumbnailPath(subGallery.headerImage, resolvedPath, thumbnailFormat),
     resolvedPath,
   };
 }
@@ -180,16 +189,16 @@ export async function resolveGalleryData(
     gallery.sections.map((section) => resolveSection(section, mediaBaseUrl, thumbsBaseUrl)),
   );
 
-  const resolvedSubGalleries = subGalleries?.galleries?.length
-    ? {
-        title: subGalleries.title,
-        galleries: subGalleries.galleries.map((sg) => resolveSubGallery(sg, galleryJsonPath)),
-      }
-    : undefined;
-
   // Merge thumbnail config: CLI > gallery.json > themeConfig > defaults
   const galleryThumbnailConfig = extractThumbnailConfigFromGallery(gallery);
   const thumbnails = mergeThumbnailConfig(cliConfig, galleryThumbnailConfig, themeConfig);
+
+  const resolvedSubGalleries = subGalleries?.galleries?.length
+    ? {
+        title: subGalleries.title,
+        galleries: subGalleries.galleries.map((sg) => resolveSubGallery(sg, galleryJsonPath, thumbnails.format)),
+      }
+    : undefined;
 
   return {
     title: gallery.title,

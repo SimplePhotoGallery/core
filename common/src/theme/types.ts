@@ -1,5 +1,5 @@
 import type { GalleryMetadata, HeaderImageVariants } from '../gallery';
-import type { ThumbnailConfig } from './config';
+import type { ResolvedThumbnailConfig } from './config';
 
 /** Resolved hero data with all paths computed and markdown parsed */
 export interface ResolvedHero {
@@ -73,7 +73,7 @@ export interface ResolvedGalleryData {
    * Thumbnail configuration with dimension and edge settings.
    * Themes should use this for display sizing (e.g., row-height for modern theme).
    */
-  thumbnails?: Required<ThumbnailConfig>;
+  thumbnails?: ResolvedThumbnailConfig;
   /** Custom CSS variable overrides from gallery.json, passed through for theme injection. */
   customStyles?: Record<string, string>;
 }

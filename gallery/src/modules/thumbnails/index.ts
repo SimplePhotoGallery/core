@@ -1,8 +1,11 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import process from 'node:process';
 
 import {
   extractThumbnailConfigFromGallery,
+  getThumbnailExtension,
   mergeThumbnailConfig,
   loadThemeConfig,
 } from '@simple-photo-gallery/common/theme';
@@ -10,18 +13,24 @@ import { LogLevels, type ConsolaInstance } from 'consola';
 
 import { getFileMtime } from './utils';
 
-import { findGalleries, handleFileProcessingError } from '../../utils';
+import { buildCliThumbnailConfig, findGalleries, handleFileProcessingError } from '../../utils';
 import { generateBlurHash } from '../../utils/blurhash';
+import { mapWithConcurrency } from '../../utils/concurrency';
 import { getImageDescription } from '../../utils/descriptions';
 import { parseGalleryJson } from '../../utils/gallery';
-import { createImageThumbnails, loadImageWithMetadata, type ThumbnailSizeDimension } from '../../utils/image';
+import {
+  createImageThumbnails,
+  loadImageWithMetadata,
+  type ImageEncodeOptions,
+  type ThumbnailSizeDimension,
+} from '../../utils/image';
 import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 import { resolveThemeDir } from '../build';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
 import type { MediaFile } from '@simple-photo-gallery/common';
-import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
+import type { ResolvedThumbnailConfig, ThumbnailConfig } from '@simple-photo-gallery/common/theme';
 
 /**
  * Processes an image file to create thumbnail and extract metadata
@@ -30,6 +39,7 @@ import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
  * @param thumbnailPathRetina - Path where retina thumbnail should be saved
  * @param thumbnailSize - Target size for thumbnail
  * @param thumbnailSizeDimension - How to apply size: 'auto', 'width', or 'height'
+ * @param encodeOptions - Encoding options (format, quality, effort)
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
  * @returns Promise resolving to updated MediaFile or undefined if skipped
  */
@@ -39,6 +49,7 @@ export async function processImage(
   thumbnailPathRetina: string,
   thumbnailSize: number,
   thumbnailSizeDimension: ThumbnailSizeDimension = 'auto',
+  encodeOptions: ImageEncodeOptions = {},
   lastMediaTimestamp?: Date,
 ): Promise<MediaFile | undefined> {
   // Get the last media timestamp
@@ -49,8 +60,12 @@ export async function processImage(
     return undefined;
   }
 
+  // Read the original once and reuse the buffer for metadata, thumbnails, blurhash and EXIF so the
+  // file (potentially tens of MB) is read from disk a single time instead of once per consumer.
+  const inputBuffer = await fs.promises.readFile(imagePath);
+
   // Load the image and get metadata first to check orientation
-  const { image, metadata } = await loadImageWithMetadata(imagePath);
+  const { image, metadata } = await loadImageWithMetadata(inputBuffer);
 
   // Get the image dimensions
   const imageDimensions = {
@@ -63,7 +78,7 @@ export async function processImage(
   }
 
   // Get the image description
-  const description = await getImageDescription(imagePath);
+  const description = await getImageDescription(inputBuffer);
 
   // Create the thumbnails
   const thumbnailDimensions = await createImageThumbnails(
@@ -73,10 +88,11 @@ export async function processImage(
     thumbnailPathRetina,
     thumbnailSize,
     thumbnailSizeDimension,
+    encodeOptions,
   );
 
-  // Generate BlurHash from the thumbnail
-  const blurHash = await generateBlurHash(thumbnailPath);
+  // Generate BlurHash from the in-memory original, avoiding a re-read and decode of the written thumbnail
+  const blurHash = await generateBlurHash(inputBuffer);
 
   // Return the updated media file
   return {
@@ -104,6 +120,7 @@ export async function processImage(
  * @param thumbnailSize - Target size for thumbnail
  * @param thumbnailSizeDimension - How to apply size: 'auto', 'width', or 'height'
  * @param verbose - Whether to enable verbose output
+ * @param encodeOptions - Encoding options (format, quality, effort)
  * @param lastMediaTimestamp - Optional timestamp to check if processing can be skipped
  * @returns Promise resolving to updated MediaFile or undefined if skipped
  */
@@ -114,6 +131,7 @@ async function processVideo(
   thumbnailSize: number,
   thumbnailSizeDimension: ThumbnailSizeDimension = 'auto',
   verbose: boolean,
+  encodeOptions: ImageEncodeOptions = {},
   lastMediaTimestamp?: Date,
 ): Promise<MediaFile | undefined> {
   // Get the last media timestamp
@@ -136,6 +154,7 @@ async function processVideo(
     thumbnailSize,
     thumbnailSizeDimension,
     verbose,
+    encodeOptions,
   );
 
   // Generate BlurHash from the thumbnail
@@ -163,7 +182,7 @@ async function processVideo(
  * @param mediaFile - Media file to process
  * @param mediaBasePath - Base path for the media files
  * @param thumbnailsPath - Directory where thumbnails are stored
- * @param thumbnailConfig - Thumbnail configuration (dimension and edge)
+ * @param thumbnailConfig - Resolved thumbnail configuration (size, edge, format, quality, effort)
  * @param ui - ConsolaInstance for logging
  * @returns Promise resolving to updated MediaFile
  */
@@ -171,7 +190,7 @@ async function processMediaFile(
   mediaFile: MediaFile,
   mediaBasePath: string,
   thumbnailsPath: string,
-  thumbnailConfig: Required<ThumbnailConfig>,
+  thumbnailConfig: ResolvedThumbnailConfig,
   ui: ConsolaInstance,
 ): Promise<MediaFile> {
   try {
@@ -180,9 +199,15 @@ async function processMediaFile(
 
     const fileName = mediaFile.filename;
     const fileNameWithoutExt = path.parse(fileName).name;
-    const thumbnailFileName = `${fileNameWithoutExt}.avif`;
-    const thumbnailPath = path.join(thumbnailsPath, thumbnailFileName);
-    const thumbnailPathRetina = thumbnailPath.replace('.avif', '@2x.avif');
+    const extension = getThumbnailExtension(thumbnailConfig.format);
+    const thumbnailPath = path.join(thumbnailsPath, `${fileNameWithoutExt}.${extension}`);
+    const thumbnailPathRetina = path.join(thumbnailsPath, `${fileNameWithoutExt}@2x.${extension}`);
+
+    const encodeOptions: ImageEncodeOptions = {
+      format: thumbnailConfig.format,
+      quality: thumbnailConfig.quality,
+      effort: thumbnailConfig.effort,
+    };
 
     const lastMediaTimestamp = mediaFile.lastMediaTimestamp ? new Date(mediaFile.lastMediaTimestamp) : undefined;
     const verbose = ui.level === LogLevels.debug;
@@ -196,6 +221,7 @@ async function processMediaFile(
           thumbnailPathRetina,
           thumbnailConfig.size,
           thumbnailConfig.edge,
+          encodeOptions,
           lastMediaTimestamp,
         )
       : processVideo(
@@ -205,6 +231,7 @@ async function processMediaFile(
           thumbnailConfig.size,
           thumbnailConfig.edge,
           verbose,
+          encodeOptions,
           lastMediaTimestamp,
         ));
 
@@ -293,23 +320,70 @@ export async function processGalleryThumbnails(
     // Merge with 4-level hierarchy: CLI > gallery.json > theme > defaults
     const thumbnailConfig = mergeThumbnailConfig(cliThumbnailConfig, galleryThumbnailConfig, themeConfig);
 
-    ui.debug(`Thumbnail config: size=${thumbnailConfig.size}, edge=${thumbnailConfig.edge}`);
+    ui.debug(
+      `Thumbnail config: size=${thumbnailConfig.size}, edge=${thumbnailConfig.edge}, format=${thumbnailConfig.format}` +
+        `${thumbnailConfig.quality === undefined ? '' : `, quality=${thumbnailConfig.quality}`}` +
+        `${thumbnailConfig.effort === undefined ? '' : `, effort=${thumbnailConfig.effort}`}`,
+    );
 
     // If the mediaBasePath is not set, use the gallery directory
     const mediaBasePath = galleryData.mediaBasePath ?? path.join(galleryDir);
 
-    // Process all sections and their images
-    let processedCount = 0;
-    for (const section of galleryData.sections) {
-      for (const [index, mediaFile] of section.images.entries()) {
-        section.images[index] = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui);
-      }
+    // Persist gallery.json atomically (write to a temp file then rename) so an interruption can never
+    // leave a truncated gallery.json behind.
+    const writeGalleryData = (): void => {
+      const tempPath = `${galleryJsonPath}.tmp`;
+      fs.writeFileSync(tempPath, JSON.stringify(galleryData, null, 2));
+      fs.renameSync(tempPath, galleryJsonPath);
+    };
 
-      processedCount += section.images.length;
+    // On interruption (e.g. Ctrl-C) flush the progress made so far before exiting. Each completed file
+    // records its lastMediaTimestamp, so a subsequent run skips everything already finished instead of
+    // starting the whole gallery over.
+    const flushAndExit = (exitCode: number) => (): void => {
+      writeGalleryData();
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit(exitCode);
+    };
+    const onSigint = flushAndExit(130);
+    const onSigterm = flushAndExit(143);
+    process.once('SIGINT', onSigint);
+    process.once('SIGTERM', onSigterm);
+
+    // Process media files in parallel. Thumbnailing is IO/CPU bound (Sharp and ffmpeg release the JS
+    // thread), so a worker pool sized to the available cores processes a large gallery several times
+    // faster than the previous one-at-a-time loop while keeping per-file error isolation.
+    const concurrency = Math.max(2, os.cpus().length - 1);
+
+    // Flush progress to disk every PROGRESS_WRITE_INTERVAL files so a long run that is interrupted can
+    // resume instead of redoing all the thumbnails already on disk.
+    const PROGRESS_WRITE_INTERVAL = 16;
+    let processedCount = 0;
+    let processedSinceWrite = 0;
+
+    try {
+      for (const section of galleryData.sections) {
+        await mapWithConcurrency(section.images, concurrency, async (mediaFile, index) => {
+          const updated = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui);
+          section.images[index] = updated;
+
+          processedCount += 1;
+          processedSinceWrite += 1;
+          if (processedSinceWrite >= PROGRESS_WRITE_INTERVAL) {
+            processedSinceWrite = 0;
+            writeGalleryData();
+          }
+
+          return updated;
+        });
+      }
+    } finally {
+      process.removeListener('SIGINT', onSigint);
+      process.removeListener('SIGTERM', onSigterm);
     }
 
-    // Write updated gallery.json
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    // Write the final gallery.json with all processed files
+    writeGalleryData();
 
     ui.success(`Created thumbnails for ${processedCount} media files`);
 
@@ -335,10 +409,7 @@ export async function thumbnails(options: ThumbnailOptions, ui: ConsolaInstance)
     }
 
     // Create CLI thumbnail config from options (only include values that were provided)
-    const cliThumbnailConfig: ThumbnailConfig | undefined =
-      options.thumbnailSize !== undefined || options.thumbnailEdge !== undefined
-        ? { size: options.thumbnailSize, edge: options.thumbnailEdge }
-        : undefined;
+    const cliThumbnailConfig = buildCliThumbnailConfig(options);
 
     // Process each gallery directory
     let totalGalleries = 0;
