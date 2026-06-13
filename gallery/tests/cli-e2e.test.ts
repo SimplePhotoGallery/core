@@ -13,6 +13,7 @@ const testDir = process.cwd();
 const singleFixturePath = path.resolve(testDir, 'tests', 'fixtures', 'single');
 const multiFixturePath = path.resolve(testDir, 'tests', 'fixtures', 'multi');
 const modernThemePath = path.resolve(testDir, '..', 'themes', 'modern');
+const workspaceRoot = path.resolve(testDir, '..');
 const tsxPath = path.resolve(testDir, '..', 'node_modules', '.bin', 'tsx');
 const cliPath = path.resolve(testDir, 'src', 'index.ts');
 const distCliPath = path.resolve(testDir, 'dist', 'index.js');
@@ -46,6 +47,18 @@ beforeAll(() => {
     'globalThis.fetch = async () => ({ ok: false, json: async () => ({ versions: {} }) });\n',
     'utf8',
   );
+
+  const commonBuildHome = mkdtempSync(path.join(os.tmpdir(), 'spg-cli-e2e-common-build-home-'));
+  try {
+    execFileSync(process.execPath, [yarnPath, 'workspace', '@simple-photo-gallery/common', 'build'], {
+      cwd: workspaceRoot,
+      env: buildPackageManagerEnv(commonBuildHome),
+      stdio: 'pipe',
+      timeout: 180_000,
+    });
+  } finally {
+    rmSync(commonBuildHome, { recursive: true, force: true });
+  }
 });
 
 afterEach(() => {
