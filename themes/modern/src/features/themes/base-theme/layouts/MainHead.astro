@@ -34,6 +34,9 @@ const portraitPreloadSrcset = portraitAvifSrcset || portraitJpgSrcset;
 const portraitPreloadType = portraitAvifSrcset ? 'image/avif' : 'image/jpeg';
 const landscapePreloadSrcset = landscapeAvifSrcset || landscapeJpgSrcset;
 const landscapePreloadType = landscapeAvifSrcset ? 'image/avif' : 'image/jpeg';
+
+const metadataImageWidth = metadata?.imageWidth === undefined ? '1200' : String(metadata.imageWidth);
+const metadataImageHeight = metadata?.imageHeight === undefined ? '631' : String(metadata.imageHeight);
 ---
 
 <head>
@@ -55,8 +58,8 @@ const landscapePreloadType = landscapeAvifSrcset ? 'image/avif' : 'image/jpeg';
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   {metadata?.image && <meta property="og:image" content={metadata.image} />}
-  <meta property="og:image:width" content={String(metadata?.imageWidth) || '1200'} />
-  <meta property="og:image:height" content={String(metadata?.imageHeight) || '631'} />
+  <meta property="og:image:width" content={metadataImageWidth} />
+  <meta property="og:image:height" content={metadataImageHeight} />
   {metadata?.ogType && <meta property="og:type" content={metadata.ogType} />}
   {metadata?.ogUrl || (url && <meta property="og:url" content={metadata?.ogUrl || url} />)}
   {metadata?.ogSiteName && <meta property="og:site_name" content={metadata.ogSiteName} />}
@@ -66,8 +69,8 @@ const landscapePreloadType = landscapeAvifSrcset ? 'image/avif' : 'image/jpeg';
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   {metadata?.image && <meta name="twitter:image" content={metadata.image} />}
-  <meta name="twitter:image:width" content={String(metadata?.imageWidth) || '1200'} />
-  <meta name="twitter:image:height" content={String(metadata?.imageHeight) || '631'} />
+  <meta name="twitter:image:width" content={metadataImageWidth} />
+  <meta name="twitter:image:height" content={metadataImageHeight} />
   {metadata?.twitterSite && <meta name="twitter:site" content={metadata.twitterSite} />}
   {metadata?.twitterCreator && <meta name="twitter:creator" content={metadata.twitterCreator} />}
 
