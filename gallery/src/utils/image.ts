@@ -1,24 +1,28 @@
 import sharp from 'sharp';
 
 import type { Dimensions, ImageWithMetadata } from '../types';
+import type { Buffer } from 'node:buffer';
 import type { FormatEnum, Metadata, Sharp } from 'sharp';
+
+/** An image source accepted by Sharp: a file path or the image file contents in a Buffer */
+export type ImageSource = string | Buffer;
 
 /**
  * Loads an image and auto-rotates it based on EXIF orientation.
- * @param imagePath - Path to the image file
+ * @param image - Path to the image file or its contents as a Buffer
  * @returns Promise resolving to Sharp image instance
  */
-export async function loadImage(imagePath: string): Promise<Sharp> {
-  return sharp(imagePath).rotate();
+export async function loadImage(image: ImageSource): Promise<Sharp> {
+  return sharp(image).rotate();
 }
 
 /**
  * Loads an image and its metadata, auto-rotating it based on EXIF orientation and swapping dimensions if needed.
- * @param imagePath - Path to the image file
+ * @param source - Path to the image file or its contents as a Buffer
  * @returns Promise resolving to ImageWithMetadata object containing Sharp image instance and metadata
  */
-export async function loadImageWithMetadata(imagePath: string): Promise<ImageWithMetadata> {
-  const image = sharp(imagePath);
+export async function loadImageWithMetadata(source: ImageSource): Promise<ImageWithMetadata> {
+  const image = sharp(source);
   const metadata = await image.metadata();
 
   // Auto-rotate based on EXIF orientation

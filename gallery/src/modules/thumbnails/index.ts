@@ -59,8 +59,12 @@ export async function processImage(
     return undefined;
   }
 
+  // Read the original once and reuse the buffer for metadata, thumbnails, blurhash and EXIF so the
+  // file (potentially tens of MB) is read from disk a single time instead of once per consumer.
+  const inputBuffer = await fs.promises.readFile(imagePath);
+
   // Load the image and get metadata first to check orientation
-  const { image, metadata } = await loadImageWithMetadata(imagePath);
+  const { image, metadata } = await loadImageWithMetadata(inputBuffer);
 
   // Get the image dimensions
   const imageDimensions = {
@@ -73,7 +77,7 @@ export async function processImage(
   }
 
   // Get the image description
-  const description = await getImageDescription(imagePath);
+  const description = await getImageDescription(inputBuffer);
 
   // Create the thumbnails
   const thumbnailDimensions = await createImageThumbnails(
@@ -86,8 +90,8 @@ export async function processImage(
     encodeOptions,
   );
 
-  // Generate BlurHash from the thumbnail
-  const blurHash = await generateBlurHash(thumbnailPath);
+  // Generate BlurHash from the in-memory original, avoiding a re-read and decode of the written thumbnail
+  const blurHash = await generateBlurHash(inputBuffer);
 
   // Return the updated media file
   return {

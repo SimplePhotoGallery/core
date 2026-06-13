@@ -106,8 +106,10 @@ export async function createVideoThumbnails(
     ffmpeg.on('close', async (code: number) => {
       if (code === 0) {
         try {
-          // Process the extracted frame with sharp
-          const frameImage = sharp(tempFramePath);
+          // Read the extracted frame once and decode both thumbnails from memory instead of re-reading
+          // the temporary file from disk for each output
+          const frameBuffer = await fs.readFile(tempFramePath);
+          const frameImage = sharp(frameBuffer);
           await resizeImage(frameImage, outputPath, width, height, encodeOptions);
           await resizeImage(frameImage, outputPathRetina, width * 2, height * 2, encodeOptions);
 
