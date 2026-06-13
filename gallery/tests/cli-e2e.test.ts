@@ -93,6 +93,19 @@ function buildEnv(options: RunCliOptions): CliEnv {
   };
 }
 
+function buildPackageManagerEnv(home: string): CliEnv {
+  return {
+    ...process.env,
+    APPDATA: path.join(home, 'AppData', 'Roaming'),
+    CI: '1',
+    HOME: home,
+    SPG_TELEMETRY: '0',
+    SPG_TELEMETRY_PROVIDER: 'none',
+    USERPROFILE: home,
+    XDG_CONFIG_HOME: path.join(home, '.config'),
+  };
+}
+
 function runCommand(command: string, args: string[], options: RunCliOptions = {}): RunCliResult {
   const expectedStatus = options.expectedStatus ?? 0;
   const result = spawnSync(command, args, {
@@ -428,13 +441,16 @@ describe('CLI help, telemetry, and validation', () => {
 describe('packaged CLI e2e smoke', () => {
   beforeAll(() => {
     const buildHome = mkdtempSync(path.join(os.tmpdir(), 'spg-cli-e2e-build-home-'));
-    execFileSync(process.execPath, [yarnPath, 'build'], {
-      cwd: testDir,
-      env: buildEnv({ home: buildHome }),
-      stdio: 'pipe',
-      timeout: 180_000,
-    });
-    rmSync(buildHome, { recursive: true, force: true });
+    try {
+      execFileSync(process.execPath, [yarnPath, 'build'], {
+        cwd: testDir,
+        env: buildPackageManagerEnv(buildHome),
+        stdio: 'pipe',
+        timeout: 180_000,
+      });
+    } finally {
+      rmSync(buildHome, { recursive: true, force: true });
+    }
   }, 180_000);
 
   test('runs the built dist CLI version and help commands', () => {
