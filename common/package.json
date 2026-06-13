@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/SimplePhotoGallery/core"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "type": "module",
   "main": "./dist/gallery.js",
   "types": "./dist/gallery.d.ts",

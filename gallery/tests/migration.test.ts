@@ -298,6 +298,75 @@ describe('Gallery JSON Migration', () => {
       expect(galleryData.sections[0].images[0]).toHaveProperty('filename');
     });
 
+    test('should preserve unknown fields when parsing gallery.json', () => {
+      const testPath = path.resolve(migrationTestPath, 'unknown-fields');
+      const galleryPath = path.resolve(testPath, 'gallery');
+
+      mkdirSync(galleryPath, { recursive: true });
+      const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+      writeFileSync(
+        galleryJsonPath,
+        JSON.stringify(
+          {
+            title: 'Test Gallery',
+            description: 'Test description',
+            headerImage: 'img_1.jpg',
+            metadata: {
+              customMeta: 'keep me',
+            },
+            sections: [
+              {
+                customSectionField: 'keep section',
+                images: [
+                  {
+                    type: 'image',
+                    filename: 'img_1.jpg',
+                    width: 1920,
+                    height: 1080,
+                    customMediaField: 'keep media',
+                    thumbnail: {
+                      path: 'img_1.avif',
+                      pathRetina: 'img_1@2x.avif',
+                      width: 300,
+                      height: 200,
+                      customThumbnailField: 'keep thumbnail',
+                    },
+                  },
+                ],
+              },
+            ],
+            subGalleries: {
+              title: 'Sub Galleries',
+              galleries: [],
+            },
+            futureRootField: {
+              nested: true,
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      const galleryData = parseGalleryJson(galleryJsonPath, createMockUI()) as unknown as {
+        metadata: { customMeta: string };
+        sections: Array<{
+          customSectionField: string;
+          images: Array<{
+            customMediaField: string;
+            thumbnail: { customThumbnailField: string };
+          }>;
+        }>;
+        futureRootField: { nested: boolean };
+      };
+
+      expect(galleryData.futureRootField).toEqual({ nested: true });
+      expect(galleryData.metadata.customMeta).toBe('keep me');
+      expect(galleryData.sections[0].customSectionField).toBe('keep section');
+      expect(galleryData.sections[0].images[0].customMediaField).toBe('keep media');
+      expect(galleryData.sections[0].images[0].thumbnail.customThumbnailField).toBe('keep thumbnail');
+    });
+
     test('should throw error when gallery.json file not found', () => {
       const mockUI = createMockUI();
       const nonExistentPath = path.resolve(migrationTestPath, 'non-existent', 'gallery.json');
@@ -559,6 +628,39 @@ describe('Gallery JSON Migration', () => {
 
       // Verify mediaBasePath is not set
       expect(migratedData.mediaBasePath).toBeUndefined();
+    });
+
+    test('should migrate empty deprecated galleries without crashing', () => {
+      const testPath = path.resolve(migrationTestPath, 'empty-deprecated');
+      const galleryPath = path.resolve(testPath, 'gallery');
+
+      mkdirSync(galleryPath, { recursive: true });
+
+      const deprecatedData: GalleryDataDeprecated = {
+        title: 'Empty Gallery',
+        description: 'No media yet',
+        headerImage: '../header.jpg',
+        metadata: {},
+        sections: [
+          {
+            images: [],
+          },
+        ],
+        subGalleries: {
+          title: 'Sub Galleries',
+          galleries: [],
+        },
+      };
+
+      const mockUI = createMockUI();
+      const galleryJsonPath = path.resolve(galleryPath, 'gallery.json');
+      writeFileSync(galleryJsonPath, JSON.stringify(deprecatedData, null, 2));
+
+      const migratedData = migrateGalleryJson(deprecatedData, galleryJsonPath, mockUI);
+
+      expect(migratedData.mediaBasePath).toBeUndefined();
+      expect(migratedData.sections[0].images).toEqual([]);
+      expect(existsSync(`${galleryJsonPath}.old`)).toBe(true);
     });
 
     test('should preserve all other fields during migration', () => {

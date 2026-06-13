@@ -14,20 +14,22 @@ If you have created the gallery in a different folder from the photos folder, th
 
 ## Options
 
-| Option                        | Description                                        | Default                                 |
-| ----------------------------- | -------------------------------------------------- | --------------------------------------- |
-| `-g, --gallery <path>`        | Path to gallery directory                          | Current directory                       |
-| `-r, --recursive`             | Build all galleries                                | `false`                                 |
-| `-b, --base-url <url>`        | Base URL for external hosting                      | None                                    |
-| `-t, --thumbs-base-url <url>` | Base URL for external hosting of thumbnails        | None                                    |
-| `--theme <package\|path>`     | Theme package name or local path                   | gallery.json theme or `theme-modern`    |
-| `--thumbnail-size <pixels>`   | Override thumbnail size in pixels                  | From config hierarchy                   |
-| `--thumbnail-edge <mode>`     | Override size mode: auto, width, or height         | From config hierarchy                   |
-| `--no-scan`                   | Do not scan for new photos                         | `true`                                  |
-| `--no-thumbnails`             | Skip creating thumbnails                           | `true`                                  |
-| `-v, --verbose`               | Show detailed output                               |                                         |
-| `-q, --quiet`                 | Only show warnings/errors                          |                                         |
-| `-h, --help`                  | Show command help                                  |                                         |
+| Option                        | Description                                    | Default                              |
+| ----------------------------- | ---------------------------------------------- | ------------------------------------ |
+| `-g, --gallery <path>`        | Path to gallery directory                      | Current directory                    |
+| `-r, --recursive`             | Build all galleries                            | `false`                              |
+| `-b, --base-url <url>`        | Base URL for external hosting                  | None                                 |
+| `-t, --thumbs-base-url <url>` | Base URL for external hosting of thumbnails    | None                                 |
+| `--theme <package\|path>`     | Theme package name or local path               | gallery.json theme or `theme-modern` |
+| `--thumbnail-size <pixels>`   | Override thumbnail size in pixels              | From config hierarchy                |
+| `--thumbnail-edge <mode>`     | Override size mode: auto, width, or height     | From config hierarchy                |
+| `--no-scan`                   | Do not scan for new photos                     | `true`                               |
+| `--prune`                     | Remove missing source files from gallery.json  | `false`                              |
+| `--no-thumbnails`             | Skip creating thumbnails                       | `true`                               |
+| `-y, --yes`                   | Confirm build prompts for non-interactive runs | `false`                              |
+| `-v, --verbose`               | Show detailed output                           |                                      |
+| `-q, --quiet`                 | Only show warnings/errors                      |                                      |
+| `-h, --help`                  | Show command help                              |                                      |
 
 ## Examples
 
@@ -49,6 +51,12 @@ spg build -b https://photos.example.com/ -t https://photos.example.com/thumbnail
 
 # Build without scanning for new photos
 spg build --no-scan
+
+# Remove deleted source files while scanning
+spg build --prune
+
+# Build non-interactively when photos must be copied into the gallery output
+spg build --yes
 
 # Build without creating thumbnails
 spg build --no-thumbnails

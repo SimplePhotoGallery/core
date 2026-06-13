@@ -1,8 +1,8 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import process from 'node:process';
-import { fileURLToPath } from 'node:url';
 
 import { joinUrl, toUrlPath } from '@simple-photo-gallery/common/theme';
 import { LogLevels, type ConsolaInstance } from 'consola';
@@ -15,14 +15,20 @@ import {
 } from './utils';
 
 import { buildCliThumbnailConfig, findGalleries } from '../../utils';
-import { parseGalleryJson } from '../../utils/gallery';
+import { parseGalleryJson, writeGalleryJsonAtomic } from '../../utils/gallery';
 import { scanDirectory } from '../init';
 import { processGalleryThumbnails } from '../thumbnails';
 
 import type { BuildOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
-import type { GalleryData } from '@simple-photo-gallery/common';
+import type { GalleryData, MediaFile } from '@simple-photo-gallery/common';
 import type { ThumbnailConfig } from '@simple-photo-gallery/common/theme';
+import type { Buffer } from 'node:buffer';
+
+interface ScanAndAppendResult {
+  galleryData: GalleryData;
+  dirty: boolean;
+}
 
 /**
  * Copies photos from gallery subdirectory to main directory when needed
@@ -44,6 +50,28 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
   }
 }
 
+function removeThumbnailFiles(mediaFile: MediaFile, galleryDir: string, ui: ConsolaInstance): void {
+  const imagesDir = path.join(galleryDir, 'gallery', 'images');
+  const thumbnailPaths = [mediaFile.thumbnail?.path, mediaFile.thumbnail?.pathRetina].filter(
+    (thumbnailPath): thumbnailPath is string => typeof thumbnailPath === 'string',
+  );
+
+  for (const thumbnailPath of thumbnailPaths) {
+    const filePath = path.resolve(imagesDir, thumbnailPath);
+    const relativePath = path.relative(path.resolve(imagesDir), filePath);
+
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+      ui.debug(`Skipping thumbnail outside images directory: ${thumbnailPath}`);
+      continue;
+    }
+
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath, { force: true });
+      ui.debug(`Deleted orphaned thumbnail ${filePath}`);
+    }
+  }
+}
+
 /**
  * Scans a directory for new media files and appends them to the gallery.json
  * @param galleryDir - Directory containing the gallery
@@ -54,10 +82,12 @@ function copyPhotos(galleryData: GalleryData, galleryDir: string, ui: ConsolaIns
  */
 async function scanAndAppendNewFiles(
   galleryDir: string,
-  galleryJsonPath: string,
   galleryData: GalleryData,
+  prune: boolean,
   ui: ConsolaInstance,
-): Promise<GalleryData> {
+): Promise<ScanAndAppendResult> {
+  let dirty = false;
+
   // Determine the directory to scan based on mediaBasePath
   const scanPath = galleryData.mediaBasePath || galleryDir;
 
@@ -69,7 +99,7 @@ async function scanAndAppendNewFiles(
     scanResult = await scanDirectory(scanPath, ui);
   } catch {
     ui.debug(`Could not scan directory ${scanPath}`);
-    return galleryData;
+    return { galleryData, dirty };
   }
 
   // Get all existing filenames from all sections
@@ -79,6 +109,10 @@ async function scanAndAppendNewFiles(
 
   // Filter out files that already exist in the gallery
   const newMediaFiles = scanResult.mediaFiles.filter((file) => !existingFilenames.has(file.filename));
+  const scannedFilenames = new Set(scanResult.mediaFiles.map((file) => file.filename));
+  const missingMediaFiles = galleryData.sections.flatMap((section) =>
+    section.images.filter((image) => !image.url && !scannedFilenames.has(image.filename)),
+  );
 
   // If there are new files, append them to the last section
   if (newMediaFiles.length > 0) {
@@ -95,16 +129,96 @@ async function scanAndAppendNewFiles(
     // Append new files to the last section
     lastSection.images.push(...newMediaFiles);
 
-    // Save the updated gallery.json
-    ui.debug('Updating gallery.json with new files');
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    dirty = true;
 
     ui.success(`Added ${newMediaFiles.length} new ${newMediaFiles.length === 1 ? 'file' : 'files'} to gallery.json`);
   } else {
     ui.debug('No new media files found');
   }
 
-  return galleryData;
+  if (missingMediaFiles.length > 0) {
+    if (prune) {
+      const missingFilenames = new Set(missingMediaFiles.map((file) => file.filename));
+
+      for (const mediaFile of missingMediaFiles) {
+        removeThumbnailFiles(mediaFile, galleryDir, ui);
+      }
+
+      for (const section of galleryData.sections) {
+        section.images = section.images.filter((image) => !missingFilenames.has(image.filename));
+      }
+
+      dirty = true;
+      ui.success(
+        `Removed ${missingMediaFiles.length} missing ${missingMediaFiles.length === 1 ? 'file' : 'files'} from gallery.json`,
+      );
+    } else {
+      ui.warn(
+        `Found ${missingMediaFiles.length} gallery ${
+          missingMediaFiles.length === 1 ? 'entry' : 'entries'
+        } whose source files are missing. Run build --scan --prune to remove them.`,
+      );
+    }
+  }
+
+  return { galleryData, dirty };
+}
+
+function resolveAstroBinary(templateDir: string): string {
+  const requireFromTheme = createRequire(path.join(templateDir, 'package.json'));
+  const astroPackageJsonPath = requireFromTheme.resolve('astro/package.json');
+  const astroPackageJson = JSON.parse(fs.readFileSync(astroPackageJsonPath, 'utf8')) as {
+    bin?: string | Record<string, string>;
+  };
+  const astroBinPath = typeof astroPackageJson.bin === 'string' ? astroPackageJson.bin : astroPackageJson.bin?.astro;
+
+  if (!astroBinPath) {
+    throw new Error(`Could not resolve the astro binary from ${astroPackageJsonPath}`);
+  }
+
+  return path.join(path.dirname(astroPackageJsonPath), astroBinPath);
+}
+
+function getLastBuildOutputLines(...outputs: Array<Buffer | string | null | undefined>): string {
+  return outputs
+    .filter(Boolean)
+    .map((output) => output!.toString())
+    .join('\n')
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .slice(-30)
+    .join('\n');
+}
+
+function runAstroBuild(templateDir: string, galleryJsonPath: string, outputDir: string, ui: ConsolaInstance): void {
+  const astroBin = resolveAstroBinary(templateDir);
+  const verbose = ui.level === LogLevels.debug;
+  const result = spawnSync(process.execPath, [astroBin, 'build'], {
+    cwd: templateDir,
+    stdio: verbose ? 'inherit' : 'pipe',
+    env: {
+      ...process.env,
+      GALLERY_JSON_PATH: galleryJsonPath,
+      GALLERY_OUTPUT_DIR: outputDir,
+    },
+    encoding: 'utf8',
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    if (!verbose) {
+      const buildOutput = getLastBuildOutputLines(result.stdout, result.stderr);
+      if (buildOutput) {
+        ui.error(`Astro build output:\n${buildOutput}`);
+      }
+    }
+
+    const status = result.signal ? `signal ${result.signal}` : `exit code ${result.status ?? 'unknown'}`;
+    throw new Error(`Astro build failed with ${status}`);
+  }
 }
 
 /**
@@ -123,8 +237,10 @@ async function buildGallery(
   galleryDir: string,
   templateDir: string,
   scan: boolean,
+  prune: boolean,
   shouldCreateThumbnails: boolean,
   ui: ConsolaInstance,
+  yes: boolean,
   baseUrl?: string,
   thumbsBaseUrl?: string,
   cliThumbnailConfig?: ThumbnailConfig,
@@ -135,10 +251,22 @@ async function buildGallery(
   // Read the gallery.json file
   const galleryJsonPath = path.join(galleryDir, 'gallery', 'gallery.json');
   let galleryData = parseGalleryJson(galleryJsonPath, ui);
+  let dirty = false;
+
+  const markDirty = (): void => {
+    dirty = true;
+  };
+
+  const saveGalleryData = (): void => {
+    writeGalleryJsonAtomic(galleryJsonPath, galleryData);
+    dirty = false;
+  };
 
   // Scan for new media files and append them to the gallery.json
   if (scan) {
-    galleryData = await scanAndAppendNewFiles(galleryDir, galleryJsonPath, galleryData, ui);
+    const scanResult = await scanAndAppendNewFiles(galleryDir, galleryData, prune, ui);
+    galleryData = scanResult.galleryData;
+    dirty ||= scanResult.dirty;
   }
 
   const socialMediaCardImagePath = path.join(galleryDir, 'gallery', 'images', 'social-media-card.jpg');
@@ -184,7 +312,7 @@ async function buildGallery(
       if (galleryData.headerImageBlurHash !== blurHash) {
         ui.debug('Updating gallery.json with header image blurhash');
         galleryData.headerImageBlurHash = blurHash;
-        fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+        markDirty();
       }
     } else {
       ui.warn('No header image provided, skipping social media card image creation');
@@ -193,9 +321,18 @@ async function buildGallery(
 
   // Ask the user if the photos should be copied if there is not baseUrl and mediaBasePath is set
   if (!mediaBaseUrl && mediaBasePath) {
-    const shouldCopyPhotos = await ui.prompt('All photos need to be copied. Are you sure you want to continue?', {
-      type: 'confirm',
-    });
+    let shouldCopyPhotos = yes;
+
+    if (!shouldCopyPhotos) {
+      if (!process.stdout.isTTY) {
+        throw new Error('Photos must be copied before build. Use --yes to confirm copying in non-interactive environments.');
+      }
+
+      shouldCopyPhotos = await ui.prompt('All photos need to be copied. Are you sure you want to continue?', {
+        type: 'confirm',
+        default: false,
+      });
+    }
 
     if (shouldCopyPhotos) {
       ui.debug('Copying photos');
@@ -207,21 +344,21 @@ async function buildGallery(
   if (mediaBaseUrl && galleryData.mediaBaseUrl !== mediaBaseUrl) {
     ui.debug('Updating gallery.json with baseUrl');
     galleryData.mediaBaseUrl = mediaBaseUrl;
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    markDirty();
   }
 
   // If the thumbsBaseUrl is provided, update the gallery.json file if needed
   if (thumbsBaseUrl && galleryData.thumbsBaseUrl !== thumbsBaseUrl) {
     ui.debug('Updating gallery.json with thumbsBaseUrl');
     galleryData.thumbsBaseUrl = thumbsBaseUrl;
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    markDirty();
   }
 
   // If the theme is provided via CLI, update the gallery.json file if needed
   if (cliTheme && galleryData.theme !== cliTheme) {
     ui.debug('Updating gallery.json with theme');
     galleryData.theme = cliTheme;
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    markDirty();
   }
 
   // If thumbnail settings are provided via CLI, update the gallery.json file if needed
@@ -233,7 +370,7 @@ async function buildGallery(
     if (needsUpdate) {
       ui.debug('Updating gallery.json with thumbnail settings');
       galleryData.thumbnails = { ...currentThumbnails, ...cliThumbnailConfig };
-      fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+      markDirty();
     }
   }
 
@@ -241,10 +378,19 @@ async function buildGallery(
   if (!galleryData.metadata.image && galleryData.headerImage) {
     ui.debug('Updating gallery.json with social media card URL');
 
-    galleryData.metadata.image = thumbsBaseUrl
-      ? `${thumbsBaseUrl}/${path.basename(socialMediaCardImagePath)}`
-      : `${galleryData.url || ''}/${path.relative(galleryDir, socialMediaCardImagePath)}`;
-    fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+    const relativeSocialCardPath = toUrlPath(path.relative(galleryDir, socialMediaCardImagePath));
+    if (thumbsBaseUrl) {
+      galleryData.metadata.image = joinUrl(thumbsBaseUrl, path.basename(socialMediaCardImagePath));
+    } else if (galleryData.url) {
+      galleryData.metadata.image = joinUrl(galleryData.url, relativeSocialCardPath);
+    } else {
+      galleryData.metadata.image = `/${relativeSocialCardPath}`;
+    }
+    markDirty();
+  }
+
+  if (dirty) {
+    saveGalleryData();
   }
 
   // Generate the thumbnails if needed
@@ -255,11 +401,7 @@ async function buildGallery(
   // Build the template
   ui.debug('Building gallery from template');
   try {
-    // Set the environment variable for the gallery.json path that will be used by the template
-    process.env.GALLERY_JSON_PATH = galleryJsonPath;
-    process.env.GALLERY_OUTPUT_DIR = path.join(galleryDir, 'gallery');
-
-    execSync('npx astro build', { cwd: templateDir, stdio: ui.level === LogLevels.debug ? 'inherit' : 'ignore' });
+    runAstroBuild(templateDir, galleryJsonPath, path.join(galleryDir, 'gallery'), ui);
   } catch (error) {
     ui.error(`Build failed for ${galleryDir}`);
     throw error;
@@ -295,6 +437,20 @@ function isLocalThemePath(theme: string): boolean {
   return theme.startsWith('./') || theme.startsWith('../') || theme.startsWith('/');
 }
 
+function resolvePackageJsonPath(packageName: string): string {
+  const candidates = [path.join(process.cwd(), 'package.json'), process.argv[1]].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    try {
+      return createRequire(candidate).resolve(`${packageName}/package.json`);
+    } catch {
+      // Try the next resolution base.
+    }
+  }
+
+  throw new Error(`Cannot find package '${packageName}'`);
+}
+
 /**
  * Resolves the theme directory from either a local path or npm package name
  * @param theme - Theme identifier (path or package name)
@@ -315,8 +471,8 @@ export async function resolveThemeDir(theme: string, ui: ConsolaInstance): Promi
     return themeDir;
   } else {
     // Resolve npm package
-    const themePath = await import.meta.resolve(`${theme}/package.json`);
-    const themeDir = path.dirname(fileURLToPath(themePath));
+    const themePath = resolvePackageJsonPath(theme);
+    const themeDir = path.dirname(themePath);
     ui.debug(`Using npm theme package: ${theme} (${themeDir})`);
     return themeDir;
   }
@@ -355,8 +511,10 @@ export async function build(options: BuildOptions, ui: ConsolaInstance): Promise
         path.resolve(dir),
         themeDir,
         options.scan,
+        options.prune,
         options.thumbnails,
         ui,
+        options.yes,
         baseUrl,
         thumbsBaseUrl,
         cliThumbnailConfig,

@@ -17,20 +17,31 @@ import { buildCliThumbnailConfig, findGalleries, handleFileProcessingError } fro
 import { generateBlurHash } from '../../utils/blurhash';
 import { mapWithConcurrency } from '../../utils/concurrency';
 import { getImageDescription } from '../../utils/descriptions';
-import { parseGalleryJson } from '../../utils/gallery';
+import { parseGalleryJson, writeGalleryJsonAtomic } from '../../utils/gallery';
 import {
   createImageThumbnails,
   loadImageWithMetadata,
   type ImageEncodeOptions,
   type ThumbnailSizeDimension,
 } from '../../utils/image';
-import { getVideoDimensions, createVideoThumbnails } from '../../utils/video';
+import { checkVideoToolchain, getVideoDimensions, createVideoThumbnails } from '../../utils/video';
 import { resolveThemeDir } from '../build';
 
 import type { ThumbnailOptions } from './types';
 import type { CommandResultSummary } from '../telemetry/types';
 import type { MediaFile } from '@simple-photo-gallery/common';
 import type { ResolvedThumbnailConfig, ThumbnailConfig } from '@simple-photo-gallery/common/theme';
+
+type MediaProcessingStatus = 'processed' | 'skipped' | 'failed';
+
+interface ProcessMediaFileResult {
+  mediaFile: MediaFile;
+  status: MediaProcessingStatus;
+}
+
+interface FailedMediaFile {
+  filename: string;
+}
 
 /**
  * Processes an image file to create thumbnail and extract metadata
@@ -131,6 +142,7 @@ async function processVideo(
   thumbnailSize: number,
   thumbnailSizeDimension: ThumbnailSizeDimension = 'auto',
   verbose: boolean,
+  ui: ConsolaInstance,
   encodeOptions: ImageEncodeOptions = {},
   lastMediaTimestamp?: Date,
 ): Promise<MediaFile | undefined> {
@@ -154,6 +166,7 @@ async function processVideo(
     thumbnailSize,
     thumbnailSizeDimension,
     verbose,
+    verbose ? (message) => ui.debug(`ffmpeg: ${message.trimEnd()}`) : undefined,
     encodeOptions,
   );
 
@@ -192,7 +205,12 @@ async function processMediaFile(
   thumbnailsPath: string,
   thumbnailConfig: ResolvedThumbnailConfig,
   ui: ConsolaInstance,
-): Promise<MediaFile> {
+  canProcessVideos: boolean,
+): Promise<ProcessMediaFileResult> {
+  if (mediaFile.type === 'video' && !canProcessVideos) {
+    return { mediaFile, status: 'skipped' };
+  }
+
   try {
     // Resolve the path relative to the mediaBasePath
     const filePath = path.resolve(path.join(mediaBasePath, mediaFile.filename));
@@ -231,6 +249,7 @@ async function processMediaFile(
           thumbnailConfig.size,
           thumbnailConfig.edge,
           verbose,
+          ui,
           encodeOptions,
           lastMediaTimestamp,
         ));
@@ -243,18 +262,21 @@ async function processMediaFile(
         try {
           const blurHash = await generateBlurHash(thumbnailPath);
           return {
-            ...mediaFile,
-            thumbnail: {
-              ...mediaFile.thumbnail,
-              blurHash,
+            mediaFile: {
+              ...mediaFile,
+              thumbnail: {
+                ...mediaFile.thumbnail,
+                blurHash,
+              },
             },
+            status: 'processed',
           };
         } catch (error) {
           ui.debug(`  Failed to generate BlurHash for ${fileName}:`, error);
         }
       }
 
-      return mediaFile;
+      return { mediaFile, status: 'skipped' };
     }
 
     updatedMediaFile.filename = mediaFile.filename;
@@ -271,11 +293,11 @@ async function processMediaFile(
       updatedMediaFile.url = mediaFile.url;
     }
 
-    return updatedMediaFile;
+    return { mediaFile: updatedMediaFile, status: 'processed' };
   } catch (error) {
     handleFileProcessingError(error, mediaFile.filename, ui);
 
-    return { ...mediaFile, thumbnail: undefined };
+    return { mediaFile: { ...mediaFile, thumbnail: undefined }, status: 'failed' };
   }
 }
 
@@ -329,13 +351,7 @@ export async function processGalleryThumbnails(
     // If the mediaBasePath is not set, use the gallery directory
     const mediaBasePath = galleryData.mediaBasePath ?? path.join(galleryDir);
 
-    // Persist gallery.json atomically (write to a temp file then rename) so an interruption can never
-    // leave a truncated gallery.json behind.
-    const writeGalleryData = (): void => {
-      const tempPath = `${galleryJsonPath}.tmp`;
-      fs.writeFileSync(tempPath, JSON.stringify(galleryData, null, 2));
-      fs.renameSync(tempPath, galleryJsonPath);
-    };
+    const writeGalleryData = (): void => writeGalleryJsonAtomic(galleryJsonPath, galleryData);
 
     // On interruption (e.g. Ctrl-C) flush the progress made so far before exiting. Each completed file
     // records its lastMediaTimestamp, so a subsequent run skips everything already finished instead of
@@ -354,27 +370,54 @@ export async function processGalleryThumbnails(
     // thread), so a worker pool sized to the available cores processes a large gallery several times
     // faster than the previous one-at-a-time loop while keeping per-file error isolation.
     const concurrency = Math.max(2, os.cpus().length - 1);
+    const videoFiles = galleryData.sections
+      .flatMap((section) => section.images)
+      .filter((mediaFile) => mediaFile.type === 'video');
+    const videoToolchain = videoFiles.length > 0 ? checkVideoToolchain() : { available: true, missing: [], installHint: '' };
+    if (!videoToolchain.available) {
+      ui.warn(
+        `Skipping ${videoFiles.length} video ${videoFiles.length === 1 ? 'file' : 'files'} because ${videoToolchain.missing.join(
+          ' and ',
+        )} ${videoToolchain.missing.length === 1 ? 'is' : 'are'} not available. ${videoToolchain.installHint}`,
+      );
+    }
 
     // Flush progress to disk every PROGRESS_WRITE_INTERVAL files so a long run that is interrupted can
     // resume instead of redoing all the thumbnails already on disk.
     const PROGRESS_WRITE_INTERVAL = 16;
     let processedCount = 0;
+    let skippedCount = 0;
+    const failedFiles: FailedMediaFile[] = [];
     let processedSinceWrite = 0;
 
     try {
       for (const section of galleryData.sections) {
         await mapWithConcurrency(section.images, concurrency, async (mediaFile, index) => {
-          const updated = await processMediaFile(mediaFile, mediaBasePath, thumbnailsPath, thumbnailConfig, ui);
-          section.images[index] = updated;
+          const result = await processMediaFile(
+            mediaFile,
+            mediaBasePath,
+            thumbnailsPath,
+            thumbnailConfig,
+            ui,
+            videoToolchain.available,
+          );
+          section.images[index] = result.mediaFile;
 
-          processedCount += 1;
+          if (result.status === 'processed') {
+            processedCount += 1;
+          } else if (result.status === 'skipped') {
+            skippedCount += 1;
+          } else {
+            failedFiles.push({ filename: mediaFile.filename });
+          }
+
           processedSinceWrite += 1;
           if (processedSinceWrite >= PROGRESS_WRITE_INTERVAL) {
             processedSinceWrite = 0;
             writeGalleryData();
           }
 
-          return updated;
+          return result;
         });
       }
     } finally {
@@ -385,7 +428,20 @@ export async function processGalleryThumbnails(
     // Write the final gallery.json with all processed files
     writeGalleryData();
 
-    ui.success(`Created thumbnails for ${processedCount} media files`);
+    if (failedFiles.length > 0) {
+      ui.warn(
+        `${failedFiles.length} media ${failedFiles.length === 1 ? 'file' : 'files'} failed during thumbnail processing: ${failedFiles
+          .map((file) => file.filename)
+          .join(', ')}`,
+      );
+      throw new Error(`Failed to process ${failedFiles.length} media ${failedFiles.length === 1 ? 'file' : 'files'}`);
+    }
+
+    ui.success(
+      `Created thumbnails for ${processedCount} media ${processedCount === 1 ? 'file' : 'files'}${
+        skippedCount > 0 ? ` (${skippedCount} skipped)` : ''
+      }`,
+    );
 
     return processedCount;
   } catch (error) {

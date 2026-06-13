@@ -23,9 +23,9 @@ export function getMediaFileType(fileName: string): MediaFileType | null {
  */
 export function capitalizeTitle(folderName: string): string {
   return folderName
-    .replace('-', ' ')
-    .replace('_', ' ')
+    .replaceAll(/[-_]+/g, ' ')
     .split(' ')
+    .filter(Boolean)
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }

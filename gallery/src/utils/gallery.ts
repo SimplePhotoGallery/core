@@ -45,6 +45,17 @@ export function parseGalleryJson(galleryJsonPath: string, ui: ConsolaInstance): 
 }
 
 /**
+ * Writes gallery.json atomically so interruptions never leave a truncated file behind.
+ * @param galleryJsonPath - Path to the gallery.json file
+ * @param galleryData - Gallery data to persist
+ */
+export function writeGalleryJsonAtomic(galleryJsonPath: string, galleryData: GalleryData): void {
+  const tempPath = `${galleryJsonPath}.tmp`;
+  fs.writeFileSync(tempPath, JSON.stringify(galleryData, null, 2));
+  fs.renameSync(tempPath, galleryJsonPath);
+}
+
+/**
  * Migrates gallery data from the deprecated schema to the new schema
  *
  * @param deprecatedGalleryData
@@ -62,7 +73,7 @@ export function migrateGalleryJson(
   // Check if a mediaBasePath should be used
   let mediaBasePath: string | undefined;
 
-  const imagePath = deprecatedGalleryData.sections[0].images[0].path;
+  const imagePath = deprecatedGalleryData.sections[0]?.images[0]?.path;
   if (imagePath && imagePath !== path.join('..', path.basename(imagePath))) {
     mediaBasePath = path.resolve(path.join(path.dirname(galleryJsonPath)), path.dirname(imagePath));
   }
@@ -96,7 +107,7 @@ export function migrateGalleryJson(
 
   // Write the gallery data to the gallery.json file
   ui.debug('Writing gallery data to gallery.json file');
-  fs.writeFileSync(galleryJsonPath, JSON.stringify(galleryData, null, 2));
+  writeGalleryJsonAtomic(galleryJsonPath, galleryData);
 
   ui.success('Gallery data migrated to the new data format successfully.');
 
