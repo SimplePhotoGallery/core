@@ -2,11 +2,13 @@
 export type { ResolvedGalleryData, ResolvedHero, ResolvedImage, ResolvedSection, ResolvedSubGallery } from './types';
 
 // Theme config
-export type { ThemeConfig, ThumbnailConfig } from './config';
+export type { ResolvedThumbnailConfig, ThemeConfig, ThumbnailConfig, ThumbnailFormat } from './config';
 export {
   DEFAULT_THUMBNAIL_CONFIG,
   extractThumbnailConfigFromGallery,
+  getThumbnailExtension,
   mergeThumbnailConfig,
+  THUMBNAIL_FORMATS,
   ThemeConfigSchema,
   ThumbnailConfigSchema,
 } from './config';

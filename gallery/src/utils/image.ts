@@ -37,22 +37,68 @@ export async function loadImageWithMetadata(imagePath: string): Promise<ImageWit
   return { image, metadata };
 }
 
+/** Encoding options for generated thumbnails */
+export interface ImageEncodeOptions {
+  /** Output format (defaults to 'avif') */
+  format?: keyof FormatEnum;
+  /** Output quality (1-100); when omitted Sharp's per-format default is used */
+  quality?: number;
+  /** Encoder effort; higher is slower but smaller. Ignored for formats without an effort setting */
+  effort?: number;
+}
+
+/** Maximum effort value supported by the WebP encoder (AVIF supports up to 9) */
+const WEBP_MAX_EFFORT = 6;
+
+/**
+ * Builds the Sharp output options for a thumbnail format, including only the values that were provided so
+ * unspecified options fall back to Sharp's defaults. The effort value is clamped for WebP, which supports
+ * a smaller range than AVIF, and dropped for JPEG, which has no effort setting.
+ * @param format - Output format
+ * @param quality - Optional output quality
+ * @param effort - Optional encoder effort
+ * @returns Sharp format options object
+ */
+function buildFormatOptions(
+  format: keyof FormatEnum,
+  quality?: number,
+  effort?: number,
+): { quality?: number; effort?: number } {
+  const options: { quality?: number; effort?: number } = {};
+
+  if (quality !== undefined) {
+    options.quality = quality;
+  }
+
+  if (effort !== undefined && format !== 'jpeg' && format !== 'jpg') {
+    options.effort = format === 'webp' ? Math.min(effort, WEBP_MAX_EFFORT) : effort;
+  }
+
+  return options;
+}
+
 /**
  * Utility function to resize and save thumbnail using Sharp. The functions avoids upscaling the image and only reduces the size if necessary.
  * @param image - Sharp image instance
  * @param outputPath - Path where thumbnail should be saved
  * @param width - Target width for thumbnail
  * @param height - Target height for thumbnail
+ * @param options - Encoding options (format, quality, effort)
  */
 export async function resizeImage(
   image: Sharp,
   outputPath: string,
   width: number,
   height: number,
-  format: keyof FormatEnum = 'avif',
+  options: ImageEncodeOptions = {},
 ): Promise<void> {
+  const { format = 'avif', quality, effort } = options;
+
   // Resize the image without enlarging it
-  await image.resize(width, height, { withoutEnlargement: true }).toFormat(format).toFile(outputPath);
+  await image
+    .resize(width, height, { withoutEnlargement: true })
+    .toFormat(format, buildFormatOptions(format, quality, effort))
+    .toFile(outputPath);
 }
 
 /**
@@ -90,6 +136,7 @@ export type ThumbnailSizeDimension = 'auto' | 'width' | 'height';
  * @param outputPathRetina - Path where retina thumbnail should be saved
  * @param size - Target size for the thumbnail
  * @param sizeDimension - How to apply the size: 'auto' (longer edge), 'width', or 'height'
+ * @param encodeOptions - Encoding options (format, quality, effort)
  * @returns Promise resolving to thumbnail dimensions
  */
 export async function createImageThumbnails(
@@ -99,6 +146,7 @@ export async function createImageThumbnails(
   outputPathRetina: string,
   size: number,
   sizeDimension: ThumbnailSizeDimension = 'auto',
+  encodeOptions: ImageEncodeOptions = {},
 ): Promise<Dimensions> {
   // Get the original dimensions
   const originalWidth = metadata.width || 0;
@@ -134,8 +182,8 @@ export async function createImageThumbnails(
   }
 
   // Resize the image and create the thumbnails
-  await resizeImage(image, outputPath, width, height);
-  await resizeImage(image, outputPathRetina, width * 2, height * 2);
+  await resizeImage(image, outputPath, width, height, encodeOptions);
+  await resizeImage(image, outputPathRetina, width * 2, height * 2, encodeOptions);
 
   // Return the dimensions of the thumbnail
   return { width, height };

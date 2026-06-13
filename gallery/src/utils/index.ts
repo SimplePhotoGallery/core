@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { THUMBNAIL_FORMATS } from '@simple-photo-gallery/common/theme';
+
+import type { ThumbnailConfig, ThumbnailFormat } from '@simple-photo-gallery/common/theme';
 import type { ConsolaInstance } from 'consola';
 
 /**
@@ -72,4 +75,53 @@ export function parseTelemetryOption(value: string): '0' | '1' {
   }
 
   return value;
+}
+
+/**
+ * Parses and validates the thumbnail format CLI option
+ * @param value - The value to parse
+ * @returns The parsed thumbnail format
+ */
+export function parseThumbnailFormat(value: string): ThumbnailFormat {
+  if (!(THUMBNAIL_FORMATS as readonly string[]).includes(value)) {
+    throw new Error(`Thumbnail format must be one of: ${THUMBNAIL_FORMATS.join(', ')}.`);
+  }
+
+  return value as ThumbnailFormat;
+}
+
+/** Subset of CLI options that map to thumbnail configuration overrides */
+export interface CliThumbnailOptions {
+  thumbnailSize?: number;
+  thumbnailEdge?: 'auto' | 'width' | 'height';
+  thumbnailFormat?: ThumbnailFormat;
+  thumbnailQuality?: number;
+  thumbnailEffort?: number;
+}
+
+/**
+ * Builds a ThumbnailConfig from CLI options, including only the values that were provided.
+ * @param options - CLI options carrying thumbnail overrides
+ * @returns A ThumbnailConfig with the provided overrides, or undefined when none were given
+ */
+export function buildCliThumbnailConfig(options: CliThumbnailOptions): ThumbnailConfig | undefined {
+  const config: ThumbnailConfig = {};
+
+  if (options.thumbnailSize !== undefined) {
+    config.size = options.thumbnailSize;
+  }
+  if (options.thumbnailEdge !== undefined) {
+    config.edge = options.thumbnailEdge;
+  }
+  if (options.thumbnailFormat !== undefined) {
+    config.format = options.thumbnailFormat;
+  }
+  if (options.thumbnailQuality !== undefined) {
+    config.quality = options.thumbnailQuality;
+  }
+  if (options.thumbnailEffort !== undefined) {
+    config.effort = options.thumbnailEffort;
+  }
+
+  return Object.keys(config).length > 0 ? config : undefined;
 }

@@ -11,6 +11,8 @@ module.exports = {
     '^@simple-photo-gallery/common$': '<rootDir>/../common/src/gallery.ts',
     '^@simple-photo-gallery/common/theme$': '<rootDir>/../common/src/theme/index.ts',
     '^@simple-photo-gallery/common/theme/config$': '<rootDir>/../common/src/theme/config.ts',
+    // Use the CJS-compatible UMD build of marked, since Jest cannot parse its ESM build
+    '^marked$': '<rootDir>/../node_modules/marked/lib/marked.umd.js',
   },
   transform: {
     '^.+\\.tsx?$': [
