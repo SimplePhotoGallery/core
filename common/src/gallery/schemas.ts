@@ -125,6 +125,9 @@ export const GalleryDataSchema = z.object({
     .object({
       size: z.number().optional(),
       edge: z.enum(['auto', 'width', 'height']).optional(),
+      format: z.enum(['avif', 'webp', 'jpeg']).optional(),
+      quality: z.number().optional(),
+      effort: z.number().optional(),
     })
     .optional(),
   metadata: GalleryMetadataSchema,

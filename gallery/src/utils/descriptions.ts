@@ -1,13 +1,16 @@
+import { Buffer } from 'node:buffer';
+
 import ExifReader from 'exifreader';
 
 /**
  * Extracts description from image EXIF data
- * @param image - Image path or File object
+ * @param image - Image path, file contents as a Buffer, or File object
  * @returns Promise resolving to image description or undefined if not found
  */
-export async function getImageDescription(image: string | File): Promise<string | undefined> {
+export async function getImageDescription(image: string | Buffer | File): Promise<string | undefined> {
   try {
-    const tags = await ExifReader.load(image);
+    // ExifReader.load returns Tags synchronously for a Buffer and a Promise for a path or File
+    const tags = Buffer.isBuffer(image) ? ExifReader.load(image) : await ExifReader.load(image);
 
     // Description
     if (tags.description?.description) return tags.description.description;
