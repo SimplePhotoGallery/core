@@ -6,7 +6,8 @@
     "gallery": "yarn workspace simple-photo-gallery gallery",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "node scripts/release.mjs",
+    "release:dry-run": "node scripts/release.mjs --dry-run"
   },
   "workspaces": {
     "packages": [
