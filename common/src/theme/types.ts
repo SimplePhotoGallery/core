@@ -30,6 +30,7 @@ export interface ResolvedImage {
   imagePath: string;
   thumbnailPath: string;
   thumbnailSrcSet?: string;
+  srcset?: string;
   thumbnailWidth?: number;
   thumbnailHeight?: number;
   blurHash?: string;

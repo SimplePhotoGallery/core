@@ -19,6 +19,7 @@ export const MediaFileSchema = z.looseObject({
   width: z.number(),
   height: z.number(),
   thumbnail: ThumbnailSchema.optional(),
+  srcset: z.string().optional(),
   lastMediaTimestamp: z.string().optional(),
 });
 
@@ -33,6 +34,7 @@ export const MediaFileDeprecatedSchema = z.looseObject({
   width: z.number(),
   height: z.number(),
   thumbnail: ThumbnailSchema.optional(),
+  srcset: z.string().optional(),
   lastMediaTimestamp: z.string().optional(),
 });
 
