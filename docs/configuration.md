@@ -82,6 +82,7 @@ Each item in the `images` array of a section represents a media file (image or v
 - `url` - A custom URL for the media file. If provided, this URL will be used directly as the source, regardless of the `mediaBaseUrl` setting or base path configuration. This is useful when you want to host specific images on different CDNs or use external URLs.
 - `alt` - A caption/description for the media (supports Markdown formatting)
 - `thumbnail` - Thumbnail metadata object with `path`, `pathRetina`, `width`, `height`, optional `blurHash`, and optional `baseUrl`
+- `srcset` - Responsive full-size image candidates used by themes for the lightbox, formatted like a standard image `srcset` value
 - `lastMediaTimestamp` - Timestamp metadata (automatically generated)
 
 ### URL resolution
@@ -114,6 +115,19 @@ If `mediaBaseUrl` is set to `"https://cdn.example.com/images"`, the final URL wi
 ```
 
 The final URL will always be `"https://special-cdn.example.com/custom-path/photo-001.jpg"`, regardless of the `mediaBaseUrl` setting.
+
+**Example with responsive full-size candidates:**
+
+```json
+{
+  "type": "image",
+  "filename": "photo-001.jpg",
+  "url": "https://cdn.example.com/images/photo-001.jpg",
+  "width": 4000,
+  "height": 3000,
+  "srcset": "https://cdn.example.com/images/photo-001-1280.jpg 1280w, https://cdn.example.com/images/photo-001-1920.jpg 1920w"
+}
+```
 
 ### Thumbnail URL resolution
 

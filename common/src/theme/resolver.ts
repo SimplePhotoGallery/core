@@ -38,6 +38,7 @@ function resolveImage(image: MediaFile, mediaBaseUrl?: string, thumbsBaseUrl?: s
     imagePath,
     thumbnailPath,
     thumbnailSrcSet,
+    srcset: image.srcset,
     thumbnailWidth: image.thumbnail?.width,
     thumbnailHeight: image.thumbnail?.height,
     blurHash: image.thumbnail?.blurHash,
