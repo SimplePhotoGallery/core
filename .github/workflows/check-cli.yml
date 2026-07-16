@@ -30,18 +30,5 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Run checks (common)
-        working-directory: ./common
-        run: yarn check && yarn build
-
-      - name: Run checks (gallery)
-        working-directory: ./gallery
-        run: yarn check
-
-      - name: Run checks (theme-modern)
-        working-directory: ./themes/modern
-        run: yarn lint && yarn format
-
-      - name: Run tests
-        working-directory: ./gallery
-        run: yarn test
+      - name: Run CI checks
+        run: yarn ci

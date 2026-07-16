@@ -15,21 +15,28 @@ const dependencyFields = [
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const options = parseOptions(process.argv.slice(2));
+
+if (!options.dryRun && !options.version) {
+  throw new Error(
+    "Publishing requires --version. Use the version-tagged GitHub Actions workflow.",
+  );
+}
+
 const rootPackageJson = readJson(join(rootDir, "package.json"));
-const changesetConfig = readJson(join(rootDir, ".changeset", "config.json"));
 const packages = sortPackages(loadWorkspacePackages(rootPackageJson));
 const archiveDir = mkdtempSync(join(tmpdir(), "simple-photo-gallery-release-"));
+
+if (options.version) {
+  validatePackageVersions(packages, options.version);
+}
 
 let releasedPackages = 0;
 
 for (const pkg of packages) {
-  const tagName = `${pkg.packageJson.name}@${pkg.packageJson.version}`;
-
   if (!options.dryRun && packageVersionExists(pkg.packageJson)) {
     console.log(
       `${pkg.packageJson.name}@${pkg.packageJson.version} is already published on npm`,
     );
-    createTagIfNeeded(tagName, { dryRun: false, emitNewTag: true });
     continue;
   }
 
@@ -59,17 +66,18 @@ for (const pkg of packages) {
     "publish",
     archivePath,
     "--access",
-    options.access ?? changesetConfig.access ?? "public",
+    options.access ?? "public",
     "--tag",
     options.tag,
   ]);
 
-  createTagIfNeeded(tagName, { dryRun: false, emitNewTag: true });
   releasedPackages += 1;
 }
 
 if (options.dryRun) {
-  console.log(`Dry run complete. Packed ${packages.length} publishable packages.`);
+  console.log(
+    `Dry run complete. Packed ${packages.length} publishable packages.`,
+  );
 } else if (releasedPackages === 0) {
   console.log("No unpublished packages were published.");
 }
@@ -79,6 +87,7 @@ function parseOptions(args) {
     access: undefined,
     dryRun: false,
     tag: "latest",
+    version: undefined,
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -101,6 +110,12 @@ function parseOptions(args) {
       continue;
     }
 
+    if (arg === "--version") {
+      parsed.version = readOptionValue(args, index, arg);
+      index += 1;
+      continue;
+    }
+
     throw new Error(`Unknown release option: ${arg}`);
   }
 
@@ -115,6 +130,28 @@ function readOptionValue(args, index, name) {
   }
 
   return value;
+}
+
+function validatePackageVersions(workspacePackages, expectedVersion) {
+  const mismatches = workspacePackages.filter(
+    (pkg) => pkg.packageJson.version !== expectedVersion,
+  );
+
+  if (mismatches.length === 0) {
+    console.log(
+      `All package versions match release version ${expectedVersion}.`,
+    );
+    return;
+  }
+
+  const details = mismatches
+    .map(
+      (pkg) =>
+        `- ${pkg.packageJson.name}: ${pkg.packageJson.version} (expected ${expectedVersion})`,
+    )
+    .join("\n");
+
+  throw new Error(`Package versions do not match the release tag:\n${details}`);
 }
 
 function loadWorkspacePackages(packageJson) {
@@ -245,67 +282,6 @@ function validatePackedManifest(archivePath, pkg) {
         );
       }
     }
-  }
-}
-
-function createTagIfNeeded(tagName, { dryRun, emitNewTag }) {
-  if (remoteTagExists(tagName)) {
-    console.log(`Tag already exists on origin: ${tagName}`);
-    return;
-  }
-
-  if (dryRun) {
-    console.log(`[dry-run] Would create tag ${tagName}`);
-    return;
-  }
-
-  if (localTagExists(tagName)) {
-    ensureLocalTagPointsAtHead(tagName);
-  } else {
-    run("git", ["tag", tagName]);
-  }
-
-  if (emitNewTag) {
-    console.log(`New tag: ${tagName}`);
-  }
-}
-
-function remoteTagExists(tagName) {
-  const result = spawnSync(
-    "git",
-    ["ls-remote", "--exit-code", "--tags", "origin", `refs/tags/${tagName}`],
-    {
-      cwd: rootDir,
-      encoding: "utf8",
-    },
-  );
-
-  return result.status === 0;
-}
-
-function localTagExists(tagName) {
-  const result = spawnSync("git", ["rev-parse", "--verify", tagName], {
-    cwd: rootDir,
-    encoding: "utf8",
-  });
-
-  return result.status === 0;
-}
-
-function ensureLocalTagPointsAtHead(tagName) {
-  const head = execFileSync("git", ["rev-parse", "HEAD"], {
-    cwd: rootDir,
-    encoding: "utf8",
-  }).trim();
-  const taggedCommit = execFileSync("git", ["rev-list", "-n", "1", tagName], {
-    cwd: rootDir,
-    encoding: "utf8",
-  }).trim();
-
-  if (head !== taggedCommit) {
-    throw new Error(
-      `Local tag ${tagName} exists but points at ${taggedCommit}, not HEAD ${head}`,
-    );
   }
 }
 

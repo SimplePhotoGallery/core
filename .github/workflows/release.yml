@@ -1,45 +1,49 @@
-name: Release
+name: Publish packages
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*.*.*"
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: npm-publish-${{ github.ref }}
   cancel-in-progress: false
 
-permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
-
 jobs:
-  release:
-    name: Version or publish packages
+  publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: 24.x
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
+          node-version: 24
+          package-manager-cache: false
           registry-url: "https://registry.npmjs.org"
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Set up Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.3 --activate
 
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Create release PR or publish
-        uses: changesets/action@v1
-        with:
-          version: yarn version-packages
-          publish: yarn release
+      - name: Verify release tag and package artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: yarn release:check --version "${RELEASE_TAG#v}"
+
+      - name: Run CI checks
+        run: yarn ci
+
+      - name: Publish packages
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: yarn release --version "${RELEASE_TAG#v}"

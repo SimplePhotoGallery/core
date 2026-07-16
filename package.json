@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "gallery": "yarn workspace simple-photo-gallery gallery",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
+    "ci": "yarn workspace @simple-photo-gallery/common check && yarn workspace @simple-photo-gallery/common build && yarn workspace simple-photo-gallery check && yarn workspace @simple-photo-gallery/theme-modern check && yarn workspace simple-photo-gallery test",
     "release": "node scripts/release.mjs",
-    "release:dry-run": "node scripts/release.mjs --dry-run"
+    "release:check": "node scripts/release.mjs --dry-run"
   },
   "workspaces": {
     "packages": [
@@ -19,8 +18,5 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "yarn@4.9.3",
-  "devDependencies": {
-    "@changesets/cli": "^2.31.0"
-  }
+  "packageManager": "yarn@4.9.3"
 }
