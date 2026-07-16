@@ -1,5 +1,15 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -485,5 +495,20 @@ describe('packaged CLI e2e smoke', () => {
     expect(existsSync(path.join(themeDir, 'README_BASE.md'))).toBe(false);
     expect(existsSync(path.join(themeDir, 'src', 'pages', 'index.astro'))).toBe(true);
     expect(readdirSync(themeDir)).not.toContain('node_modules');
+  });
+
+  test('resolves the bundled theme when invoked through a global-style bin symlink', () => {
+    const installDir = makeTempDir('dist-global-install');
+    const binDir = path.join(installDir, 'bin');
+    const cliSymlinkPath = path.join(binDir, 'spg');
+    const galleryDir = makeTempDir('dist-global-gallery');
+    mkdirSync(binDir, { recursive: true });
+    symlinkSync(distCliPath, cliSymlinkPath);
+    copySingleFixture(galleryDir);
+
+    runCommand(process.execPath, [cliSymlinkPath, 'init', '--default'], { cwd: galleryDir });
+    runCommand(process.execPath, [cliSymlinkPath, 'build', '--no-scan', '--no-thumbnails'], { cwd: galleryDir });
+
+    expect(existsSync(path.join(galleryDir, 'index.html'))).toBe(true);
   });
 });
