@@ -1,5 +1,14 @@
 # simple-photo-gallery
 
+## 2.2.1
+
+### Patch Changes
+
+- Fix bundled theme resolution when the CLI is invoked through a global npm binary symlink.
+- Updated dependencies
+  - @simple-photo-gallery/common@2.2.1
+  - @simple-photo-gallery/theme-modern@2.2.1
+
 ## 2.2.0
 
 ### Minor Changes
