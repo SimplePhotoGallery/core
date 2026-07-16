@@ -438,7 +438,10 @@ function isLocalThemePath(theme: string): boolean {
 }
 
 function resolvePackageJsonPath(packageName: string): string {
-  const candidates = [path.join(process.cwd(), 'package.json'), process.argv[1]].filter(Boolean) as string[];
+  const cliPath = process.argv[1];
+  // Global npm bins are symlinks, so also resolve from the installed package's real path.
+  const installedCliPath = cliPath && fs.existsSync(cliPath) ? fs.realpathSync(cliPath) : undefined;
+  const candidates = [path.join(process.cwd(), 'package.json'), cliPath, installedCliPath].filter(Boolean) as string[];
 
   for (const candidate of candidates) {
     try {
