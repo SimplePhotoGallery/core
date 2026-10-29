@@ -6,7 +6,7 @@ import type { TelemetryClient, TelemetryEvent } from '../types';
  * Telemetry client that sends events to the Simple Photo Gallery telemetry API.
  */
 export class ApiTelemetryClient implements TelemetryClient {
-  private readonly endpoint = 'https://tools.simple.photo/api/telemetry';
+  private readonly endpoint = 'https://app.simple.photo/api/tools/telemetry';
 
   async record(event: TelemetryEvent): Promise<void> {
     try {
