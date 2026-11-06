@@ -108,6 +108,7 @@ const eslintConfig = [
       'unicorn/consistent-function-scoping': 'off',
     },
   },
+  { files: ['tests/**/*.mjs'], languageOptions: { parserOptions: { project: null }, globals: globals.node } },
 ];
 
 export default eslintConfig;

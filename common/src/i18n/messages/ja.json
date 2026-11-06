@@ -1,0 +1,17 @@
+{
+  "Close": "閉じる",
+  "Zoom": "拡大",
+  "Previous": "前へ",
+  "Next": "次へ",
+  "The image cannot be loaded": "画像を読み込めません",
+  "Photo gallery": "写真ギャラリー",
+  "Item {{current}} of {{total}}": "全{{total}}件中{{current}}件目",
+  "Language": "言語",
+  "Scroll to gallery": "ギャラリーまでスクロール",
+  "Create your own gallery": "自分だけのギャラリーを作成",
+  "Share your story": "あなたのストーリーを共有",
+  "Build your own gallery with Simple Photo Gallery": "Simple Photo Gallery で自分だけのギャラリーを作成",
+  "Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.": "数分で写真をすばやく表示できる美しいウェブギャラリーにまとめ、友達と共有できます。",
+  "Create your gallery": "ギャラリーを作成",
+  "Created with {{brand}}": "{{brand}} で作成"
+}

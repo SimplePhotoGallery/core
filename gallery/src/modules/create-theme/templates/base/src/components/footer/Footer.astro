@@ -2,15 +2,54 @@
 // Footer component for Simple Photo Gallery
 ---
 
-<footer class="footer">
-  <p class="footer__text">
-    Created with <a href="https://simple.photo" class="footer__link" target="_blank" rel="noopener noreferrer"
-      >Simple Photo Gallery</a
+<footer class="footer" data-spg-ui-chrome>
+  <p class="footer__text" data-spg-ui="Created with {{brand}}">
+    Created with <a
+      data-spg-brand
+      data-spg-marketing-link
+      href="https://simple.photo"
+      class="footer__link"
+      target="_blank"
+      rel="noopener noreferrer">Simple Photo Gallery</a
     >
   </p>
+  <label class="footer__language">
+    <span data-spg-ui="Language">Language</span>
+    <select data-spg-ui-language data-spg-ui-label="Language" aria-label="Language"
+      ><option value="en">English</option></select
+    >
+  </label>
 </footer>
 
+<script>
+  import { initializeGalleryUi } from '@simple-photo-gallery/common/client';
+  initializeGalleryUi();
+</script>
+
 <style>
+  .footer__language {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    max-width: 100%;
+    font-size: 0.875rem;
+  }
+  .footer__language select {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    max-width: 100%;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid currentColor;
+    border-radius: 0.5rem;
+  }
+  .footer__language option {
+    color: CanvasText;
+    background: Canvas;
+  }
+
   .footer {
     padding: 2rem 1.5rem 1.5rem;
     text-align: center;

@@ -1,0 +1,17 @@
+{
+  "Close": "Затваряне",
+  "Zoom": "Увеличаване",
+  "Previous": "Предишно",
+  "Next": "Следващо",
+  "The image cannot be loaded": "Изображението не може да се зареди",
+  "Photo gallery": "Фотогалерия",
+  "Item {{current}} of {{total}}": "Елемент {{current}} от {{total}}",
+  "Language": "Език",
+  "Scroll to gallery": "Превъртане до галерията",
+  "Create your own gallery": "Създайте своя собствена галерия",
+  "Share your story": "Споделете своята история",
+  "Build your own gallery with Simple Photo Gallery": "Създайте своя собствена галерия със Simple Photo Gallery",
+  "Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.": "Превърнете снимките си в красива уеб галерия, която се зарежда бързо, и я споделете с приятели само за няколко минути.",
+  "Create your gallery": "Създайте своята галерия",
+  "Created with {{brand}}": "Създадено с {{brand}}"
+}
