@@ -1,0 +1,17 @@
+{
+  "Close": "关闭",
+  "Zoom": "缩放",
+  "Previous": "上一项",
+  "Next": "下一项",
+  "The image cannot be loaded": "无法加载图片",
+  "Photo gallery": "照片图库",
+  "Item {{current}} of {{total}}": "第 {{current}} 项，共 {{total}} 项",
+  "Language": "语言",
+  "Scroll to gallery": "滚动到图库",
+  "Create your own gallery": "创建自己的图库",
+  "Share your story": "分享你的故事",
+  "Build your own gallery with Simple Photo Gallery": "使用 Simple Photo Gallery 创建自己的图库",
+  "Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.": "几分钟内就能将照片制作成美观、加载迅速的网页图库，并与朋友分享。",
+  "Create your gallery": "创建你的图库",
+  "Created with {{brand}}": "使用 {{brand}} 创建"
+}

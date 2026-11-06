@@ -1,0 +1,17 @@
+{
+  "Close": "關閉",
+  "Zoom": "縮放",
+  "Previous": "上一項",
+  "Next": "下一項",
+  "The image cannot be loaded": "無法載入圖片",
+  "Photo gallery": "相片圖庫",
+  "Item {{current}} of {{total}}": "第 {{current}} 項，共 {{total}} 項",
+  "Language": "語言",
+  "Scroll to gallery": "捲動至圖庫",
+  "Create your own gallery": "建立自己的圖庫",
+  "Share your story": "分享你的故事",
+  "Build your own gallery with Simple Photo Gallery": "使用 Simple Photo Gallery 建立自己的圖庫",
+  "Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.": "幾分鐘內就能將相片製作成美觀、載入快速的網頁圖庫，並與朋友分享。",
+  "Create your gallery": "建立你的圖庫",
+  "Created with {{brand}}": "使用 {{brand}} 建立"
+}
