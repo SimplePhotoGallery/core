@@ -30,6 +30,7 @@ export {
 } from '../i18n';
 export type { GalleryUiLocale, GalleryUiMessage } from '../i18n';
 export {
+  galleryUiLocaleLabel,
   getGalleryUiLocale,
   initializeGalleryUi,
   setGalleryUiLocale,

@@ -9,6 +9,26 @@ import {
 import type { GalleryUiLocale } from '../i18n';
 
 export const GALLERY_UI_LOCALE_EVENT = 'spg:ui-locale-change';
+const localeFlags: Record<GalleryUiLocale, string> = {
+  en: '🇬🇧',
+  es: '🇪🇸',
+  'pt-BR': '🇧🇷',
+  fr: '🇫🇷',
+  de: '🇩🇪',
+  ja: '🇯🇵',
+  it: '🇮🇹',
+  ko: '🇰🇷',
+  'zh-Hans': '🇨🇳',
+  'zh-Hant': '🇹🇼',
+  ar: '🇸🇦',
+  hi: '🇮🇳',
+  id: '🇮🇩',
+  tr: '🇹🇷',
+  bg: '🇧🇬',
+};
+export function galleryUiLocaleLabel(locale: GalleryUiLocale): string {
+  return `${localeFlags[locale]} ${locale.toUpperCase()}`;
+}
 const storageKey = 'spg.ui_locale';
 let activeLocale: GalleryUiLocale | undefined;
 let initialized = false;
@@ -67,13 +87,17 @@ export function localizeGalleryChrome(locale: GalleryUiLocale) {
         ...availableGalleryUiLocales.map((value) => {
           const option = document.createElement('option');
           option.value = value;
-          option.textContent = galleryUiLocaleNames[value];
+          option.textContent = galleryUiLocaleLabel(value);
+          option.setAttribute('aria-label', galleryUiLocaleNames[value]);
+          option.title = galleryUiLocaleNames[value];
           option.lang = value;
           return option;
         }),
       );
     }
     select.value = locale;
+    select.title = galleryUiLocaleNames[locale];
+    select.dir = 'ltr';
   }
 }
 
@@ -84,6 +108,16 @@ export function setGalleryUiLocale(value: unknown) {
     globalThis.localStorage.setItem(storageKey, locale);
   } catch {
     /* Keep the current page working without storage. */
+  }
+  // A manual selection replaces an incoming locale hint while retaining gallery URLs and fragments.
+  try {
+    const url = new URL(globalThis.location.href);
+    if (url.searchParams.has('ui_locale')) {
+      url.searchParams.set('ui_locale', locale);
+      globalThis.history.replaceState(globalThis.history.state, '', url);
+    }
+  } catch {
+    /* Embedded galleries may disallow history updates. */
   }
   localizeGalleryChrome(locale);
   globalThis.dispatchEvent(new CustomEvent(GALLERY_UI_LOCALE_EVENT, { detail: { locale } }));
