@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "gallery": "yarn workspace simple-photo-gallery gallery",
-    "ci": "yarn workspace @simple-photo-gallery/common check && yarn workspace @simple-photo-gallery/common build && yarn workspace simple-photo-gallery check && yarn workspace @simple-photo-gallery/theme-modern check && yarn workspace simple-photo-gallery test",
+    "ci": "yarn workspace @simple-photo-gallery/common build && yarn workspace @simple-photo-gallery/common check && yarn workspace @simple-photo-gallery/common test && yarn i18n:check && yarn workspace simple-photo-gallery check && yarn workspace @simple-photo-gallery/theme-modern check && yarn workspace simple-photo-gallery test",
     "release": "node scripts/release.mjs",
-    "release:check": "node scripts/release.mjs --dry-run"
+    "release:check": "node scripts/release.mjs --dry-run",
+    "i18n:check": "node scripts/check-i18n.mjs"
   },
   "workspaces": {
     "packages": [

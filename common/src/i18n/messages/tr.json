@@ -1,0 +1,17 @@
+{
+  "Close": "Kapat",
+  "Zoom": "Yakınlaştır",
+  "Previous": "Önceki",
+  "Next": "Sonraki",
+  "The image cannot be loaded": "Görsel yüklenemiyor",
+  "Photo gallery": "Fotoğraf galerisi",
+  "Item {{current}} of {{total}}": "{{total}} öğeden {{current}}. öğe",
+  "Language": "Dil",
+  "Scroll to gallery": "Galeriye kaydır",
+  "Create your own gallery": "Kendi galerinizi oluşturun",
+  "Share your story": "Hikâyenizi paylaşın",
+  "Build your own gallery with Simple Photo Gallery": "Simple Photo Gallery ile kendi galerinizi oluşturun",
+  "Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.": "Fotoğraflarınızı dakikalar içinde hızlı yüklenen, güzel bir web galerisine dönüştürüp arkadaşlarınızla paylaşın.",
+  "Create your gallery": "Galerinizi oluşturun",
+  "Created with {{brand}}": "{{brand}} ile oluşturuldu"
+}

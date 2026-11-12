@@ -2,12 +2,17 @@ import { decode } from 'blurhash';
 
 import { PhotoSwipeVideoPlugin } from './video-plugin';
 
+import { galleryUiText } from '../../i18n';
+import { getGalleryUiLocale, GALLERY_UI_LOCALE_EVENT } from '../i18n';
+
 import type { VideoPluginOptions } from './types';
 import type PhotoSwipe from 'photoswipe';
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
 
 /** Options for creating a gallery lightbox */
 export interface GalleryLightboxOptions {
+  /** Preferred control language; otherwise use the gallery preference or browser language. */
+  locale?: string;
   /** CSS selector for gallery container (default: '.gallery-grid') */
   gallerySelector?: string;
   /** CSS selector for gallery items within container (default: 'a') */
@@ -94,6 +99,14 @@ function sampleBlurHashBrightness(blurHash: string, width = 32, height = 32): nu
  * ```
  */
 export async function createGalleryLightbox(options: GalleryLightboxOptions = {}): Promise<PhotoSwipeLightbox> {
+  let locale = getGalleryUiLocale(options.locale);
+  const translatedOptions = () => ({
+    closeTitle: galleryUiText('Close', locale),
+    zoomTitle: galleryUiText('Zoom', locale),
+    arrowPrevTitle: galleryUiText('Previous', locale),
+    arrowNextTitle: galleryUiText('Next', locale),
+    errorMsg: galleryUiText('The image cannot be loaded', locale),
+  });
   const photoswipeModule = await import('photoswipe');
   const PhotoSwipe = photoswipeModule.default;
   const lightboxModule = await import('photoswipe/lightbox');
@@ -107,7 +120,67 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
     wheelToZoom: options.wheelToZoom ?? true,
     loop: options.loop ?? false,
     bgOpacity: options.bgOpacity ?? 1,
+    ...translatedOptions(),
+    counter: false,
   });
+
+  const updateControls = () => {
+    Object.assign(lightbox.options, translatedOptions());
+    const pswp = lightbox.pswp;
+    if (!pswp) return;
+    Object.assign(pswp.options, translatedOptions());
+    pswp.element?.setAttribute('aria-label', galleryUiText('Photo gallery', locale));
+    pswp.element?.setAttribute('lang', locale);
+    for (const [selector, message] of [
+      ['close', 'Close'],
+      ['zoom', 'Zoom'],
+      ['arrow--prev', 'Previous'],
+      ['arrow--next', 'Next'],
+    ] as const) {
+      const button = pswp.element?.querySelector<HTMLElement>(`.pswp__button--${selector}`);
+      if (button) {
+        button.lang = locale;
+        button.title = galleryUiText(message, locale);
+        button.setAttribute('aria-label', button.title);
+      }
+    }
+    const counter = pswp.element?.querySelector<HTMLElement>('.pswp__counter');
+    if (counter) {
+      const current = pswp.currIndex + 1,
+        total = pswp.getNumItems();
+      const number = new Intl.NumberFormat(locale);
+      counter.lang = locale;
+      counter.dir = locale === 'ar' ? 'rtl' : 'ltr';
+      counter.textContent = `${number.format(current)} / ${number.format(total)}`;
+      counter.setAttribute('aria-label', galleryUiText('Item {{current}} of {{total}}', locale, { current, total }));
+    }
+    for (const error of pswp.element?.querySelectorAll<HTMLElement>('.pswp__error-msg') ?? []) {
+      error.textContent = galleryUiText('The image cannot be loaded', locale);
+      error.lang = locale;
+    }
+  };
+  lightbox.on('uiRegister', () =>
+    lightbox.pswp?.ui?.registerElement({
+      name: 'localized-counter',
+      className: 'pswp__counter',
+      order: 7,
+      isButton: false,
+      appendTo: 'bar',
+      onInit: updateControls,
+    }),
+  );
+  lightbox.on('afterInit', updateControls);
+  lightbox.on('change', updateControls);
+  const localeChanged = () => {
+    locale = getGalleryUiLocale();
+    updateControls();
+  };
+  globalThis.addEventListener(GALLERY_UI_LOCALE_EVENT, localeChanged);
+  const destroy = lightbox.destroy.bind(lightbox);
+  lightbox.destroy = () => {
+    globalThis.removeEventListener(GALLERY_UI_LOCALE_EVENT, localeChanged);
+    destroy();
+  };
 
   new PhotoSwipeVideoPlugin(lightbox, options.videoPluginOptions);
 
@@ -130,6 +203,8 @@ export async function createGalleryLightbox(options: GalleryLightboxOptions = {}
         className: 'pswp__caption',
         appendTo: 'wrapper',
         onInit: (el: HTMLElement) => {
+          el.dir = 'auto';
+          el.lang = document.documentElement.lang;
           (lightbox.pswp as PhotoSwipe | undefined)?.on('change', () => {
             const currSlideElement = (lightbox.pswp as PhotoSwipe | undefined)?.currSlide?.data.element as
               | HTMLElement

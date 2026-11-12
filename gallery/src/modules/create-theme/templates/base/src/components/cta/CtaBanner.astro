@@ -2,17 +2,29 @@
 import Container from '@/components/container/Container.astro';
 ---
 
-<section class="cta" aria-label="Create your own gallery">
+<section class="cta" data-spg-ui-chrome data-spg-ui-label="Create your own gallery" aria-label="Create your own gallery">
   <Container>
     <div class="cta__content">
       <div>
-        <p class="cta__eyebrow">Share your story</p>
-        <h2 class="cta__title">Build your own gallery with Simple Photo Gallery</h2>
-        <p class="cta__description">
+        <p class="cta__eyebrow" data-spg-ui="Share your story">Share your story</p>
+        <h2 class="cta__title" data-spg-ui="Build your own gallery with Simple Photo Gallery">
+          Build your own gallery with Simple Photo Gallery
+        </h2>
+        <p
+          class="cta__description"
+          data-spg-ui="Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.">
           Turn your photos into a fast, beautiful web gallery in minutes and share it with your friends.
         </p>
       </div>
-      <a class="cta__button" href="https://simple.photo" target="_blank" rel="noopener noreferrer"> Create your gallery </a>
+      <a
+        data-spg-marketing-link
+        data-spg-ui="Create your gallery"
+        class="cta__button"
+        href="https://simple.photo"
+        target="_blank"
+        rel="noopener noreferrer">
+        Create your gallery
+      </a>
     </div>
   </Container>
 </section>

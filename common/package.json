@@ -1,6 +1,6 @@
 {
   "name": "@simple-photo-gallery/common",
-  "version": "2.2.1",
+  "version": "2.3.0-i18n.1",
   "description": "Shared utilities and types for Simple Photo Gallery",
   "license": "MIT",
   "author": "Vladimir Haltakov, Tomasz Rusin",
@@ -42,7 +42,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:fix": "prettier --write .",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "marked": "^16.0.0",

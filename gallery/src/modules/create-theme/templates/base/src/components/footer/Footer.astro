@@ -2,15 +2,75 @@
 // Footer component for Simple Photo Gallery
 ---
 
-<footer class="footer">
-  <p class="footer__text">
-    Created with <a href="https://simple.photo" class="footer__link" target="_blank" rel="noopener noreferrer"
-      >Simple Photo Gallery</a
+<footer class="footer" data-spg-ui-chrome>
+  <p class="footer__text" data-spg-ui="Created with {{brand}}">
+    Created with <a
+      data-spg-brand
+      data-spg-marketing-link
+      href="https://simple.photo"
+      class="footer__link"
+      target="_blank"
+      rel="noopener noreferrer">Simple Photo Gallery</a
     >
   </p>
+  <label class="footer__language">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      aria-hidden="true"
+      focusable="false">
+      <circle cx="12" cy="12" r="9"></circle><ellipse cx="12" cy="12" rx="4" ry="9"></ellipse><path d="M3 12h18"></path>
+    </svg>
+    <select dir="ltr" data-spg-ui-language data-spg-ui-label="Language" aria-label="Language"
+      ><option value="en" aria-label="English">🇬🇧 EN</option></select
+    >
+  </label>
 </footer>
 
+<script>
+  import { initializeGalleryUi } from '@simple-photo-gallery/common/client';
+  initializeGalleryUi();
+</script>
+
 <style>
+  .footer__language {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    max-width: 100%;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: #6b7280;
+  }
+  .footer__language select {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    width: auto;
+    max-width: 8.25rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.2rem;
+    border: 0;
+    border-radius: 0.25rem;
+    cursor: pointer;
+  }
+  .footer__language select:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  .footer__language svg {
+    flex-shrink: 0;
+  }
+  .footer__language option {
+    color: CanvasText;
+    background: Canvas;
+  }
+
   .footer {
     padding: 2rem 1.5rem 1.5rem;
     text-align: center;
