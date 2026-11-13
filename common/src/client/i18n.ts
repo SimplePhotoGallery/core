@@ -26,8 +26,9 @@ const localeFlags: Record<GalleryUiLocale, string> = {
   tr: '🇹🇷',
   bg: '🇧🇬',
 };
+const shortCodes: Partial<Record<GalleryUiLocale, string>> = { 'pt-BR': 'PT', 'zh-Hans': '简体', 'zh-Hant': '繁體' };
 export function galleryUiLocaleLabel(locale: GalleryUiLocale): string {
-  return `${localeFlags[locale]} ${locale.toUpperCase()}`;
+  return `${localeFlags[locale]} ${shortCodes[locale] ?? locale.split('-')[0].toUpperCase()}`;
 }
 const storageKey = 'spg.ui_locale';
 let activeLocale: GalleryUiLocale | undefined;
