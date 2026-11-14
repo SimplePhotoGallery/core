@@ -50,13 +50,17 @@
   .footer__language select {
     font: inherit;
     color: inherit;
-    background: transparent;
-    width: 4.75rem;
+    appearance: none;
+    background: transparent
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23767676' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E")
+      right 0.125rem center / 0.5rem 0.5rem no-repeat;
+    width: 4rem;
     max-width: 100%;
     min-height: 1.75rem;
-    padding: 0.125rem;
+    padding: 0.125rem 0.75rem 0.125rem 0.125rem;
     border: 0;
     border-radius: 0.25rem;
+    white-space: nowrap;
     cursor: pointer;
   }
   .footer__language select:focus-visible {
@@ -99,5 +103,56 @@
     outline: 2px solid #6b7280;
     outline-offset: 2px;
     border-radius: 2px;
+  }
+  @supports (field-sizing: content) {
+    .footer__language select {
+      field-sizing: content;
+      width: auto;
+    }
+  }
+
+  /* Keep the native select semantics; enhance the menu where supported. */
+  @supports (appearance: base-select) {
+    @media (forced-colors: none) {
+      .footer__language select,
+      .footer__language select::picker(select) {
+        appearance: base-select;
+      }
+      .footer__language select::picker-icon {
+        display: none;
+      }
+      .footer__language select::picker(select) {
+        min-width: 5.5rem;
+        max-height: min(28rem, 60svh);
+        overflow-y: auto;
+        padding: 0.25rem;
+        border: 1px solid color-mix(in srgb, CanvasText 20%, Canvas);
+        border-radius: 0.5rem;
+        background: Canvas;
+        color: CanvasText;
+        font: inherit;
+        box-shadow: 0 4px 16px #0002;
+      }
+      .footer__language select option {
+        min-height: 1.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        white-space: nowrap;
+      }
+      .footer__language select option:hover,
+      .footer__language select option:focus-visible {
+        background: Highlight;
+        color: HighlightText;
+      }
+    }
+  }
+
+  @media (forced-colors: active) {
+    .footer__language select {
+      appearance: auto;
+      background-image: none;
+      width: auto;
+      padding: 0.125rem;
+    }
   }
 </style>
